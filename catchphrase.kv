@@ -1,0 +1,51 @@
+#:kivy 1.0.9
+#:import BoxLayout kivy.uix.boxlayout.BoxLayout
+#:import TextInput kivy.uix.textinput.TextInput
+#:import Label kivy.uix.label.Label
+#:import Button kivy.uix.button.Button
+#:import Popup kivy.uix.popup.Popup
+<MyScreenManager>:
+    LoginScreen:
+    GameChooserScreen:
+
+<GameChooserScreen>:
+    name: 'game chooser'
+    Label:
+        text: 'Success'
+
+<LoginScreen>:
+    name: 'login'
+    BoxLayout:
+        size: root.size
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: self.parent.height * .4
+            orientation: 'horizontal'
+            Label:
+                text: 'username:'
+            TextInput:
+                id: username_input
+                text: 'default'
+                multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: self.parent.height * .4
+            orientation: 'horizontal'
+            Label:
+                text: 'password:'
+            TextInput:
+                id: password_input
+                multiline: False
+                password: True
+
+        Button:
+            size_hint_y: None
+            height: self.parent.height * .2
+            on_release: root.login(username_input.text, password_input.text, app)
+            text: 'login:'
+
+
+
+
