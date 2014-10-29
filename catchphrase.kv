@@ -4,15 +4,59 @@
 #:import Label kivy.uix.label.Label
 #:import Button kivy.uix.button.Button
 #:import Popup kivy.uix.popup.Popup
+#:import ScrollView kivy.uix.scrollview.ScrollView
+
 <MyScreenManager>:
     LoginScreen:
     GameChooserScreen:
+    MakeGameScreen:
 
 <GameChooserScreen>:
     name: 'game chooser'
-    Label:
-        text: 'Success'
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            text: 'Make Game'
+            on_release:
+                app.root.current = "make game screen"
+                app.root.current_screen.get_unique_game_id()
+        Button:
+            text: 'Join Game'
 
+<MakeGameScreen>:
+    name: 'make game screen'
+    unique_game_id: game_id_input
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                text: 'Game ID'
+            TextInput:
+                id: game_id_input
+                multiline: False
+                text: "Getting Unique Game ID"
+
+
+#    ScrollView:
+#        BoxLayout:
+#            size_hint_y: None
+#            orientation: 'vertical'
+#            Button:
+#                size_hint_y: None
+#                height: root.height / 2
+#                text: "Load Games1"
+#                on_release: print(root)
+#            Button:
+#                size_hint_y: None
+#                height: root.height / 2
+#                text: "Load Games1"
+#                on_release: print(root)
+#            Button:
+#                size_hint_y: None
+#                height: root.height / 2
+#                text: "Load Games1"
+#                on_release: print(root)
 <LoginScreen>:
     name: 'login'
     BoxLayout:
@@ -23,7 +67,7 @@
             height: self.parent.height * .4
             orientation: 'horizontal'
             Label:
-                text: 'username:'
+                text: 'Nickname:'
             TextInput:
                 id: username_input
                 text: 'default'
@@ -34,7 +78,7 @@
             height: self.parent.height * .4
             orientation: 'horizontal'
             Label:
-                text: 'password:'
+                text: 'Optional Password:'
             TextInput:
                 id: password_input
                 multiline: False
@@ -43,7 +87,7 @@
         Button:
             size_hint_y: None
             height: self.parent.height * .2
-            on_release: root.login(username_input.text, password_input.text, app)
+            on_release: root.login(username_input.text, password_input.text)
             text: 'login:'
 
 
