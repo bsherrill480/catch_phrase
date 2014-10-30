@@ -1,16 +1,24 @@
-import shared_events as e
+from shared_events import TickEvent
 from inspect import getargspec
+from collections import deque
+
 class GameStack:
     """
     Relies on Games to have __call__ method, with either takes either no arguments
     or takes 1 argument (an event)
+
+    Note: queue is used for events, stack is used to place an event next in queue
     """
     def __init__(self, event_manager):
         self._game_stack = []
         self._game_stack_keys = []
         self.models = {}
+        self.event_queue = deque()
+        self.event_stack = []
         self.field_instructions = FieldInstructions(self)
         self.event_manager = event_manager
+        self.__in_loop = False
+        self.level = -1 # debugging
     def pop(self):
         """
         take off top element in stack, raises exception if stack is empty.
@@ -79,8 +87,39 @@ class GameStack:
         self.models[model_key] = model
 
     def notify(self, event):
-        self._single_event_notify(event)
+        #USE FOR DEBUGGING
+        # self.level = self.level + 1
+        # print "gamestack; in_loop = " + str(self.__in_loop) + "; level = "+ str(self.level)
+        # print "   " + event.name
+        # print "   event_queue: " + str(self.event_queue)
+        # print "   game_stack" + str(self._game_stack)
 
+        is_tick_event = isinstance(event, TickEvent)
+        if (not self.__in_loop) and is_tick_event:
+            # print "   Tick event recieved, loop starting"
+            self.__in_loop = True
+            while len(self.event_queue) > 0:
+                event = self.event_queue.popleft()#pop off front(to save memory)
+                                  #p.s. a linked list would be awesome for this
+                # print "   launching: " + event.name, " level = ", str(self.level)
+                self._single_event_notify(event)
+                while self.event_stack != []:
+                    self._single_event_notify(self.event_stack.pop())
+            #self.event_queue = deque()
+            self.event_queue.clear()
+            # print "loop ending"
+            self.__in_loop = False
+        elif not is_tick_event:
+            # print "   appending, ", event.name
+            self.event_queue.append(event)
+        # print "   level decreasing"
+        # self.level = self.level - 1
+
+    def notify_stack(self, event):
+        """
+        for use by instructions to place an event immediatly after examened event
+        """
+        self.event_stack.append(event)
     def post(self, event):
         self.event_manager.remote_post(event)
 
