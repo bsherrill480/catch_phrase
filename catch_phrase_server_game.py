@@ -1,9 +1,6 @@
 from model import Model
 from game_stack import GameStack
 from twisted.spread import pb
-#for testing
-from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
 import events as e
 
 class GameEventManager(pb.Root):
@@ -73,6 +70,9 @@ def setup_catch_phrase(players, word_list, player_order):
     return event_manager
 
 if __name__ == '__main__':
+    #for testing
+    from twisted.internet import reactor
+    from twisted.internet.task import LoopingCall
     from time import sleep
     from random import randint
     class client:
@@ -87,7 +87,8 @@ if __name__ == '__main__':
                 value = e.EndTurnEvent(event.player, event.time_left - time_used)
                 reactor.callLater(1.5, fun, value)
                 #evm.remote_post(e.EndTurnEvent(event.player, event.time_left - 1.0))
-    evm = setup_catch_phrase({"client":client()}, [], [])
+    evm = setup_catch_phrase({"client":client()},
+                             ["cat", "dog", "back", "in","town","didn't","care how"], ['client1', 'client2'])
     evm.remote_post(e.StartRoundEvent())
     looping_call = LoopingCall(evm.remote_post, e.TickEvent())
     looping_call.start(2.0)

@@ -6,7 +6,11 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
 
+from kivy.adapters.models import SelectableDataItem
+from kivy.adapters.listadapter import ListAdapter
+from kivy.uix.listview import ListItemButton, ListView
 
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
@@ -82,19 +86,108 @@ class LoginScreen(Screen):
         popup.open()
         return popup
 
+class penis:
+    pass
+
+class MainView(GridLayout):
+    '''
+    Implementation of a simple list view with 100 items.
+    '''
+
+    def __init__(self, **kwargs):
+        kwargs['cols'] = 1
+        super(MainView, self).__init__(**kwargs)
+        list_view = ListView(item_strings=[str(index) for index in range(100)])
+        self.add_widget(list_view)
+
+class SelectWordsListScreen(Screen):
+    """
+    Note: get data from server when chaning to this screen
+    """
+    #Done in python and not kv lang. Ran into trouble with kv lang
+    class DataItem(object):
+        def __init__(self, selected_obj, text):
+            self.text = text
+            self.selected_obj = selected_obj
+            self._is_selected = False
+
+        @property
+        def is_selected(self):
+            return self._is_selected
+
+        @is_selected.setter
+        def is_selected(self, value):
+            if value:
+                self.selected_obj.selected = self.text
+            self._is_selected = value
+
+    class Selected(object):
+        def __init__(self):
+            self.selected = ""
+    def __init__(self, *args, **kwargs):
+        super(SelectWordsListScreen, self).__init__(*args, **kwargs)
+        self.name = "select word list"
+    def setup(self):
+        """
+        Should change this to on_switch kind of thing
+        """
+        self.popup = Popup(content=Label(text="Loading List..."), auto_dismiss=False,
+                                                size_hint = (1,.5), title="")
+        self.popup.open()
+
+        def build_screen(result):
+            selected_button = self.Selected()
+            data = [self.DataItem(selected_obj=selected_button,text=name) for name in result]
+
+            args_converter = lambda row_index, obj: {'text': obj.text,
+                                                     'size_hint_y': None,
+                                                     'height': 25}
+
+            list_adapter = ListAdapter(data=data,
+                                       args_converter=args_converter,
+                                       cls=ListItemButton,
+                                       propagate_selection_to_data=True,
+                                       selection_mode='single',
+                                       allow_empty_selection=False)
+
+            list_view = ListView(adapter=list_adapter)
+            button = Button(text = "Done", size_hint_y = .2)
+            def callback(instance):
+                app.root.transition.direction = "right"
+                app.root.current = "make game"
+                #app.root.transition.direction = "left"#didn't work
+                                                # schedule callback?
+                def change_left():
+                    app.root.transition.direction = "left"
+                reactor.callLater(.5, change_left)
+                app.root.current_screen.word_list_name = selected_button.selected
+            button.bind(on_release = callback)
+            box_layout = BoxLayout(orientation="vertical")
+            box_layout.add_widget(list_view)
+            box_layout.add_widget(button)
+            self.add_widget(box_layout)
+
+        def close_popup(result):
+            self.popup.dismiss()
+        d = app.uplink.root_obj.callRemote("get_word_list_options")
+        d.addCallback(build_screen)
+        d.addCallback(close_popup)
+
 
 class GameChooserScreen(Screen):
     pass
 
 class MakeGameScreen(Screen):
     unique_game_id = ObjectProperty(None)
-
+    word_list_name = StringProperty("No List Selected")
     def get_unique_game_id(self):
         print "changing id"
         def set_game_id(result):
             self.unique_game_id.text = result
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
         d.addCallback(set_game_id)
+
+
 
 class GameLobbyScreen(Screen):
     pass

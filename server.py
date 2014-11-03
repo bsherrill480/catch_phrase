@@ -1,6 +1,7 @@
 from twisted.spread import pb
 from twisted.internet import reactor
 from shared_events import PlayerJoinedEvent
+from time import sleep
 
 class ServerEventManager(pb.Root):
     def __init__(self):
@@ -9,6 +10,10 @@ class ServerEventManager(pb.Root):
         self.total_clients = 0
         self.lobbys = {}
         self.total_games = 0
+
+        self.world_lists = {"animals": ["cat", "dog", "bird"],
+                            "objects":["lamp","waterbottle","fork"]}
+
     def remote_register_client(self, client, client_nickname):
         """
         returns True if client_id is accepted, returns False
@@ -29,11 +34,14 @@ class ServerEventManager(pb.Root):
         self.total_games = self.total_games + 1
 
     def remote_join_lobby(self, client_id, lobby_id):
-        player_joined_event = PlayerJoinedEvent(self.client_nicknames(client_id))
+        player_joined_event = PlayerJoinedEvent(self.client_nicknames[client_id])
         players_in_lobby = self.lobbys[lobby_id]
         for client in players_in_lobby:
             self.clients[client].callRemote('notify', player_joined_event)
         self.lobbys[lobby_id].append(client_id) #add client to lobby
+
+    def remote_get_word_list_options(self):
+        return self.world_lists.keys()
 
     def remote_begin_game(self, lobby_id):
         #initiate game
@@ -45,10 +53,11 @@ class ServerEventManager(pb.Root):
 
     def remote_post(self, event, client_id):
         event.originator = client_id
-
         print "Recieved ", event.name, " from ", client_id
         for client in self.clients.values():
             client.callRemote("notify", event)
+
+
 
 
 root_obj = ServerEventManager()

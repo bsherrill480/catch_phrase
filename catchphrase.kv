@@ -5,11 +5,16 @@
 #:import Button kivy.uix.button.Button
 #:import Popup kivy.uix.popup.Popup
 #:import ScrollView kivy.uix.scrollview.ScrollView
+#:import label kivy.uix.label
+#:import sla kivy.adapters.simplelistadapter
 
 <MyScreenManager>:
     LoginScreen:
     GameChooserScreen:
     MakeGameScreen:
+    #  selection list screen done in python
+    SelectWordsListScreen:
+
 
 <GameChooserScreen>:
     name: 'game chooser'
@@ -18,24 +23,37 @@
         Button:
             text: 'Make Game'
             on_release:
-                app.root.current = "make game screen"
+                app.root.current = 'make game'
                 app.root.current_screen.get_unique_game_id()
         Button:
             text: 'Join Game'
 
 <MakeGameScreen>:
-    name: 'make game screen'
+    name: 'make game'
     unique_game_id: game_id_input
+
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
-            orientation: 'vertical'
+            orientation: 'horizontal'
             Label:
                 text: 'Game ID'
             TextInput:
                 id: game_id_input
                 multiline: False
                 text: "Getting Unique Game ID"
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Select Word List'
+            Button:
+                on_release:
+                    app.root.current = 'select word list'
+                    app.root.current_screen.setup()
+                text: root.word_list_name
+        Button:
+            text: 'Make Game'
+            on_release: pass
 
 
 #    ScrollView:

@@ -8,11 +8,6 @@ class Model:
         players is a list of client ids.
         """
 
-        #testing
-        players = ['client1', 'client2']
-        word_list = ["cat", "dog", "back", "in","town","didn't","care how"]
-        #/testing
-
         for player in players:
             l2 = list(players)
             l2.remove(player)
