@@ -1,6 +1,7 @@
 from twisted.spread import pb
 from twisted.internet import reactor
-from shared_events import PlayerJoinedEvent
+from catch_phrase_server_game import setup_catch_phrase
+from shared_events import NewOrderEvent
 from time import sleep
 
 class ServerEventManager(pb.Root):
@@ -8,7 +9,7 @@ class ServerEventManager(pb.Root):
         self.clients = {}
         self.client_nicknames = {}
         self.total_clients = 0
-        self.lobbys = {}
+        self.lobbys = {"d_game": Lobby()}
         self.total_games = 0
 
         self.world_lists = {"animals": ["cat", "dog", "bird"],
@@ -19,6 +20,7 @@ class ServerEventManager(pb.Root):
         returns True if client_id is accepted, returns False
         if client_id was already in use
         """
+        assert client_nickname != ""
         client_id = "Client" + str(self.total_clients)
         self.total_clients = self.total_clients + 1
         self.clients[client_id] = client
@@ -30,22 +32,49 @@ class ServerEventManager(pb.Root):
         return "Game" + str(self.total_games)
 
     def remote_make_game_lobby(self, lobby_id):
-        self.lobbys[lobby_id] = [] #empty list for no players in lobby
+        self.lobbys[lobby_id] = (Lobby())
         self.total_games = self.total_games + 1
+        #add failed to make game return
 
     def remote_join_lobby(self, client_id, lobby_id):
-        player_joined_event = PlayerJoinedEvent(self.client_nicknames[client_id])
-        players_in_lobby = self.lobbys[lobby_id]
-        for client in players_in_lobby:
-            self.clients[client].callRemote('notify', player_joined_event)
-        self.lobbys[lobby_id].append(client_id) #add client to lobby
+        """
+        returns true if success and false if no game
+        """
+        # print "client_id: " + str(client_id) + " lobby_id: " + str(lobby_id)
+        # print "lobby_id in lobbys: ", (lobby_id in self.lobbys)
+        # print "lobby keys: ", self.lobbys.keys()
+
+        if not (lobby_id in self.lobbys):
+            # print "returning false. keys: ", lobby_id in self.lobbys, str(self.lobbys.keys())
+            return False
+        lobby = self.lobbys[lobby_id]
+        lobby.order.append(self.client_nicknames[client_id])
+        new_order_event = NewOrderEvent(lobby.order)
+        lobby.players.append(self.clients[client_id])
+        for client in lobby.players:
+            #TODO: INTEGRATE WITH try_client_notify
+            try:
+                client.callRemote('notify', new_order_event)
+            except pb.DeadReferenceError:
+                #can be improved for large dicts? Or use better data struct?:
+                #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
+                for key, value in self.clients.iteritems():
+                    if value is client:
+                        nick_name = self.client_nicknames[key]
+                        del self.clients[key]
+                        del self.client_nicknames[key]
+                        lobby.order.remove(nick_name)
+                        break
+        return True
+
 
     def remote_get_word_list_options(self):
         return self.world_lists.keys()
 
-    def remote_begin_game(self, lobby_id):
-        #initiate game
-        pass
+    # def remote_begin_game(self, lobby_id):
+    #     #initiate game
+    #     pass
+
     def remote_unregister_client(self, client_id):
         print "unregister_client called"
         if client_id in self.clients.keys():
@@ -55,9 +84,38 @@ class ServerEventManager(pb.Root):
         event.originator = client_id
         print "Recieved ", event.name, " from ", client_id
         for client in self.clients.values():
-            client.callRemote("notify", event)
+            # client.callRemote("notify", event)
+            self.try_client_notify(self, client, event)
 
-
+    def try_client_notify(self, client, event):
+        """
+        will return None if succeses,
+        else returns nick_name
+        """
+        try:
+            client.callRemote('notify', event)
+        except pb.DeadReferenceError:
+            #can be improved for large dicts? Or use better data struct?:
+            #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
+            for key, value in self.clients.iteritems():
+                if value is client:
+                    nick_name = self.client_nicknames[key]
+                    del self.clients[key]
+                    del self.client_nicknames[key]
+                    break
+class Lobby:
+    def __init__(self, players = None, order = None,):
+        if not players:
+            players = []
+        if not order:
+            order = []
+        self.can_join = True
+        self.players = players
+        self.order = order
+        self.game = None
+    def give_event(self, event):
+        if self.game:
+            self.game.remote_post(event)
 
 
 root_obj = ServerEventManager()

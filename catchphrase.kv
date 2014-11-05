@@ -14,7 +14,27 @@
     MakeGameScreen:
     #  selection list screen done in python
     SelectWordsListScreen:
+    JoinGameScreen
+    GameLobbyScreen
 
+<JoinGameScreen>:
+    game_name_input: join_game_id_input
+    name: 'join game'
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout
+            Label:
+                text: 'Enter Game Name:'
+            TextInput:
+                id: join_game_id_input
+                multiline: False
+        Button:
+            size_hint_y: .2
+            text: 'Join Game'
+            on_release: app.root.current = 'game lobby'
+
+<GameLobbyScreen>:
+    name: 'game lobby'
 
 <GameChooserScreen>:
     name: 'game chooser'
@@ -27,10 +47,11 @@
                 app.root.current_screen.get_unique_game_id()
         Button:
             text: 'Join Game'
+            on_release: app.root.current = 'join game'
 
 <MakeGameScreen>:
     name: 'make game'
-    unique_game_id: game_id_input
+    unique_game_id: make_game_id_input
 
     BoxLayout:
         orientation: 'vertical'
@@ -39,7 +60,7 @@
             Label:
                 text: 'Game ID'
             TextInput:
-                id: game_id_input
+                id: make_game_id_input
                 multiline: False
                 text: "Getting Unique Game ID"
         BoxLayout:
@@ -47,9 +68,7 @@
             Label:
                 text: 'Select Word List'
             Button:
-                on_release:
-                    app.root.current = 'select word list'
-                    app.root.current_screen.setup()
+                on_release: app.root.current = 'select word list'
                 text: root.word_list_name
         Button:
             text: 'Make Game'

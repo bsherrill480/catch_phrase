@@ -19,6 +19,7 @@ class Uplink():
         self.evm = evm
         self.nickname = ""
         self.password = ""
+        self.id = ""
         self.evm_registered = False
     def post(self, event):
         """

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/server.py" line="10" />
+    <bookmark url="file://$PROJECT_DIR$/server.py" line="11" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f31bded-4d1e-44dd-b150-e01cd85d6d0f" name="Default" comment="" />
@@ -29,10 +29,19 @@
       <file leaf-file-name="catch_phrase.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="189" column="0" selection-start="6988" selection-end="6988" vertical-scroll-proportion="5.4" vertical-offset="0" max-vertical-offset="4708">
+            <state line="217" column="44" selection-start="7885" selection-end="7885" vertical-scroll-proportion="0.6987013" vertical-offset="4236" max-vertical-offset="5478">
               <folding>
-                <element signature="e#0#24#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="events.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/events.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="21" selection-start="668" selection-end="668" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="836">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -40,7 +49,16 @@
       <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="20" selection-start="519" selection-end="519" vertical-scroll-proportion="0.0" vertical-offset="1122" max-vertical-offset="2618">
+            <state line="20" column="19" selection-start="574" selection-end="574" vertical-scroll-proportion="43.058823" vertical-offset="1904" max-vertical-offset="3036">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="twisted_stuff.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/twisted_stuff.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="78" column="42" selection-start="2336" selection-end="2336" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2024">
               <folding />
             </state>
           </provider>
@@ -49,7 +67,7 @@
       <file leaf-file-name="catch_phrase_server_game.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="71" column="26" selection-start="2600" selection-end="2600" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2178">
+            <state line="89" column="49" selection-start="3477" selection-end="3477" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2178">
               <folding />
             </state>
           </provider>
@@ -67,7 +85,7 @@
       <file leaf-file-name="shared_events.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/shared_events.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="21" selection-start="262" selection-end="267" vertical-scroll-proportion="0.0" vertical-offset="107" max-vertical-offset="726">
+            <state line="24" column="34" selection-start="747" selection-end="747" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="726">
               <folding />
             </state>
           </provider>
@@ -85,7 +103,7 @@
       <file leaf-file-name="server.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="0" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.0" vertical-offset="616" max-vertical-offset="1562">
+            <state line="56" column="60" selection-start="2194" selection-end="2194" vertical-scroll-proportion="0.0" vertical-offset="704" max-vertical-offset="2838">
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -105,16 +123,16 @@
       <list>
         <option value="$PROJECT_DIR$/../yugioh/client_terminal.py" />
         <option value="$PROJECT_DIR$/../twisted_examples/example3-5.py" />
-        <option value="$PROJECT_DIR$/twisted_stuff.py" />
         <option value="$PROJECT_DIR$/basic_structures.py" />
         <option value="$PROJECT_DIR$/catch_phrase_gamestack.py" />
-        <option value="$PROJECT_DIR$/shared_events.py" />
         <option value="$PROJECT_DIR$/game_stack.py" />
         <option value="$PROJECT_DIR$/events.py" />
         <option value="$PROJECT_DIR$/model.py" />
-        <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
         <option value="$PROJECT_DIR$/junk.py" />
+        <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
+        <option value="$PROJECT_DIR$/twisted_stuff.py" />
         <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/shared_events.py" />
         <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/catch_phrase.py" />
       </list>
@@ -122,9 +140,9 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="65" />
-    <option name="y" value="-4" />
+    <option name="y" value="24" />
     <option name="width" value="1855" />
-    <option name="height" value="1084" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -176,11 +194,11 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../yugioh" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../twisted_examples/example3-5.py" />
     <property name="recentsLimit" value="5" />
     <property name="FullScreen" value="false" />
   </component>
-  <component name="RunManager" selected="Python.server (1)">
+  <component name="RunManager" selected="Python.catch_phrase">
     <configuration default="false" name="catch_phrase" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -419,13 +437,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.07061995" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.09326146" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18800813" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -437,7 +456,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -456,30 +474,15 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/events.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="132" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../twisted_examples/echoclient.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="21" selection-start="745" selection-end="745" vertical-scroll-proportion="0.0" vertical-offset="484" max-vertical-offset="682" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../twisted_examples/example3-5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="15" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="902" max-vertical-offset="2090" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="52" selection-start="1183" selection-end="1183" vertical-scroll-proportion="0.0" vertical-offset="396" max-vertical-offset="3894">
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -514,7 +517,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="94" column="0" selection-start="2663" selection-end="2663" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2728">
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -549,7 +552,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="94" column="0" selection-start="2663" selection-end="2663" vertical-scroll-proportion="0.0" vertical-offset="1716" max-vertical-offset="2728">
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -584,7 +587,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="23" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0" vertical-offset="154" max-vertical-offset="374">
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -631,11 +634,6 @@
         <state line="576" column="0" selection-start="19797" selection-end="19797" vertical-scroll-proportion="0.33333334" vertical-offset="12309" max-vertical-offset="35508" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../twisted_examples/example3-5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="15" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="66" max-vertical-offset="2068" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../yugioh/shared_events.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="4" selection-start="0" selection-end="430" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1518" />
@@ -646,11 +644,6 @@
         <state line="163" column="25" selection-start="4465" selection-end="4465" vertical-scroll-proportion="0.0" vertical-offset="3179" max-vertical-offset="3938" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/twisted_stuff.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="21" selection-start="548" selection-end="548" vertical-scroll-proportion="0.09395109" vertical-offset="301" max-vertical-offset="2002" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../yugioh/basic_structures.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="5" column="34" selection-start="0" selection-end="4129" vertical-scroll-proportion="0.11518325" vertical-offset="0" max-vertical-offset="3542" />
@@ -659,11 +652,6 @@
     <entry file="file://$PROJECT_DIR$/game_stack.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="116" column="0" selection-start="4754" selection-end="4754" vertical-scroll-proportion="0.0" vertical-offset="1825" max-vertical-offset="5346" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/events.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="21" selection-start="668" selection-end="668" vertical-scroll-proportion="0.0" vertical-offset="87" max-vertical-offset="836" />
       </provider>
     </entry>
     <entry file="file:///usr/lib/python2.7/dist-packages/kivy/core/window/window_pygame.py">
@@ -726,16 +714,9 @@
         <state line="117" column="0" selection-start="3714" selection-end="3714" vertical-scroll-proportion="0.0" vertical-offset="2430" max-vertical-offset="3608" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/shared_events.py">
+    <entry file="file://$PROJECT_DIR$/junk.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="21" selection-start="262" selection-end="267" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="726">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="26" selection-start="2600" selection-end="2600" vertical-scroll-proportion="0.0" vertical-offset="1452" max-vertical-offset="2244">
+        <state line="0" column="1" selection-start="1" selection-end="1" vertical-scroll-proportion="0.0" vertical-offset="116" max-vertical-offset="682">
           <folding />
         </state>
       </provider>
@@ -747,34 +728,83 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/junk.py">
+    <entry file="file://$PROJECT_DIR$/../twisted_examples/example3-5.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="1" selection-start="1" selection-end="1" vertical-scroll-proportion="0.0" vertical-offset="116" max-vertical-offset="682">
+        <state line="41" column="15" selection-start="868" selection-end="868" vertical-scroll-proportion="1.1428572" vertical-offset="0" max-vertical-offset="2068">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/dist-packages/kivy/input/providers/mtdev.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="192" column="0" selection-start="6661" selection-end="6661" vertical-scroll-proportion="0.33246753" vertical-offset="3924" max-vertical-offset="6776">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared_events.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="34" selection-start="747" selection-end="747" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="726">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="89" column="49" selection-start="3477" selection-end="3477" vertical-scroll-proportion="0.0" vertical-offset="1408" max-vertical-offset="2178">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/dist-packages/twisted/spread/banana.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="152" column="0" selection-start="4319" selection-end="4319" vertical-scroll-proportion="0.33246753" vertical-offset="3000" max-vertical-offset="7920">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/dist-packages/twisted/spread/jelly.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="764" column="0" selection-start="24704" selection-end="24704" vertical-scroll-proportion="0.33246753" vertical-offset="16090" max-vertical-offset="24398">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="0" selection-start="1628" selection-end="1628" vertical-scroll-proportion="0.0" vertical-offset="616" max-vertical-offset="1562">
+        <state line="56" column="60" selection-start="2194" selection-end="2194" vertical-scroll-proportion="0.0" vertical-offset="704" max-vertical-offset="2838">
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/twisted_stuff.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="78" column="42" selection-start="2336" selection-end="2336" vertical-scroll-proportion="0.0" vertical-offset="1254" max-vertical-offset="2024">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/catchphrase.kv">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="20" selection-start="519" selection-end="519" vertical-scroll-proportion="0.0" vertical-offset="1122" max-vertical-offset="2618">
+        <state line="20" column="19" selection-start="574" selection-end="574" vertical-scroll-proportion="43.058823" vertical-offset="1904" max-vertical-offset="3036">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/events.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="21" selection-start="668" selection-end="668" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="836">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="189" column="0" selection-start="6988" selection-end="6988" vertical-scroll-proportion="5.4" vertical-offset="0" max-vertical-offset="4708">
+        <state line="217" column="44" selection-start="7885" selection-end="7885" vertical-scroll-proportion="0.6987013" vertical-offset="4236" max-vertical-offset="5478">
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

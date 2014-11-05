@@ -1,3 +1,4 @@
+import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
@@ -22,7 +23,33 @@ class CatchPhraseApp(App):
     def build(self):
         self.event_manager = ClientEventManager()
         self.uplink = Uplink(self.event_manager)
+        self.popup  = None
         return MyScreenManager()
+
+    def loading_popup(self, message = "Loading..."):
+        if self.popup:
+            self.close_popup()
+        self.popup = Popup(content=Label(text=message), auto_dismiss=False,
+                                                size_hint = (1,.5), title="")
+        self.popup.open()
+
+    def close_popup(self, result=None):
+        if self.popup:
+            self.popup.dismiss()
+            self.popup = None
+        return result
+    def generic_popup(self, message):
+        if self.popup:
+            self.close_popup()
+        box_layout = BoxLayout(orientation="vertical")
+        box_layout.add_widget(Label(text=message,
+                                    size_hint = (1,.8)))
+        close_button = Button(text='close', size_hint = (1,.2))
+        box_layout.add_widget(close_button)
+        self.popup = Popup(content=box_layout, auto_dismiss=False,
+                          size_hint = (1,.5), title="")
+        close_button.bind(on_release=self.popup.dismiss)
+        self.popup.open()
 
 #    def on_stop(self, *args, **kwargs):
 
@@ -49,26 +76,15 @@ class LoginScreen(Screen):
 
     def login(self, nickname, password):
         app.uplink.give_nickname_and_password(nickname, password)
-        popup = self.logging_in_popup()
+        app.loading_popup(message="Logging in...")
         reactor.connectTCP("localhost", 8800, self.factory)
         d = self.factory.getRootObject()
 
-        def generic_popup(message):
-            popup.dismiss()
-            box_layout = BoxLayout(orientation="vertical")
-            box_layout.add_widget(Label(text=message,
-                                        size_hint = (1,.8)))
-            close_button = Button(text='close', size_hint = (1,.2))
-            box_layout.add_widget(close_button)
-            new_popup = Popup(content=box_layout, auto_dismiss=False,
-                              size_hint = (1,.5), title="")
-            close_button.bind(on_release=new_popup.dismiss)
-            new_popup.open()
         def failed_to_connect(result):
-            generic_popup("can't connect to server")
+            app.generic_popup("can't connect to server")
             return result
         def change_to_gamechooser_screen(result):
-            popup.dismiss()
+            app.close_popup()
             app.uplink.evm_registered = True
             app.root.current = "game chooser"
             return result
@@ -86,8 +102,6 @@ class LoginScreen(Screen):
         popup.open()
         return popup
 
-class penis:
-    pass
 
 class MainView(GridLayout):
     '''
@@ -121,20 +135,17 @@ class SelectWordsListScreen(Screen):
                 self.selected_obj.selected = self.text
             self._is_selected = value
 
-    class Selected(object):
+    class Selected():
         def __init__(self):
             self.selected = ""
+
     def __init__(self, *args, **kwargs):
         super(SelectWordsListScreen, self).__init__(*args, **kwargs)
         self.name = "select word list"
-    def setup(self):
-        """
-        Should change this to on_switch kind of thing
-        """
-        self.popup = Popup(content=Label(text="Loading List..."), auto_dismiss=False,
-                                                size_hint = (1,.5), title="")
-        self.popup.open()
 
+    def on_pre_enter(self, *args, **kwargs):
+        super(SelectWordsListScreen, self).on_enter(*args, **kwargs)
+        app.loading_popup()
         def build_screen(result):
             selected_button = self.Selected()
             data = [self.DataItem(selected_obj=selected_button,text=name) for name in result]
@@ -152,26 +163,19 @@ class SelectWordsListScreen(Screen):
 
             list_view = ListView(adapter=list_adapter)
             button = Button(text = "Done", size_hint_y = .2)
-            def callback(instance):
-                app.root.transition.direction = "right"
-                app.root.current = "make game"
-                #app.root.transition.direction = "left"#didn't work
-                                                # schedule callback?
-                def change_left():
-                    app.root.transition.direction = "left"
-                reactor.callLater(.5, change_left)
+            def return_to_make_game(instance):
+                app.root.change_right("make game")
                 app.root.current_screen.word_list_name = selected_button.selected
-            button.bind(on_release = callback)
+            button.bind(on_release = return_to_make_game)
             box_layout = BoxLayout(orientation="vertical")
             box_layout.add_widget(list_view)
             box_layout.add_widget(button)
             self.add_widget(box_layout)
 
-        def close_popup(result):
-            self.popup.dismiss()
+
         d = app.uplink.root_obj.callRemote("get_word_list_options")
         d.addCallback(build_screen)
-        d.addCallback(close_popup)
+        d.addCallback(app.close_popup)
 
 
 class GameChooserScreen(Screen):
@@ -190,20 +194,51 @@ class MakeGameScreen(Screen):
 
 
 class GameLobbyScreen(Screen):
-    pass
+    def on_pre_enter(self, *args, **kwargs):
+        join_screen = app.root.get_screen("join game")
+        game_name = join_screen.game_name_input.text
+        super(GameLobbyScreen, self).on_enter(*args, **kwargs)
+        app.event_manager.register_listener(self)
+        app.loading_popup()
+        d = app.uplink.root_obj.callRemote("join_lobby", app.uplink.id, game_name)
+        def was_success(result):
+            if result:
+                app.close_popup()
+            else:
+                app.generic_popup(message="Unable To Join Game")
+                app.root.change_right("join game")
+                # app.root.transition = "right"
+                # app.root.current = "join game"
 
+            return result
+        d.addCallback(was_success)
+    def notify(self, event):
+        if isinstance(event, e.NewOrderEvent):
+            #Start up here tomorrow
+            self.add_widget(Label(text=str(event.new_order)))
+
+    def on_leave(self, *args, **kwargs):
+        super(GameLobbyScreen, self).on_leave(*args, **kwargs)
+        app.event_manager.unregister_listener(self)
 class JoinGameScreen(Screen):
-    pass
+    game_name_input = ObjectProperty(None)
+    def join_game(self):
+        print "JOINING GAME"
 
 class SetupScreen(Screen):
     pass
+
 
 class GameScreen(Screen):
     pass
 
 class MyScreenManager(ScreenManager):
-    pass
-
+    def change_right(self, screen):
+        app.root.transition.direction = "right"
+        app.root.current = screen
+        def change_left():
+            app.root.transition.direction = "left"
+        reactor.callLater(.5, change_left)
 
 if __name__=="__main__":
     app.run()

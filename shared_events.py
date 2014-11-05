@@ -18,10 +18,10 @@ class CopyableEvent(pb.RemoteCopy, pb.Copyable, Event):
         super(CopyableEvent, self).__init__()
         self.name = "Generic Event"
 
-class PlayerJoinedEvent(CopyableEvent):
-    def __init__(self, player):
+class NewOrderEvent(CopyableEvent):
+    def __init__(self, new_order):
         CopyableEvent.__init__(self)
-        self.name = "Player Joined Event"
-        self.player = player
-pb.setUnjellyableForClass(PlayerJoinedEvent, PlayerJoinedEvent)
+        self.name = "New Order Event"
+        self.new_order = new_order
+pb.setUnjellyableForClass(NewOrderEvent, NewOrderEvent)
 
