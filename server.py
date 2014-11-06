@@ -9,7 +9,7 @@ class ServerEventManager(pb.Root):
         self.clients = {}
         self.client_nicknames = {}
         self.total_clients = 0
-        self.lobbys = {"d_game": Lobby()}
+        self.lobbys = {"d_game": Lobby(self)}
         self.total_games = 0
 
         self.world_lists = {"animals": ["cat", "dog", "bird"],
@@ -32,7 +32,7 @@ class ServerEventManager(pb.Root):
         return "Game" + str(self.total_games)
 
     def remote_make_game_lobby(self, lobby_id):
-        self.lobbys[lobby_id] = (Lobby())
+        self.lobbys[lobby_id] = (Lobby(self))
         self.total_games = self.total_games + 1
         #add failed to make game return
 
@@ -49,22 +49,26 @@ class ServerEventManager(pb.Root):
             return False
         lobby = self.lobbys[lobby_id]
         lobby.order.append(self.client_nicknames[client_id])
-        new_order_event = NewOrderEvent(lobby.order)
         lobby.players.append(self.clients[client_id])
-        for client in lobby.players:
-            #TODO: INTEGRATE WITH try_client_notify
-            try:
-                client.callRemote('notify', new_order_event)
-            except pb.DeadReferenceError:
-                #can be improved for large dicts? Or use better data struct?:
-                #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
-                for key, value in self.clients.iteritems():
-                    if value is client:
-                        nick_name = self.client_nicknames[key]
-                        del self.clients[key]
-                        del self.client_nicknames[key]
-                        lobby.order.remove(nick_name)
-                        break
+        new_order_event = NewOrderEvent(lobby.order)
+        lobby.notify(new_order_event)
+        # for client in lobby.players:
+        #     #TODO: INTEGRATE WITH try_client_notify
+        #     try:
+        #         client.callRemote('notify', new_order_event)
+        #     except pb.DeadReferenceError:
+        #         print "dead reference in lobby"
+        #         #can be improved for large dicts? Or use better data struct?:
+        #         #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
+        #         for key, value in self.clients.iteritems():
+        #             if value is client:
+        #                 nick_name = self.client_nicknames[key]
+        #                 del self.clients[key]
+        #                 del self.client_nicknames[key]
+        #                 lobby.order.remove(nick_name)
+        #                 #lobby.players.remove(client)
+        #                 break
+        print lobby.players
         return True
 
 
@@ -104,11 +108,12 @@ class ServerEventManager(pb.Root):
                     del self.client_nicknames[key]
                     break
 class Lobby:
-    def __init__(self, players = None, order = None,):
+    def __init__(self, server_evm, players = None, order = None,):
         if not players:
             players = []
         if not order:
             order = []
+        self.server = server_evm
         self.can_join = True
         self.players = players
         self.order = order
@@ -117,6 +122,25 @@ class Lobby:
         if self.game:
             self.game.remote_post(event)
 
+    def notify(self, event):
+        dead_clients = []
+        for client in self.players:
+            #TODO: INTEGRATE WITH try_client_notify
+            try:
+                client.callRemote('notify', event)
+            except pb.DeadReferenceError:
+                dead_clients.append(client)
+                #can be improved for large dicts? Or use better data struct?:
+                #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
+                for key, value in self.server.clients.iteritems():
+                    if value is client:
+                        nick_name = self.server.client_nicknames[key]
+                        del self.server.clients[key]
+                        del self.server.client_nicknames[key]
+                        self.order.remove(nick_name)
+                        break
+        for client in dead_clients:
+            self.players.remove(client)
 
 root_obj = ServerEventManager()
 factory = pb.PBServerFactory(root_obj)

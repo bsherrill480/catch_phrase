@@ -8,10 +8,12 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
-
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.adapters.models import SelectableDataItem
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView
+from kivy.uix.scatter import Scatter
 
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
@@ -194,6 +196,11 @@ class MakeGameScreen(Screen):
 
 
 class GameLobbyScreen(Screen):
+    float_layout = ObjectProperty(None)
+
+    def __init__(self, *args, **kwargs):
+        super(GameLobbyScreen, self).__init__(*args, **kwargs)
+        self.grid_names = None
     def on_pre_enter(self, *args, **kwargs):
         join_screen = app.root.get_screen("join game")
         game_name = join_screen.game_name_input.text
@@ -213,13 +220,42 @@ class GameLobbyScreen(Screen):
             return result
         d.addCallback(was_success)
     def notify(self, event):
+
         if isinstance(event, e.NewOrderEvent):
-            #Start up here tomorrow
-            self.add_widget(Label(text=str(event.new_order)))
+            #do float layout with grid layout and scatter layout
+            # with_numbers = [str(i + 1) + ". " + event.new_order[i]
+            #                 for i in range(len(event.new_order))]
+            grid_layout = GridLayout(cols=4)
+            # good for debug
+            # for name in event.new_order:
+            #     grid_layout.add_widget(Label(text=name))
+            for i in range(len(event.new_order)):
+                grid_layout.add_widget(MyLabel(text=str(i+1)))
+            self.float_layout.clear_widgets()
+            self.float_layout.add_widget(grid_layout)
+            #add movable labels
+            len_children = len(grid_layout.children)
+            for i in range(len_children):
+                print "i:", i
+                #NOTE: children are formated like
+                # [last child,...,second child,first child]
+                index = len_children - i - 1 #zero based indexing
+                child = grid_layout.children[index]
+                scat = MyScat(do_rotation = False, do_scale = False,
+                                pos = child.pos, size = child.size)
+                scat.add_widget(Label(text=event.new_order[i], color=(1,1,1)))
+                self.float_layout.add_widget(scat)
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
+
+class MyLabel(Label):
+    pass
+
+class MyScat(Scatter):
+    pass
+
 class JoinGameScreen(Screen):
     game_name_input = ObjectProperty(None)
     def join_game(self):

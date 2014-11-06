@@ -33,8 +33,40 @@
             text: 'Join Game'
             on_release: app.root.current = 'game lobby'
 
+<MyLabel>:
+    size: self.texture_size
+    canvas.after:
+        Color:
+            rgba: (0,0,1,.5)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+<MyScat>:
+    canvas.after:
+        Color:
+            rgba: (0,1,1,.5)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 <GameLobbyScreen>:
     name: 'game lobby'
+    float_layout: kv_float_layout
+    BoxLayout:
+        orientation: 'vertical'
+
+        RelativeLayout:
+            id:kv_float_layout
+#            Label:
+#                text: 'hi'
+        BoxLayout:
+            size_hint_y: .2
+            Button:
+                text: 'undo changes'
+                on_release: pass
+            Button
+                text: 'submit changes'
+                on_release: pass
 
 <GameChooserScreen>:
     name: 'game chooser'
@@ -74,26 +106,6 @@
             text: 'Make Game'
             on_release: pass
 
-
-#    ScrollView:
-#        BoxLayout:
-#            size_hint_y: None
-#            orientation: 'vertical'
-#            Button:
-#                size_hint_y: None
-#                height: root.height / 2
-#                text: "Load Games1"
-#                on_release: print(root)
-#            Button:
-#                size_hint_y: None
-#                height: root.height / 2
-#                text: "Load Games1"
-#                on_release: print(root)
-#            Button:
-#                size_hint_y: None
-#                height: root.height / 2
-#                text: "Load Games1"
-#                on_release: print(root)
 <LoginScreen>:
     name: 'login'
     BoxLayout:
