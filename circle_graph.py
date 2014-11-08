@@ -1,16 +1,28 @@
 class Node:
-    def __init__(self, name=None):
-        self.next = None
-        self.data = None
+    def __init__(self, data=None, name=None):
+        self.next = next
+        self.data = data
         self.name = name
+
 class Organizer:
     def __init__(self):
         self.nodes = dict()
+
+    def make_and_give_node(self, data, name):
+        node = Node(data, name)
+        self.nodes[name] = node
+        return node
+
+    def set_next(self, name, next_item_name):
+        self.nodes[name].next = self.nodes[next_item_name]
 
     def point(self, name1, name2):
         node1 = self.nodes[name1]
         node2 = self.nodes[name2]
         node1.next = node2
+
+    def delete_node(self, name):
+        del self.nodes[name]
 
     def is_perfect_circle(self):
         in_circle_set = set()

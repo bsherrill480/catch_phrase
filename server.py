@@ -2,13 +2,16 @@ from twisted.spread import pb
 from twisted.internet import reactor
 from catch_phrase_server_game import setup_catch_phrase
 import events as e
+import circle_graph as cg
 from time import sleep
+
 
 class Client:
     def __init__(self, root_obj, client_id, nickname):
         self.root_obj = root_obj
         self.client_id = client_id
         self.nickname = nickname
+
 
 class ServerEventManager(pb.Root):
     def __init__(self):
@@ -18,7 +21,7 @@ class ServerEventManager(pb.Root):
         self.total_games = 0
 
         self.world_lists = {"animals": ["cat", "dog", "bird"],
-                            "objects":["lamp","waterbottle","fork"]}
+                            "objects": ["lamp", "waterbottle", "fork"]}
 
     def remote_register_client(self, root_obj, client_nickname):
         """
@@ -28,7 +31,7 @@ class ServerEventManager(pb.Root):
         assert client_nickname != ""
         client_id = "Client" + str(self.total_clients)
         self.total_clients = self.total_clients + 1
-        self.clients[client_id] = Client(root_obj,client_id,client_nickname)
+        self.clients[client_id] = Client(root_obj, client_id, client_nickname)
         print client_id + " : ///nickname: " + client_nickname
         return client_id
 
@@ -76,7 +79,6 @@ class ServerEventManager(pb.Root):
         print lobby.players
         return True
 
-
     def remote_get_word_list_options(self):
         return self.world_lists.keys()
 
@@ -89,6 +91,7 @@ class ServerEventManager(pb.Root):
         if client_id in self.clients.keys():
             del self.clients[client_id]
 
+    #untested
     def remote_post(self, event, client_id):
         event.originator = client_id
         print "Recieved ", event.name, " from ", client_id
@@ -96,6 +99,7 @@ class ServerEventManager(pb.Root):
             # client.callRemote("notify", event)
             self.try_client_notify(self, client, event)
 
+    #untested
     def try_client_notify(self, client, event):
         """
         will return None if succeses,
@@ -112,57 +116,45 @@ class ServerEventManager(pb.Root):
                     del self.clients[key]
                     del self.client_nicknames[key]
                     break
+
+
 class Lobby:
-    """
-    note players has Client object, while ordered/unordered just has tuple
-    of (client.id, client.nickname)
-    """
-    class Pointer:
-        def __init__(self, client_id, nickname, pointing_at=None):
-            self.client_id = client_id
-            self.pointing_at = pointing_at
-            self.nickname = nickname
-    class PointMaster:
-        def __init__(self):
-            self.pointers = []
-            self.pointing_set = set()
-
-        def is_valid(self):
-            pass
-
-        def get_order(self):
-            if self.is_valid():
-                #return valid order
-                pass
-            else:
-                return None
-
     def __init__(self, server_evm):
         self.server = server_evm
         self.players = []
-        self.pointing = {}
-        self.waiting = {}
+        self.waiting = [] # organized: [..., (id, nickname), ...]
+        self.organizer = cg.Organizer()
 
     def new_player(self, player):
         """
         player is a client
         """
         self.players.append(player)
-        pointer = self.Pointer(player.client_id, player.nickname)
-        self.waiting[player.client_id] = pointer
-        self.post(e.NewPlayerEvent(player.client_id,player.nickname))
+        self.organizer.make_and_give_node(player, player.client_id)
+        self.waiting.append((player.client_id, player.nickname))
+        self.new_lineup_event()
+
 
     def notify(self, event):
         """
         updates model accordingly, then posts to all players
         """
         if isinstance(event, e.ToHandoffToEvent):
-            pointer[event.my_id]
+            self.organizer.set_next(event.my_id, event.to_handoff_to)
+            for tup in self.waiting:
+                #tuple is (player_id, player_nick)
+                if tup[0] == event.my_id:
+                    self.waiting.remove(tup)
+                    self.new_lineup_event()
+                    break
+            return
 
         self.post(event)
+
     def post(self, event):
         """
         posts event to all players
+        clients/players same thing
         """
         dead_clients = []
         need_new_order_event = False
@@ -174,27 +166,17 @@ class Lobby:
                 need_new_order_event = True
                 dead_clients.append(client)
                 del self.server.clients[client.client_id]
-                #can be improved for large dicts? Or use better data struct?:
-                #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
-                # for key, value in self.server.clients.iteritems():
-                #     if value is client:
-                #         nick_name = self.server.client_nicknames[key]
-                #         del self.server.clients[key]
-                #         del self.server.client_nicknames[key]
-                #         self.order.remove(nick_name)
-                #         break
+
         for client in dead_clients:
             self.players.remove(client)
-            try:
-                self.ordered.remove(client)
-            except ValueError:
-                self.unordered.remove(client)
+            self.organizer.delete_node(client.client_id)
         if need_new_order_event:
-            self.new_order_event()
+            self.new_lineup_event()
 
-    def new_order_event(self):
-        pass
-        #self.post(e.NewOrderEvent(self.ordered, self.unordered))
+    def new_lineup_event(self):
+        self.post(e.NewPlayerLineupEvent([(player.client_id, player.nickname) for player in self.players],
+                                         [nickname for client_id, nickname in self.waiting]))
+
 
 root_obj = ServerEventManager()
 factory = pb.PBServerFactory(root_obj)

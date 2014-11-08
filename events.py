@@ -10,6 +10,7 @@ class BeginTurnEvent(CopyableEvent):
         self.word = word
 pb.setUnjellyableForClass(BeginTurnEvent, BeginTurnEvent)
 
+
 class EndTurnEvent(CopyableEvent):
     def __init__(self, player, time_left):
         CopyableEvent.__init__(self)
@@ -18,17 +19,20 @@ class EndTurnEvent(CopyableEvent):
         self.time_left = time_left
 pb.setUnjellyableForClass(EndTurnEvent, EndTurnEvent)
 
+
 class EndRoundEvent(CopyableEvent):
     def __init__(self):
         CopyableEvent.__init__(self)
         self.name = "End Round Event"
 pb.setUnjellyableForClass(EndRoundEvent, EndRoundEvent)
 
+
 class StartRoundEvent(CopyableEvent):
     def __init__(self):
         CopyableEvent.__init__(self)
         self.name = "Start Round Event"
 pb.setUnjellyableForClass(StartRoundEvent, StartRoundEvent)
+
 
 class ToHandoffToEvent(CopyableEvent):
     def __init__(self, my_id, to_handoff_to):
@@ -41,12 +45,23 @@ class ToHandoffToEvent(CopyableEvent):
         self.to_handoff_to = to_handoff_to
 pb.setUnjellyableForClass(ToHandoffToEvent, ToHandoffToEvent)
 
-class NewPlayerEvent(CopyableEvent):
-    def __init__(self, client_id, nickname):
+
+class NewPlayerLineupEvent(CopyableEvent):
+    def __init__(self, id_nickname_list, waiting_list):
+        """
+        id_nickname list is setup like [ (player.id, player.nickname) for each player ]
+        """
         CopyableEvent.__init__(self)
-        self.client_id = client_id
-        self.nickname = nickname
-pb.setUnjellyableForClass(NewPlayerEvent, NewPlayerEvent)
+        self.id_nickname_list = id_nickname_list
+        self.waiting_list = waiting_list
+pb.setUnjellyableForClass(NewPlayerLineupEvent, NewPlayerLineupEvent)
+
+class NewWaitingEvent(CopyableEvent):
+    def __init__(self, waiting_list):
+        CopyableEvent.__init__(self)
+        self.waiting_list = waiting_list
+pb.setUnjellyableForClass(NewWaitingEvent, NewWaitingEvent)
+
 class NewOrderingEvent(CopyableEvent):
     def __init__(self, in_order, waiting):
         CopyableEvent.__init__(self)

@@ -51,23 +51,23 @@
 
 <GameLobbyScreen>:
     name: 'game lobby'
+    view_label: player_view_label
+    view_list: player_view_list
+    pointing_to: player_pointing_to
     #overall layout
     BoxLayout:
         orientation: 'vertical'
         #top lists
         BoxLayout:
-            #status view (current order and unordered players)
+            #status view
             BoxLayout:
                 orientation: 'vertical'
                 Label:
+                    id: player_view_label
                     size_hint_y: .1
-                    text: 'Current Order'
+                    text: 'waiting on'
                 ListView:
-                    item_strings: [str(index) for index in range(10)]
-                Label:
-                    size_hint_y: .1
-                    text: 'Unordered Players'
-                ListView:
+                    id: player_view_list
                     item_strings: [str(index) for index in range(10)]
             #Player that I "hand" device to
             BoxLayout:
@@ -76,6 +76,7 @@
                     size_hint_y: .1
                     text: 'Player after me'
                 ListView:
+                    id: player_pointing_to
                     item_strings: [str(index) for index in range(20)]
         #bottom buttons
         BoxLayout:

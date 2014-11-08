@@ -21,6 +21,7 @@ install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
 
+
 class CatchPhraseApp(App):
     def build(self):
         self.event_manager = ClientEventManager()
@@ -40,16 +41,17 @@ class CatchPhraseApp(App):
             self.popup.dismiss()
             self.popup = None
         return result
+
     def generic_popup(self, message):
         if self.popup:
             self.close_popup()
         box_layout = BoxLayout(orientation="vertical")
         box_layout.add_widget(Label(text=message,
                                     size_hint = (1,.8)))
-        close_button = Button(text='close', size_hint = (1,.2))
+        close_button = Button(text='close', size_hint = (1, .2))
         box_layout.add_widget(close_button)
         self.popup = Popup(content=box_layout, auto_dismiss=False,
-                          size_hint = (1,.5), title="")
+                          size_hint = (1, .5), title="")
         close_button.bind(on_release=self.popup.dismiss)
         self.popup.open()
 
@@ -68,7 +70,6 @@ class CatchPhraseApp(App):
 
 #HOLY SHIT DON'T OVERLOOK THIS
 app = CatchPhraseApp()
-
 
 class LoginScreen(Screen):
     def __init__(self, *args, **kwargs):
@@ -100,7 +101,7 @@ class LoginScreen(Screen):
     def logging_in_popup(self):
         # create content and add to the popup
         label = Label(text='logging in...')
-        popup = Popup(content=label, auto_dismiss=False, size_hint = (1,.5), title="")
+        popup = Popup(content=label, auto_dismiss=False, size_hint = (1, .5), title="")
         popup.open()
         return popup
 
@@ -116,30 +117,11 @@ class MainView(GridLayout):
         list_view = ListView(item_strings=[str(index) for index in range(100)])
         self.add_widget(list_view)
 
+
 class SelectWordsListScreen(Screen):
     """
     Note: get data from server when chaning to this screen
     """
-    #Done in python and not kv lang. Ran into trouble with kv lang
-    class DataItem(object):
-        def __init__(self, selected_obj, text):
-            self.text = text
-            self.selected_obj = selected_obj
-            self._is_selected = False
-
-        @property
-        def is_selected(self):
-            return self._is_selected
-
-        @is_selected.setter
-        def is_selected(self, value):
-            if value:
-                self.selected_obj.selected = self.text
-            self._is_selected = value
-
-    class Selected():
-        def __init__(self):
-            self.selected = ""
 
     def __init__(self, *args, **kwargs):
         super(SelectWordsListScreen, self).__init__(*args, **kwargs)
@@ -149,8 +131,8 @@ class SelectWordsListScreen(Screen):
         super(SelectWordsListScreen, self).on_enter(*args, **kwargs)
         app.loading_popup()
         def build_screen(result):
-            selected_button = self.Selected()
-            data = [self.DataItem(selected_obj=selected_button,text=name) for name in result]
+            selected_button = Selected()
+            data = [DataItem(selected_obj=selected_button,text=name) for name in result]
 
             args_converter = lambda row_index, obj: {'text': obj.text,
                                                      'size_hint_y': None,
@@ -183,6 +165,7 @@ class SelectWordsListScreen(Screen):
 class GameChooserScreen(Screen):
     pass
 
+
 class MakeGameScreen(Screen):
     unique_game_id = ObjectProperty(None)
     word_list_name = StringProperty("No List Selected")
@@ -194,12 +177,15 @@ class MakeGameScreen(Screen):
         d.addCallback(set_game_id)
 
 
-
 class GameLobbyScreen(Screen):
-    float_layout = ObjectProperty(None)
+    view_label = ObjectProperty(None)
+    view_list = ObjectProperty(None)
+    pointing_to = ObjectProperty(None)
+
     def __init__(self, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
-        self.grid_names = None
+        self.pointing_at = None
+        self.waiting_label = Label(text="Waiting on: ")
     def on_pre_enter(self, *args, **kwargs):
         join_screen = app.root.get_screen("join game")
         game_name = join_screen.game_name_input.text
@@ -213,55 +199,63 @@ class GameLobbyScreen(Screen):
             else:
                 app.generic_popup(message="Unable To Join Game")
                 app.root.change_right("join game")
-                # app.root.transition = "right"
-                # app.root.current = "join game"
-
             return result
         d.addCallback(was_success)
-    def notify(self, event):
 
-        if isinstance(event, e.NewOrderEvent):
-            #do float layout with grid layout and scatter layout
-            # with_numbers = [str(i + 1) + ". " + event.new_order[i]
-            #                 for i in range(len(event.new_order))]
-            grid_layout = GridLayout(cols=4)
-            # good for debug
-            # for name in event.new_order:
-            #     grid_layout.add_widget(Label(text=name))
-            for i in range(len(event.new_order)):
-                grid_layout.add_widget(MyLabel(text=str(i+1)))
-            self.float_layout.clear_widgets()
-            self.float_layout.add_widget(grid_layout)
-            #add movable labels
-            len_children = len(grid_layout.children)
-            for i in range(len_children):
-                print "i:", i
-                #NOTE: children are formated like
-                # [last child,...,second child,first child]
-                index = len_children - i - 1 #zero based indexing
-                child = grid_layout.children[index]
-                scat = MyScat(do_rotation = False, do_scale = False,
-                                pos = child.pos, size = child.size)
-                scat.add_widget(Label(text=event.new_order[i], color=(1,1,1)))
-                self.float_layout.add_widget(scat)
+    def notify(self, event):
+        if isinstance(event, e.NewPlayerLineupEvent):
+            if event.waiting_list != []:
+                self.view_label = self.waiting_label
+                self.view_list.item_strings = [nickname for id, nickname in event.id_nickname_list]
+
+        #
+        # if isinstance(event, e.NewOrderEvent):
+        #     #do float layout with grid layout and scatter layout
+        #     # with_numbers = [str(i + 1) + ". " + event.new_order[i]
+        #     #                 for i in range(len(event.new_order))]
+        #     grid_layout = GridLayout(cols=4)
+        #     # good for debug
+        #     # for name in event.new_order:
+        #     #     grid_layout.add_widget(Label(text=name))
+        #     for i in range(len(event.new_order)):
+        #         grid_layout.add_widget(MyLabel(text=str(i+1)))
+        #     self.float_layout.clear_widgets()
+        #     self.float_layout.add_widget(grid_layout)
+        #     #add movable labels
+        #     len_children = len(grid_layout.children)
+        #     for i in range(len_children):
+        #         print "i:", i
+        #         #NOTE: children are formated like
+        #         # [last child,...,second child,first child]
+        #         index = len_children - i - 1 #zero based indexing
+        #         child = grid_layout.children[index]
+        #         scat = MyScat(do_rotation = False, do_scale = False,
+        #                         pos = child.pos, size = child.size)
+        #         scat.add_widget(Label(text=event.new_order[i], color=(1,1,1)))
+        #         self.float_layout.add_widget(scat)
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
+
 class MyLabel(Label):
     pass
+
 
 class MyScat(Scatter):
     pass
 
+
 class MyListView(Widget):
     pass
+
 
 class JoinGameScreen(Screen):
     game_name_input = ObjectProperty(None)
     def join_game(self):
         print "JOINING GAME"
+
 
 class SetupScreen(Screen):
     pass
@@ -270,6 +264,7 @@ class SetupScreen(Screen):
 class GameScreen(Screen):
     pass
 
+
 class MyScreenManager(ScreenManager):
     def change_right(self, screen):
         app.root.transition.direction = "right"
@@ -277,6 +272,33 @@ class MyScreenManager(ScreenManager):
         def change_left():
             app.root.transition.direction = "left"
         reactor.callLater(.5, change_left)
+
+
+class DataItem(object):
+    """
+    used in buttons
+    """
+    def __init__(self, selected_obj, text):
+        self.text = text
+        self.selected_obj = selected_obj
+        self._is_selected = False
+
+    @property
+    def is_selected(self):
+        return self._is_selected
+
+    @is_selected.setter
+    def is_selected(self, value):
+        if value:
+            self.selected_obj.selected = self.text
+        self._is_selected = value
+
+class Selected():
+    """
+    used in buttons
+    """
+    def __init__(self):
+        self.selected = ""
 
 if __name__=="__main__":
     app.run()
