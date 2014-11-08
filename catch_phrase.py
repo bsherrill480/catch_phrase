@@ -2,7 +2,7 @@ import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty, ObservableReferenceList, StringProperty
+from kivy.properties import ObjectProperty, ObservableReferenceList, StringProperty, ListProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -20,6 +20,38 @@ from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
+
+class DataItem(object):
+    """
+    used in buttons
+    """
+    def __init__(self, selected_obj, text):
+        """
+        selected_obj is the object passed to DataItem, which
+        is used to house which button is selected in list
+        """
+        self.text = text
+        self.selected_obj = selected_obj
+        self._is_selected = False
+
+    @property
+    def is_selected(self):
+        return self._is_selected
+
+    @is_selected.setter
+    def is_selected(self, value):
+        if value:
+            #self.selected_obj.selected = self.text
+            self.selected_obj.selected = self
+        self._is_selected = value
+
+class Selected():
+    """
+    used in buttons. Basically just using as a reference/pointer
+    Is there a better way?
+    """
+    def __init__(self):
+        self.selected = None
 
 
 class CatchPhraseApp(App):
@@ -70,6 +102,7 @@ class CatchPhraseApp(App):
 
 #HOLY SHIT DON'T OVERLOOK THIS
 app = CatchPhraseApp()
+
 
 class LoginScreen(Screen):
     def __init__(self, *args, **kwargs):
@@ -149,7 +182,7 @@ class SelectWordsListScreen(Screen):
             button = Button(text = "Done", size_hint_y = .2)
             def return_to_make_game(instance):
                 app.root.change_right("make game")
-                app.root.current_screen.word_list_name = selected_button.selected
+                app.root.current_screen.word_list_name = selected_button.selected.text
             button.bind(on_release = return_to_make_game)
             box_layout = BoxLayout(orientation="vertical")
             box_layout.add_widget(list_view)
@@ -182,10 +215,25 @@ class GameLobbyScreen(Screen):
     view_list = ObjectProperty(None)
     pointing_to = ObjectProperty(None)
 
+    class MyDataItem(DataItem):
+        def __init__(self, selected_obj, text, client_id):
+            super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
+            self.client_id = client_id
+    class MyListItemButton(ListItemButton):
+        def __init__(self, **kwargs):
+            super(GameLobbyScreen.MyListItemButton,self).__init__(**kwargs)
+            if "is_selected" in kwargs and kwargs["is_selected"]:
+                self.select()
+
     def __init__(self, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
         self.pointing_at = None
-        self.waiting_label = Label(text="Waiting on: ")
+        self.waiting_label = Label(text="Waiting On:")
+        self.bad_setup_label = Label(text="Bad Setup:")
+        self.ready_label = Label(text="ready")
+
+        self.selected_button = Selected()
+
     def on_pre_enter(self, *args, **kwargs):
         join_screen = app.root.get_screen("join game")
         game_name = join_screen.game_name_input.text
@@ -204,35 +252,35 @@ class GameLobbyScreen(Screen):
 
     def notify(self, event):
         if isinstance(event, e.NewPlayerLineupEvent):
+            data = [self.MyDataItem(self.selected_button, name, client_id)
+                    for client_id, name in event.id_nickname_list]
+
+            # args_converter = lambda row_index, obj: {'text': obj.text,
+            #                                          'size_hint_y': .1,
+            #                                          }
+            def args_converter(row_index, obj):
+                return_dict = {'text': obj.text, 'size_hint_y': .1}
+                #if we have a button, and if that button has same client_id
+                if (self.selected_button.selected) and \
+                        (obj.client_id == self.selected_button.selected.client_id):
+                    return_dict["is_selected"] = True
+                return return_dict
+
+            list_adapter = ListAdapter(data=data,
+                                       args_converter=args_converter,
+                                       cls=self.MyListItemButton,
+                                       propagate_selection_to_data=True,
+                                       selection_mode='single',
+                                       allow_empty_selection=True)
+
+            self.pointing_to.adapter = list_adapter
             if event.waiting_list != []:
                 self.view_label = self.waiting_label
-                self.view_list.item_strings = [nickname for id, nickname in event.id_nickname_list]
+                self.view_list.item_strings = [nickname for id, nickname
+                                               in event.id_nickname_list]
+            else:
+                self.view_list = self.ready_label
 
-        #
-        # if isinstance(event, e.NewOrderEvent):
-        #     #do float layout with grid layout and scatter layout
-        #     # with_numbers = [str(i + 1) + ". " + event.new_order[i]
-        #     #                 for i in range(len(event.new_order))]
-        #     grid_layout = GridLayout(cols=4)
-        #     # good for debug
-        #     # for name in event.new_order:
-        #     #     grid_layout.add_widget(Label(text=name))
-        #     for i in range(len(event.new_order)):
-        #         grid_layout.add_widget(MyLabel(text=str(i+1)))
-        #     self.float_layout.clear_widgets()
-        #     self.float_layout.add_widget(grid_layout)
-        #     #add movable labels
-        #     len_children = len(grid_layout.children)
-        #     for i in range(len_children):
-        #         print "i:", i
-        #         #NOTE: children are formated like
-        #         # [last child,...,second child,first child]
-        #         index = len_children - i - 1 #zero based indexing
-        #         child = grid_layout.children[index]
-        #         scat = MyScat(do_rotation = False, do_scale = False,
-        #                         pos = child.pos, size = child.size)
-        #         scat.add_widget(Label(text=event.new_order[i], color=(1,1,1)))
-        #         self.float_layout.add_widget(scat)
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
@@ -241,7 +289,6 @@ class GameLobbyScreen(Screen):
 
 class MyLabel(Label):
     pass
-
 
 class MyScat(Scatter):
     pass
@@ -274,31 +321,6 @@ class MyScreenManager(ScreenManager):
         reactor.callLater(.5, change_left)
 
 
-class DataItem(object):
-    """
-    used in buttons
-    """
-    def __init__(self, selected_obj, text):
-        self.text = text
-        self.selected_obj = selected_obj
-        self._is_selected = False
-
-    @property
-    def is_selected(self):
-        return self._is_selected
-
-    @is_selected.setter
-    def is_selected(self, value):
-        if value:
-            self.selected_obj.selected = self.text
-        self._is_selected = value
-
-class Selected():
-    """
-    used in buttons
-    """
-    def __init__(self):
-        self.selected = ""
 
 if __name__=="__main__":
     app.run()
