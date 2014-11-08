@@ -1,13 +1,18 @@
 from twisted.spread import pb
 from twisted.internet import reactor
 from catch_phrase_server_game import setup_catch_phrase
-from shared_events import NewOrderEvent
+import events as e
 from time import sleep
+
+class Client:
+    def __init__(self, root_obj, client_id, nickname):
+        self.root_obj = root_obj
+        self.client_id = client_id
+        self.nickname = nickname
 
 class ServerEventManager(pb.Root):
     def __init__(self):
         self.clients = {}
-        self.client_nicknames = {}
         self.total_clients = 0
         self.lobbys = {"d_game": Lobby(self)}
         self.total_games = 0
@@ -15,7 +20,7 @@ class ServerEventManager(pb.Root):
         self.world_lists = {"animals": ["cat", "dog", "bird"],
                             "objects":["lamp","waterbottle","fork"]}
 
-    def remote_register_client(self, client, client_nickname):
+    def remote_register_client(self, root_obj, client_nickname):
         """
         returns True if client_id is accepted, returns False
         if client_id was already in use
@@ -23,8 +28,7 @@ class ServerEventManager(pb.Root):
         assert client_nickname != ""
         client_id = "Client" + str(self.total_clients)
         self.total_clients = self.total_clients + 1
-        self.clients[client_id] = client
-        self.client_nicknames[client_id] = client_nickname
+        self.clients[client_id] = Client(root_obj,client_id,client_nickname)
         print client_id + " : ///nickname: " + client_nickname
         return client_id
 
@@ -48,10 +52,11 @@ class ServerEventManager(pb.Root):
             # print "returning false. keys: ", lobby_id in self.lobbys, str(self.lobbys.keys())
             return False
         lobby = self.lobbys[lobby_id]
-        lobby.order.append(self.client_nicknames[client_id])
-        lobby.players.append(self.clients[client_id])
-        new_order_event = NewOrderEvent(lobby.order)
-        lobby.notify(new_order_event)
+        lobby.new_player(self.clients[client_id])
+        # lobby.unordered.append(self.client_nicknames[client_id])
+        # lobby.players.append(self.clients[client_id])
+        # new_order_event = NewOrderEvent(lobby.ordered, lobby.unordered)
+        # lobby.notify(new_order_event)
         # for client in lobby.players:
         #     #TODO: INTEGRATE WITH try_client_notify
         #     try:
@@ -108,39 +113,88 @@ class ServerEventManager(pb.Root):
                     del self.client_nicknames[key]
                     break
 class Lobby:
-    def __init__(self, server_evm, players = None, order = None,):
-        if not players:
-            players = []
-        if not order:
-            order = []
+    """
+    note players has Client object, while ordered/unordered just has tuple
+    of (client.id, client.nickname)
+    """
+    class Pointer:
+        def __init__(self, client_id, nickname, pointing_at=None):
+            self.client_id = client_id
+            self.pointing_at = pointing_at
+            self.nickname = nickname
+    class PointMaster:
+        def __init__(self):
+            self.pointers = []
+            self.pointing_set = set()
+
+        def is_valid(self):
+            pass
+
+        def get_order(self):
+            if self.is_valid():
+                #return valid order
+                pass
+            else:
+                return None
+
+    def __init__(self, server_evm):
         self.server = server_evm
-        self.can_join = True
-        self.players = players
-        self.order = order
-        self.game = None
-    def give_event(self, event):
-        if self.game:
-            self.game.remote_post(event)
+        self.players = []
+        self.pointing = {}
+        self.waiting = {}
+
+    def new_player(self, player):
+        """
+        player is a client
+        """
+        self.players.append(player)
+        pointer = self.Pointer(player.client_id, player.nickname)
+        self.waiting[player.client_id] = pointer
+        self.post(e.NewPlayerEvent(player.client_id,player.nickname))
 
     def notify(self, event):
+        """
+        updates model accordingly, then posts to all players
+        """
+        if isinstance(event, e.ToHandoffToEvent):
+            pointer[event.my_id]
+
+        self.post(event)
+    def post(self, event):
+        """
+        posts event to all players
+        """
         dead_clients = []
+        need_new_order_event = False
         for client in self.players:
             #TODO: INTEGRATE WITH try_client_notify
             try:
-                client.callRemote('notify', event)
+                client.root_obj.callRemote('notify', event)
             except pb.DeadReferenceError:
+                need_new_order_event = True
                 dead_clients.append(client)
+                del self.server.clients[client.client_id]
                 #can be improved for large dicts? Or use better data struct?:
                 #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
-                for key, value in self.server.clients.iteritems():
-                    if value is client:
-                        nick_name = self.server.client_nicknames[key]
-                        del self.server.clients[key]
-                        del self.server.client_nicknames[key]
-                        self.order.remove(nick_name)
-                        break
+                # for key, value in self.server.clients.iteritems():
+                #     if value is client:
+                #         nick_name = self.server.client_nicknames[key]
+                #         del self.server.clients[key]
+                #         del self.server.client_nicknames[key]
+                #         self.order.remove(nick_name)
+                #         break
         for client in dead_clients:
             self.players.remove(client)
+            try:
+                self.ordered.remove(client)
+            except ValueError:
+                self.unordered.remove(client)
+        if need_new_order_event:
+            self.new_order_event()
+
+    def new_order_event(self):
+        pass
+        #self.post(e.NewOrderEvent(self.ordered, self.unordered))
 
 root_obj = ServerEventManager()
 factory = pb.PBServerFactory(root_obj)

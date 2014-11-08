@@ -51,22 +51,44 @@
 
 <GameLobbyScreen>:
     name: 'game lobby'
-    float_layout: kv_float_layout
+    #overall layout
     BoxLayout:
         orientation: 'vertical'
-
-        RelativeLayout:
-            id:kv_float_layout
-#            Label:
-#                text: 'hi'
+        #top lists
+        BoxLayout:
+            #status view (current order and unordered players)
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint_y: .1
+                    text: 'Current Order'
+                ListView:
+                    item_strings: [str(index) for index in range(10)]
+                Label:
+                    size_hint_y: .1
+                    text: 'Unordered Players'
+                ListView:
+                    item_strings: [str(index) for index in range(10)]
+            #Player that I "hand" device to
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint_y: .1
+                    text: 'Player after me'
+                ListView:
+                    item_strings: [str(index) for index in range(20)]
+        #bottom buttons
         BoxLayout:
             size_hint_y: .2
             Button:
-                text: 'undo changes'
+                text: 'Submit Changes'
                 on_release: pass
             Button
-                text: 'submit changes'
+                text: 'Start'
                 on_release: pass
+
+<MyListView>:
+
 
 <GameChooserScreen>:
     name: 'game chooser'

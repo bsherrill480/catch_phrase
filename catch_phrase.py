@@ -197,7 +197,6 @@ class MakeGameScreen(Screen):
 
 class GameLobbyScreen(Screen):
     float_layout = ObjectProperty(None)
-
     def __init__(self, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
         self.grid_names = None
@@ -254,6 +253,9 @@ class MyLabel(Label):
     pass
 
 class MyScat(Scatter):
+    pass
+
+class MyListView(Widget):
     pass
 
 class JoinGameScreen(Screen):

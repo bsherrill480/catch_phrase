@@ -1,5 +1,6 @@
 from twisted.spread import pb
 #Events that are local to server
+
 class Event(object):
     def __init__(self):
         self.name = "Generic Event"
@@ -18,10 +19,4 @@ class CopyableEvent(pb.RemoteCopy, pb.Copyable, Event):
         super(CopyableEvent, self).__init__()
         self.name = "Generic Event"
 
-class NewOrderEvent(CopyableEvent):
-    def __init__(self, new_order):
-        CopyableEvent.__init__(self)
-        self.name = "New Order Event"
-        self.new_order = new_order
-pb.setUnjellyableForClass(NewOrderEvent, NewOrderEvent)
 
