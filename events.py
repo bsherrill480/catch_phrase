@@ -52,20 +52,28 @@ class NewPlayerLineupEvent(CopyableEvent):
         id_nickname list is setup like [ (player.id, player.nickname) for each player ]
         """
         CopyableEvent.__init__(self)
+        self.name = "New Player Lineup Event"
         self.id_nickname_list = id_nickname_list
         self.waiting_list = waiting_list
 pb.setUnjellyableForClass(NewPlayerLineupEvent, NewPlayerLineupEvent)
 
-class NewWaitingEvent(CopyableEvent):
-    def __init__(self, waiting_list):
-        CopyableEvent.__init__(self)
-        self.waiting_list = waiting_list
-pb.setUnjellyableForClass(NewWaitingEvent, NewWaitingEvent)
 
-class NewOrderingEvent(CopyableEvent):
-    def __init__(self, in_order, waiting):
+class StartGameRequestEvent(CopyableEvent):
+    def __init__(self):
         CopyableEvent.__init__(self)
-        self.name = "New Order Event"
-        self.in_order = in_order
-        self.waiting = waiting
-pb.setUnjellyableForClass(NewOrderingEvent, NewOrderingEvent)
+        self.name = "Start Game Requst Event"
+pb.setUnjellyableForClass(StartGameRequestEvent, StartGameRequestEvent)
+
+# class NewWaitingEvent(CopyableEvent):
+#     def __init__(self, waiting_list):
+#         CopyableEvent.__init__(self)
+#         self.waiting_list = waiting_list
+# pb.setUnjellyableForClass(NewWaitingEvent, NewWaitingEvent)
+
+# class NewOrderingEvent(CopyableEvent):
+#     def __init__(self, in_order, waiting):
+#         CopyableEvent.__init__(self)
+#         self.name = "New Order Event"
+#         self.in_order = in_order
+#         self.waiting = waiting
+# pb.setUnjellyableForClass(NewOrderingEvent, NewOrderingEvent)

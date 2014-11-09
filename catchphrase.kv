@@ -68,7 +68,6 @@
                     text: 'waiting on'
                 ListView:
                     id: player_view_list
-                    item_strings: [str(index) for index in range(10)]
             #Player that I "hand" device to
             BoxLayout:
                 orientation: 'vertical'
@@ -82,10 +81,10 @@
             size_hint_y: .2
             Button:
                 text: 'Submit'
-                on_release: pass
+                on_release: root.submit_point_at()
             Button
                 text: 'Start'
-                on_release: pass
+                on_release: root.submit_start_game_request()
 
 <MyListView>:
 

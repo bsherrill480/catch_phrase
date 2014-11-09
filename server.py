@@ -53,31 +53,10 @@ class ServerEventManager(pb.Root):
 
         if not (lobby_id in self.lobbys):
             # print "returning false. keys: ", lobby_id in self.lobbys, str(self.lobbys.keys())
-            return False
+            return None
         lobby = self.lobbys[lobby_id]
         lobby.new_player(self.clients[client_id])
-        # lobby.unordered.append(self.client_nicknames[client_id])
-        # lobby.players.append(self.clients[client_id])
-        # new_order_event = NewOrderEvent(lobby.ordered, lobby.unordered)
-        # lobby.notify(new_order_event)
-        # for client in lobby.players:
-        #     #TODO: INTEGRATE WITH try_client_notify
-        #     try:
-        #         client.callRemote('notify', new_order_event)
-        #     except pb.DeadReferenceError:
-        #         print "dead reference in lobby"
-        #         #can be improved for large dicts? Or use better data struct?:
-        #         #http://stackoverflow.com/questions/8023306/get-key-by-value-in-dictionary
-        #         for key, value in self.clients.iteritems():
-        #             if value is client:
-        #                 nick_name = self.client_nicknames[key]
-        #                 del self.clients[key]
-        #                 del self.client_nicknames[key]
-        #                 lobby.order.remove(nick_name)
-        #                 #lobby.players.remove(client)
-        #                 break
-        print lobby.players
-        return True
+        return lobby
 
     def remote_get_word_list_options(self):
         return self.world_lists.keys()
@@ -118,12 +97,15 @@ class ServerEventManager(pb.Root):
                     break
 
 
-class Lobby:
+class Lobby(pb.Root):
     def __init__(self, server_evm):
         self.server = server_evm
         self.players = []
         self.waiting = [] # organized: [..., (id, nickname), ...]
         self.organizer = cg.Organizer()
+
+    def remote_notify(self, event):
+        self.notify(event)
 
     def new_player(self, player):
         """
@@ -134,20 +116,38 @@ class Lobby:
         self.waiting.append((player.client_id, player.nickname))
         self.new_lineup_event()
 
+    def remove_client_from_waiting(self, client_id):
+        """
+        also notifies
+        """
+        for tup in self.waiting:
+            #tuple is (player_id, player_nick)
+            if tup[0] == client_id:
+                self.waiting.remove(tup)
+                self.new_lineup_event()
+                break
 
     def notify(self, event):
         """
         updates model accordingly, then posts to all players
         """
+        print event.name
         if isinstance(event, e.ToHandoffToEvent):
+            print "is handoff event", [tup for tup in self.waiting]
             self.organizer.set_next(event.my_id, event.to_handoff_to)
-            for tup in self.waiting:
-                #tuple is (player_id, player_nick)
-                if tup[0] == event.my_id:
-                    self.waiting.remove(tup)
-                    self.new_lineup_event()
-                    break
+            self.remove_client_from_waiting(event.my_id)
+            # for tup in self.waiting:
+            #     #tuple is (player_id, player_nick)
+            #     if tup[0] == event.my_id:
+            #         self.waiting.remove(tup)
+            #         self.new_lineup_event()
+            #         break
+            print "sending out new lineup", [tup for tup in self.waiting]
+            self.new_lineup_event()
             return
+        elif isinstance(event, e.StartGameRequestEvent):
+            if self.waiting == []:
+                print "START GAME SUCCESS"
 
         self.post(event)
 
@@ -169,7 +169,9 @@ class Lobby:
 
         for client in dead_clients:
             self.players.remove(client)
+            self.remove_client_from_waiting(client.client_id)
             self.organizer.delete_node(client.client_id)
+
         if need_new_order_event:
             self.new_lineup_event()
 

@@ -12,7 +12,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.adapters.models import SelectableDataItem
 from kivy.adapters.listadapter import ListAdapter
-from kivy.uix.listview import ListItemButton, ListView
+from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
 from kivy.uix.scatter import Scatter
 
 ### TWISTED SETUP
@@ -59,6 +59,8 @@ class CatchPhraseApp(App):
         self.event_manager = ClientEventManager()
         self.uplink = Uplink(self.event_manager)
         self.popup  = None
+        self.lobby = None
+        self.game = None
         return MyScreenManager()
 
     def loading_popup(self, message = "Loading..."):
@@ -231,8 +233,12 @@ class GameLobbyScreen(Screen):
         self.waiting_label = Label(text="Waiting On:")
         self.bad_setup_label = Label(text="Bad Setup:")
         self.ready_label = Label(text="ready")
-
         self.selected_button = Selected()
+
+    def submit_start_game_request(self):
+        if self.view_label is self.waiting_label:
+            start_request = e.StartGameRequestEvent()
+            app.lobby.callRemote("notify", start_request)
 
     def on_pre_enter(self, *args, **kwargs):
         join_screen = app.root.get_screen("join game")
@@ -244,26 +250,32 @@ class GameLobbyScreen(Screen):
         def was_success(result):
             if result:
                 app.close_popup()
+                app.lobby = result
             else:
                 app.generic_popup(message="Unable To Join Game")
                 app.root.change_right("join game")
             return result
         d.addCallback(was_success)
 
+    def submit_point_at(self):
+        if self.selected_button.selected:
+            to_hand_off_to = e.ToHandoffToEvent(app.uplink.id,
+                                                self.selected_button.selected.client_id)
+            app.lobby.callRemote("notify", to_hand_off_to)
+
     def notify(self, event):
         if isinstance(event, e.NewPlayerLineupEvent):
+            #player point_at setup
             data = [self.MyDataItem(self.selected_button, name, client_id)
                     for client_id, name in event.id_nickname_list]
-
-            # args_converter = lambda row_index, obj: {'text': obj.text,
-            #                                          'size_hint_y': .1,
-            #                                          }
             def args_converter(row_index, obj):
                 return_dict = {'text': obj.text, 'size_hint_y': .1}
                 #if we have a button, and if that button has same client_id
                 if (self.selected_button.selected) and \
                         (obj.client_id == self.selected_button.selected.client_id):
                     return_dict["is_selected"] = True
+                else:
+                    return_dict["is_selected"] = False
                 return return_dict
 
             list_adapter = ListAdapter(data=data,
@@ -274,12 +286,11 @@ class GameLobbyScreen(Screen):
                                        allow_empty_selection=True)
 
             self.pointing_to.adapter = list_adapter
-            if event.waiting_list != []:
-                self.view_label = self.waiting_label
-                self.view_list.item_strings = [nickname for id, nickname
-                                               in event.id_nickname_list]
-            else:
-                self.view_list = self.ready_label
+
+            #player_view setup
+            self.view_list.adapter = ListAdapter(data=event.waiting_list,
+                                       cls=ListItemLabel)
+
 
 
     def on_leave(self, *args, **kwargs):
