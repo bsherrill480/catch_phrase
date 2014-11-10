@@ -36,9 +36,19 @@ class Organizer:
             examine_node = examine_node.next
         return len(self.nodes) == len(in_circle_set)
 
-    def visual(self):
+    def visual_strings(self):
+        master_list = []
+        list_of_cycles = self.visual_nodes()
+        for cycle in list_of_cycles:
+            one_cycle = ""
+            for node in cycle:
+                one_cycle = one_cycle + node.data.nickname + " "
+            master_list.append(one_cycle)
+        return master_list
+
+    def visual_nodes(self):
         """
-        returns list of (lists which have visible
+        returns list of (lists which have visible each item as a node)
         """
         master_list = []
         self.visual_helper(master_list, set(self.nodes.values()))
@@ -65,10 +75,10 @@ class Organizer:
             self.visual_helper(master_list, unused_nodes)
 
 if __name__ == '__main__':
-    node1 = Node("1")
-    node2 = Node("2")
-    node3 = Node("3")
-    node4 = Node("4")
+    node1 = Node(None, "1")
+    node2 = Node(None, "2")
+    node3 = Node(None, "3")
+    node4 = Node(None, "4")
     organizer = Organizer()
 
     l = [node1, node2, node3, node4]
@@ -92,4 +102,4 @@ if __name__ == '__main__':
     print organizer.is_perfect_circle()
     vis = organizer.visual()
     for loop in vis:
-        print [x.name for x in loop]
+        print [x for x in loop]

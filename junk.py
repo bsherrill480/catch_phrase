@@ -1,7 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.base import runTouchApp
-
+from kivy.properties import StringProperty
 Builder.load_string("""
 #:import label kivy.uix.label
 #:import sla kivy.adapters.simplelistadapter
@@ -15,15 +15,18 @@ Builder.load_string("""
     Button:
         text: 'push me'
         on_press:
-            cat_dog.adapter = sla.SimpleListAdapter(
-            data=["Item #{0}".format(i) for i in range(10)],
-            cls=label.Label)
+            root.penis()
+            # cat_dog.adapter = sla.SimpleListAdapter(
+            # data=["Item #{0}".format(i) for i in range(10)],
+            # cls=label.Label)
 """)
 
 
 class MyListView(BoxLayout):
-    pass
-
+    word_list_name = StringProperty("No List Selected")
+    def penis(self):
+        self.word_list_name = "PENIS"
+        print type(self.word_list_name), self.word_list_name
 if __name__ == '__main__':
     runTouchApp(MyListView())
 

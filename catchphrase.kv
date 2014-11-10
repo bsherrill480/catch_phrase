@@ -65,7 +65,7 @@
                 Label:
                     id: player_view_label
                     size_hint_y: .1
-                    text: 'waiting on'
+                    text: ''
                 ListView:
                     id: player_view_list
             #Player that I "hand" device to
@@ -125,7 +125,7 @@
                 text: root.word_list_name
         Button:
             text: 'Make Game'
-            on_release: pass
+            on_release: root.make_and_join_game()
 
 <LoginScreen>:
     name: 'login'

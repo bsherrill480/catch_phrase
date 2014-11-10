@@ -211,12 +211,24 @@ class MakeGameScreen(Screen):
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
         d.addCallback(set_game_id)
 
-
+    def make_and_join_game(self):
+        if self.word_list_name != "No List Selected":
+            def was_success(result):
+                if result:
+                    join_screen = app.root.get_screen("join game")
+                    join_screen.game_name_input.text = self.unique_game_id.text
+                    app.root.current = "game lobby"
+                else:
+                    app.generic_popup("Game Name Taken")
+            d = app.uplink.root_obj.callRemote("make_game_lobby",
+                            self.unique_game_id.text, self.word_list_name)
+            d.addCallback(was_success)
+        else:
+            app.generic_popup("Please Select List")
 class GameLobbyScreen(Screen):
     view_label = ObjectProperty(None)
     view_list = ObjectProperty(None)
     pointing_to = ObjectProperty(None)
-
     class MyDataItem(DataItem):
         def __init__(self, selected_obj, text, client_id):
             super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
@@ -233,10 +245,11 @@ class GameLobbyScreen(Screen):
         self.waiting_label = Label(text="Waiting On:")
         self.bad_setup_label = Label(text="Bad Setup:")
         self.ready_label = Label(text="ready")
-        self.selected_button = Selected()
+        self.selected_client = Selected()
+        self.waiting_is_empty = False
 
     def submit_start_game_request(self):
-        if self.view_label is self.waiting_label:
+        if self.waiting_is_empty:
             start_request = e.StartGameRequestEvent()
             app.lobby.callRemote("notify", start_request)
 
@@ -258,24 +271,25 @@ class GameLobbyScreen(Screen):
         d.addCallback(was_success)
 
     def submit_point_at(self):
-        if self.selected_button.selected:
+        selection = self.pointing_to.adapter.selection
+        print ""
+        if self.selected_client.selected:
             to_hand_off_to = e.ToHandoffToEvent(app.uplink.id,
-                                                self.selected_button.selected.client_id)
+                                                self.selected_client.selected.client_id)
             app.lobby.callRemote("notify", to_hand_off_to)
+
 
     def notify(self, event):
         if isinstance(event, e.NewPlayerLineupEvent):
             #player point_at setup
-            data = [self.MyDataItem(self.selected_button, name, client_id)
+            data = [self.MyDataItem(self.selected_client, name, client_id)
                     for client_id, name in event.id_nickname_list]
             def args_converter(row_index, obj):
                 return_dict = {'text': obj.text, 'size_hint_y': .1}
                 #if we have a button, and if that button has same client_id
-                if (self.selected_button.selected) and \
-                        (obj.client_id == self.selected_button.selected.client_id):
+                if (self.selected_client.selected) and \
+                        (obj.client_id == self.selected_client.selected.client_id):
                     return_dict["is_selected"] = True
-                else:
-                    return_dict["is_selected"] = False
                 return return_dict
 
             list_adapter = ListAdapter(data=data,
@@ -284,13 +298,23 @@ class GameLobbyScreen(Screen):
                                        propagate_selection_to_data=True,
                                        selection_mode='single',
                                        allow_empty_selection=True)
-
             self.pointing_to.adapter = list_adapter
 
             #player_view setup
+            if event.waiting_list != []:
+                event.waiting_list = ["waiting on:"] + event.waiting_list
+                self.waiting_is_empty = False
+            else:
+                self.waiting_is_empty = True
             self.view_list.adapter = ListAdapter(data=event.waiting_list,
                                        cls=ListItemLabel)
-
+        elif isinstance(event, e.WrongOrderingEvent):
+            print event.print_out_list
+            self.view_list.adapter = ListAdapter(
+                data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
+                cls = ListItemLabel)
+        elif isinstance(event, e.GameStartEvent):
+            print "GO TO START GAME"
 
 
     def on_leave(self, *args, **kwargs):

@@ -33,6 +33,20 @@ class StartRoundEvent(CopyableEvent):
         self.name = "Start Round Event"
 pb.setUnjellyableForClass(StartRoundEvent, StartRoundEvent)
 
+class WrongOrderingEvent(CopyableEvent):
+    def __init__(self, print_out_list):
+        CopyableEvent.__init__(self)
+        self.name = "Wrong Ordering Event"
+        self.print_out_list = print_out_list
+pb.setUnjellyableForClass(WrongOrderingEvent, WrongOrderingEvent)
+
+
+class GameStartEvent(CopyableEvent):
+    def __init__(self):
+        CopyableEvent.__init__(self)
+        self.name = "Game Start Event"
+pb.setUnjellyableForClass(GameStartEvent, GameStartEvent)
+
 
 class ToHandoffToEvent(CopyableEvent):
     def __init__(self, my_id, to_handoff_to):

@@ -17,11 +17,11 @@ class ServerEventManager(pb.Root):
     def __init__(self):
         self.clients = {}
         self.total_clients = 0
-        self.lobbys = {"d_game": Lobby(self)}
-        self.total_games = 0
-
         self.world_lists = {"animals": ["cat", "dog", "bird"],
                             "objects": ["lamp", "waterbottle", "fork"]}
+        self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"])}
+        self.total_games = 0
+
 
     def remote_register_client(self, root_obj, client_nickname):
         """
@@ -38,9 +38,14 @@ class ServerEventManager(pb.Root):
     def remote_get_unique_game_id(self):
         return "Game" + str(self.total_games)
 
-    def remote_make_game_lobby(self, lobby_id):
-        self.lobbys[lobby_id] = (Lobby(self))
-        self.total_games = self.total_games + 1
+    def remote_make_game_lobby(self, lobby_id, word_list_id):
+        if lobby_id in self.lobbys:
+            return False
+        else:
+            self.lobbys[lobby_id] = Lobby(self, self.world_lists[word_list_id])
+            self.total_games = self.total_games + 1
+            return True
+
         #add failed to make game return
 
     def remote_join_lobby(self, client_id, lobby_id):
@@ -98,7 +103,7 @@ class ServerEventManager(pb.Root):
 
 
 class Lobby(pb.Root):
-    def __init__(self, server_evm):
+    def __init__(self, server_evm, world_list):
         self.server = server_evm
         self.players = []
         self.waiting = [] # organized: [..., (id, nickname), ...]
@@ -146,8 +151,15 @@ class Lobby(pb.Root):
             self.new_lineup_event()
             return
         elif isinstance(event, e.StartGameRequestEvent):
-            if self.waiting == []:
+            if self.organizer.is_perfect_circle():
                 print "START GAME SUCCESS"
+                game_start_event = e.GameStartEvent()
+                self.post(game_start_event)
+                return
+            elif self.waiting == []:
+                print "WRONG ORDERING"
+                self.post(e.WrongOrderingEvent(self.organizer.visual_strings()))
+
 
         self.post(event)
 
