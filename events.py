@@ -2,10 +2,11 @@ from shared_events import *
 
 
 class BeginTurnEvent(CopyableEvent):
-    def __init__(self, player, time_left, word):
+    def __init__(self, client_id, nickname, time_left, word):
         CopyableEvent.__init__(self)
         self.name = "Begin Turn Event"
-        self.player = player
+        self.nickname = nickname
+        self.client_id = client_id
         self.time_left = time_left
         self.word = word
 pb.setUnjellyableForClass(BeginTurnEvent, BeginTurnEvent)

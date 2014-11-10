@@ -2,9 +2,11 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.base import runTouchApp
 from kivy.properties import StringProperty
+from kivy.clock import Clock
 Builder.load_string("""
 #:import label kivy.uix.label
 #:import sla kivy.adapters.simplelistadapter
+#:import Clock kivy.clock.Clock
 <MyListView>:
     ListView:
         id: cat_dog
@@ -15,7 +17,7 @@ Builder.load_string("""
     Button:
         text: 'push me'
         on_press:
-            root.penis()
+            self.text = str(Clock.get_time())
             # cat_dog.adapter = sla.SimpleListAdapter(
             # data=["Item #{0}".format(i) for i in range(10)],
             # cls=label.Label)

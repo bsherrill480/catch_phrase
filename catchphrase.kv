@@ -14,8 +14,9 @@
     MakeGameScreen:
     #  selection list screen done in python
     SelectWordsListScreen:
-    JoinGameScreen
-    GameLobbyScreen
+    JoinGameScreen:
+    GameLobbyScreen:
+    MyGameScreen:
 
 <JoinGameScreen>:
     game_name_input: join_game_id_input
@@ -48,6 +49,29 @@
         Rectangle:
             pos: self.pos
             size: self.size
+
+<MyGameScreen>:
+    name: 'game'
+    players_turn_label: display_name
+    word_label: word_box
+    bottom_buttons: buttons
+    time_label: timer
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            Label:
+                text: "Current Turn: "
+            Label:
+                id: display_name
+        BoxLayout:
+            Label:
+                id: word_box
+                text: "Not Your Turn"
+            Label:
+                id: timer
+                text: ""
+        BoxLayout:
+            id: buttons
 
 <GameLobbyScreen>:
     name: 'game lobby'

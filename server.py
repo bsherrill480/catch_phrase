@@ -1,5 +1,6 @@
 from twisted.spread import pb
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 from catch_phrase_server_game import setup_catch_phrase
 import events as e
 import circle_graph as cg
@@ -15,13 +16,14 @@ class Client:
 
 class ServerEventManager(pb.Root):
     def __init__(self):
+        #NEW COMMENT IN SERVEREVENTMANAGER
         self.clients = {}
         self.total_clients = 0
         self.world_lists = {"animals": ["cat", "dog", "bird"],
                             "objects": ["lamp", "waterbottle", "fork"]}
         self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"])}
         self.total_games = 0
-
+        self.looping_call = None
 
     def remote_register_client(self, root_obj, client_nickname):
         """
@@ -56,7 +58,9 @@ class ServerEventManager(pb.Root):
         # print "lobby_id in lobbys: ", (lobby_id in self.lobbys)
         # print "lobby keys: ", self.lobbys.keys()
 
-        if not (lobby_id in self.lobbys):
+        #note: game is set to None before game starts => check game to see
+        #if game has started
+        if lobby_id not in self.lobbys or self.lobbys[lobby_id].game:
             # print "returning false. keys: ", lobby_id in self.lobbys, str(self.lobbys.keys())
             return None
         lobby = self.lobbys[lobby_id]
@@ -108,6 +112,8 @@ class Lobby(pb.Root):
         self.players = []
         self.waiting = [] # organized: [..., (id, nickname), ...]
         self.organizer = cg.Organizer()
+        self.word_list = world_list
+        self.game = None
 
     def remote_notify(self, event):
         self.notify(event)
@@ -135,33 +141,40 @@ class Lobby(pb.Root):
     def notify(self, event):
         """
         updates model accordingly, then posts to all players
+
+        use return to prevnet going through useless if.. elif.. elif.. else
         """
         print event.name
-        if isinstance(event, e.ToHandoffToEvent):
-            print "is handoff event", [tup for tup in self.waiting]
-            self.organizer.set_next(event.my_id, event.to_handoff_to)
-            self.remove_client_from_waiting(event.my_id)
-            # for tup in self.waiting:
-            #     #tuple is (player_id, player_nick)
-            #     if tup[0] == event.my_id:
-            #         self.waiting.remove(tup)
-            #         self.new_lineup_event()
-            #         break
-            print "sending out new lineup", [tup for tup in self.waiting]
-            self.new_lineup_event()
-            return
-        elif isinstance(event, e.StartGameRequestEvent):
-            if self.organizer.is_perfect_circle():
-                print "START GAME SUCCESS"
-                game_start_event = e.GameStartEvent()
-                self.post(game_start_event)
+        if self.game:
+            self.game.post(event)
+        else:
+            if isinstance(event, e.ToHandoffToEvent):
+                print "is handoff event", [tup for tup in self.waiting]
+                self.organizer.set_next(event.my_id, event.to_handoff_to)
+                self.remove_client_from_waiting(event.my_id)
+                print "sending out new lineup", [tup for tup in self.waiting]
+                self.new_lineup_event()
                 return
-            elif self.waiting == []:
-                print "WRONG ORDERING"
-                self.post(e.WrongOrderingEvent(self.organizer.visual_strings()))
-
-
-        self.post(event)
+            elif isinstance(event, e.StartGameRequestEvent):
+                if self.organizer.is_perfect_circle():
+                    print "START GAME SUCCESS"
+                    self.has_started = True
+                    game_start_event = e.GameStartEvent()
+                    self.post(game_start_event)
+                    self.game = setup_catch_phrase(
+                        self.players,
+                        self.word_list,
+                        self.organizer.client_id_lists()[0][0:-1]#visual_strings returns list
+                    )
+                    def tick_event_to_game():
+                        self.game.post(e.TickEvent())
+                    self.looping_call = LoopingCall(tick_event_to_game)
+                    self.looping_call.start(2.0)
+                    return
+                elif self.waiting == []:
+                    print "WRONG ORDERING"
+                    self.post(e.WrongOrderingEvent(self.organizer.visual_strings()))
+            self.post(event)
 
     def post(self, event):
         """
@@ -186,6 +199,8 @@ class Lobby(pb.Root):
 
         if need_new_order_event:
             self.new_lineup_event()
+            if self.game:
+                pass#do gameover event until implement leaving
 
     def new_lineup_event(self):
         self.post(e.NewPlayerLineupEvent([(player.client_id, player.nickname) for player in self.players],

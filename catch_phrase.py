@@ -14,7 +14,8 @@ from kivy.adapters.models import SelectableDataItem
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
 from kivy.uix.scatter import Scatter
-
+from kivy.clock import Clock
+from twisted.internet.task import LoopingCall
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
@@ -225,6 +226,7 @@ class MakeGameScreen(Screen):
             d.addCallback(was_success)
         else:
             app.generic_popup("Please Select List")
+
 class GameLobbyScreen(Screen):
     view_label = ObjectProperty(None)
     view_list = ObjectProperty(None)
@@ -314,13 +316,73 @@ class GameLobbyScreen(Screen):
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
         elif isinstance(event, e.GameStartEvent):
-            print "GO TO START GAME"
-
+            app.root.current = "game"
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
+#for some reason it does not like "GameScreen" somehow conficts witih MakeGameScreen?
+class MyGameScreen(Screen):
+    players_turn_label = ObjectProperty(None)
+    word_label = ObjectProperty(None)
+    bottom_buttons = ObjectProperty(None)
+    time_label = ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super(MyGameScreen, self).__init__(*args, **kwargs)
+        self.start_round_button = Button(text="Start Round")
+        self.start_round_button.bind(on_release=self.post_round_start_event)
+        self.word_guessed_button = Button(text="Someone Guess Right")
+        self.word_guessed_button.bind(on_release = self.post_end_turn)
+        self.start_time = 0
+        self.turn_time = 0
+        self.looping_call = None #implement later with kivy
+    def post_round_start_event(self, instance):
+        app.lobby.callRemote("notify", e.StartRoundEvent())
+
+    def time_remaining(self):
+        time_elapsed = Clock.get_time() - self.start_time
+        time_remaining = self.turn_time - time_elapsed
+        return time_remaining
+
+    def post_end_turn(self, instance):
+        self.looping_call.stop()
+        app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id, self.time_remaining()))
+        self.word_label.text = "Not Your Turn"
+
+    def on_enter(self, *args, **kwargs):
+        super(MyGameScreen, self).on_enter(*args, **kwargs)
+        self.bottom_buttons.add_widget(self.start_round_button)
+        app.event_manager.register_listener(self)
+
+
+    def notify(self, event):
+        print event
+        if isinstance(event, e.StartRoundEvent):
+            self.bottom_buttons.clear_widgets()
+        elif isinstance(event, e.EndRoundEvent):
+            self.bottom_buttons.clear_widgets()
+            self.bottom_buttons.add_widget(self.start_round_button)
+        elif isinstance(event, e.BeginTurnEvent):
+            print event.word, event.time_left, event.nickname, event.client_id
+            self.players_turn_label.text = event.nickname
+            if event.client_id == app.uplink.id:
+                self.my_turn(event.time_left, event.word)
+
+    def my_turn(self, time_left, word):
+        self.bottom_buttons.clear_widgets()
+        self.bottom_buttons.add_widget(self.word_guessed_button)
+        self.start_time = Clock.get_time()
+        self.turn_time = time_left
+        self.word_label.text = word
+        def count_downer():
+            self.time_label.text = str(self.time_remaining())
+        self.looping_call = LoopingCall(count_downer)
+        self.looping_call.start(1.0)
+
+    def on_leave(self, *args, **kwargs):
+        super(MyGameScreen, self).on_leave(*args, **kwargs)
+        app.event_manager.unregister_listener(self)
 
 class MyLabel(Label):
     pass

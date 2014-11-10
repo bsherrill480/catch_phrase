@@ -121,7 +121,7 @@ class GameStack:
         """
         self.event_stack.append(event)
     def post(self, event):
-        self.event_manager.remote_post(event)
+        self.event_manager.post(event)
 
     def _single_event_notify(self, event):
 

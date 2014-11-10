@@ -36,7 +36,25 @@ class Organizer:
             examine_node = examine_node.next
         return len(self.nodes) == len(in_circle_set)
 
+    def client_id_lists(self):
+        """
+        returns list of (list of strings showing cycles)
+        """
+        # master_list = []
+        # list_of_cycles = self.visual_nodes()
+        # for cycle in list_of_cycles:
+        #     one_cycle = []
+        #     for node in cycle:
+        #         one_cycle.append(node.client_id)
+        #     master_list.append(one_cycle)
+        #
+        # return master_list
+        return [[node.data.client_id for node in cycle]for cycle in self.visual_nodes()]
+
     def visual_strings(self):
+        """
+        returns list of strings showing cycles
+        """
         master_list = []
         list_of_cycles = self.visual_nodes()
         for cycle in list_of_cycles:
