@@ -2,20 +2,16 @@ import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty, ObservableReferenceList, StringProperty, ListProperty
+from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.adapters.models import SelectableDataItem
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
 from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
-from twisted.internet.task import LoopingCall
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
@@ -338,10 +334,19 @@ class MyGameScreen(Screen):
         self.start_round_button.bind(on_release=self.post_round_start_event)
         self.word_guessed_button = Button(text="Someone Guess Right")
         self.word_guessed_button.bind(on_release = self.post_end_turn)
+        self.quit_button = Button(text="quit")
+        self.quit_button.bind(on_release = self.quit)
         self.start_time = 0
         self.turn_time = 0
-        self.looping_call = None #implement later with kivy
+        self.count_downer = None
+    def quit(self, instance):
+        app.root.current = "game chooser"
+        app.lobby = None
+
     def post_round_start_event(self, instance):
+        """
+        used in button
+        """
         app.lobby.callRemote("notify", e.StartRoundEvent())
 
     def time_remaining(self):
@@ -350,7 +355,10 @@ class MyGameScreen(Screen):
         return time_remaining
 
     def post_end_turn(self, instance):
-        self.looping_call.stop()
+        """
+        used in button
+        """
+        Clock.unschedule(self.count_downer)
         self.bottom_buttons.clear_widgets()
         app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id, self.time_remaining()))
         self.word_label.text = "Not Your Turn"
@@ -369,6 +377,7 @@ class MyGameScreen(Screen):
             self.bottom_buttons.clear_widgets()
             self.scores_label.text = event.scores
             self.bottom_buttons.add_widget(self.start_round_button)
+            self.bottom_buttons.add_widget(self.quit_button)
         elif isinstance(event, e.BeginTurnEvent):
             print event.word, event.time_left, event.nickname, event.client_id
             self.players_turn_label.text = "Current Turn: " + event.nickname
@@ -381,10 +390,10 @@ class MyGameScreen(Screen):
         self.start_time = Clock.get_time()
         self.turn_time = time_left
         self.word_label.text = word
-        def count_downer():
+        def count_downer(interval):
             self.time_label.text = str(round(self.time_remaining()))
-        self.looping_call = LoopingCall(count_downer)
-        self.looping_call.start(1.0)
+        self.count_downer = count_downer
+        Clock.schedule_interval(self.count_downer, 1.0)
 
     def on_leave(self, *args, **kwargs):
         super(MyGameScreen, self).on_leave(*args, **kwargs)
@@ -419,9 +428,9 @@ class MyScreenManager(ScreenManager):
     def change_right(self, screen):
         app.root.transition.direction = "right"
         app.root.current = screen
-        def change_left():
+        def change_left(interval):
             app.root.transition.direction = "left"
-        reactor.callLater(.5, change_left)
+        Clock.schedule_once(change_left, 0.5)
 
 
 

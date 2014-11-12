@@ -29,10 +29,14 @@
             TextInput:
                 id: join_game_id_input
                 multiline: False
-        Button:
+        BoxLayout:
             size_hint_y: .2
-            text: 'Join Game'
-            on_release: app.root.current = 'game lobby'
+            Button:
+                text: 'Back'
+                on_release: app.root.change_right('game chooser') # should be refactored to single button amoung all
+            Button:
+                text: 'Join Game'
+                on_release: app.root.current = 'game lobby'
 
 <MyLabel>:
     size: self.texture_size
@@ -149,9 +153,14 @@
             Button:
                 on_release: app.root.current = 'select word list'
                 text: root.word_list_name
-        Button:
-            text: 'Make Game'
-            on_release: root.make_and_join_game()
+        BoxLayout:
+            Button:
+                text: 'Back'
+                on_release: app.root.change_right('game chooser')
+            Button:
+                text: 'Make Game'
+                on_release: root.make_and_join_game()
+
 
 <LoginScreen>:
     name: 'login'

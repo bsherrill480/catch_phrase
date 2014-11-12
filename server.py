@@ -190,7 +190,6 @@ class Lobby(pb.Root):
             try:
                 client.root_obj.callRemote('notify', event)
             except pb.DeadReferenceError:
-                need_new_order_event = True
                 dead_clients.append(client)
                 del self.server.clients[client.client_id]
 

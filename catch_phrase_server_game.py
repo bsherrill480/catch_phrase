@@ -27,13 +27,19 @@ class GameEventManager():
             self.__in_loop = True
             while len(self.event_queue) > 0:
                 event = self.event_queue.popleft()
-                self._single_event_notify(event)
+                is_game_over = self._single_event_notify(event)
+                if is_game_over:
+                    break
             self.event_queue.clear()
             self.__in_loop = False
         elif not is_tick_event:
             self.event_queue.append(event)
 
     def _single_event_notify(self, event):
+        """
+        returns False if game is over, True otherwise
+        """
+        is_game_over = False
         clients_to_remove = []
         if not isinstance(event, e.TickEvent):
             for client in self.clients:
@@ -56,13 +62,12 @@ class GameEventManager():
             self.model.players_order.remove_player(client.client_id)
             self.post(e.EndTurnEvent(client.client_id,30))
         if self.clients == []:
-            try: #incase there are still events to be processed and this gets called multiple times
-                self.game_over_callback()
-                self.looping_call_clients.stop()
-                self.looping_call_self.stop()
-            except:
-                pass
+            self.game_over_callback()
+            self.looping_call_clients.stop()
+            self.looping_call_self.stop()
             print "GAME OVER"
+            is_game_over = True
+        return is_game_over
 
 
 
