@@ -21,7 +21,7 @@ class ServerEventManager(pb.Root):
         self.total_clients = 0
         self.world_lists = {"animals": ["cat", "dog", "bird"],
                             "objects": ["lamp", "waterbottle", "fork"]}
-        self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"])}
+        self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"], "d_game")}
         self.total_games = 0
         self.looping_call = None
 
@@ -30,7 +30,8 @@ class ServerEventManager(pb.Root):
         returns True if client_id is accepted, returns False
         if client_id was already in use
         """
-        assert client_nickname != ""
+        if client_nickname == "":
+            return ""
         client_id = "Client" + str(self.total_clients)
         self.total_clients = self.total_clients + 1
         self.clients[client_id] = Client(root_obj, client_id, client_nickname)
@@ -44,7 +45,7 @@ class ServerEventManager(pb.Root):
         if lobby_id in self.lobbys:
             return False
         else:
-            self.lobbys[lobby_id] = Lobby(self, self.world_lists[word_list_id])
+            self.lobbys[lobby_id] = Lobby(self, self.world_lists[word_list_id], lobby_id)
             self.total_games = self.total_games + 1
             return True
 
@@ -107,14 +108,14 @@ class ServerEventManager(pb.Root):
 
 
 class Lobby(pb.Root):
-    def __init__(self, server_evm, world_list):
+    def __init__(self, server_evm, world_list, lobby_id):
         self.server = server_evm
         self.players = []
         self.waiting = [] # organized: [..., (id, nickname), ...]
         self.organizer = cg.Organizer()
         self.word_list = world_list
         self.game = None
-
+        self.lobby_id = lobby_id
     def remote_notify(self, event):
         self.notify(event)
 
@@ -144,7 +145,7 @@ class Lobby(pb.Root):
 
         use return to prevnet going through useless if.. elif.. elif.. else
         """
-        print event.name
+        print "Recieved:", event.name
         if self.game:
             self.game.post(event)
         else:
@@ -164,12 +165,14 @@ class Lobby(pb.Root):
                     self.game = setup_catch_phrase(
                         self.players,
                         self.word_list,
-                        self.organizer.client_id_lists()[0][0:-1]#visual_strings returns list
+                        self.organizer.client_id_lists()[0][0:-1],#visual_strings returns list
+                        self.game_over_callback
                     )
                     def tick_event_to_game():
                         self.game.post(e.TickEvent())
-                    self.looping_call = LoopingCall(tick_event_to_game)
-                    self.looping_call.start(2.0)
+                    # Testing method where no tick event is needed. Changed gamestack.notify()
+                    # self.looping_call = LoopingCall(tick_event_to_game)
+                    # self.looping_call.start(0.25)
                     return
                 elif self.waiting == []:
                     print "WRONG ORDERING"
@@ -182,7 +185,6 @@ class Lobby(pb.Root):
         clients/players same thing
         """
         dead_clients = []
-        need_new_order_event = False
         for client in self.players:
             #TODO: INTEGRATE WITH try_client_notify
             try:
@@ -197,10 +199,11 @@ class Lobby(pb.Root):
             self.remove_client_from_waiting(client.client_id)
             self.organizer.delete_node(client.client_id)
 
-        if need_new_order_event:
+        if dead_clients:
             self.new_lineup_event()
-            if self.game:
-                pass#do gameover event until implement leaving
+
+    def game_over_callback(self):
+        del self.server.lobbys[self.lobby_id]
 
     def new_lineup_event(self):
         self.post(e.NewPlayerLineupEvent([(player.client_id, player.nickname) for player in self.players],

@@ -22,9 +22,10 @@ pb.setUnjellyableForClass(EndTurnEvent, EndTurnEvent)
 
 
 class EndRoundEvent(CopyableEvent):
-    def __init__(self):
+    def __init__(self, scores):
         CopyableEvent.__init__(self)
         self.name = "End Round Event"
+        self.scores = scores
 pb.setUnjellyableForClass(EndRoundEvent, EndRoundEvent)
 
 
@@ -71,6 +72,11 @@ class NewPlayerLineupEvent(CopyableEvent):
         self.id_nickname_list = id_nickname_list
         self.waiting_list = waiting_list
 pb.setUnjellyableForClass(NewPlayerLineupEvent, NewPlayerLineupEvent)
+
+class EndGameEvent(CopyableEvent):
+    def __init__(self):
+        CopyableEvent.__init__(self)
+pb.setUnjellyableForClass(EndGameEvent, EndGameEvent)
 
 
 class StartGameRequestEvent(CopyableEvent):

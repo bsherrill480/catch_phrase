@@ -39,6 +39,7 @@ class Uplink():
 
     def give_id(self, result):
         self.id = result
+        return result
     def give_nickname_and_password(self, nickname, password):
         self.nickname = nickname
         self.password = password

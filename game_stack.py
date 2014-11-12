@@ -93,27 +93,31 @@ class GameStack:
         # print "   " + event.name
         # print "   event_queue: " + str(self.event_queue)
         # print "   game_stack" + str(self._game_stack)
+        #Potential stack overflow for certain games
+        # #No Tick event needed though
+        self._single_event_notify(event)
 
-        is_tick_event = isinstance(event, TickEvent)
-        if (not self.__in_loop) and is_tick_event:
-            # print "   Tick event recieved, loop starting"
-            self.__in_loop = True
-            while len(self.event_queue) > 0:
-                event = self.event_queue.popleft()#pop off front(to save memory)
-                                  #p.s. a linked list would be awesome for this
-                # print "   launching: " + event.name, " level = ", str(self.level)
-                self._single_event_notify(event)
-                while self.event_stack != []:
-                    self._single_event_notify(self.event_stack.pop())
-            #self.event_queue = deque()
-            self.event_queue.clear()
-            # print "loop ending"
-            self.__in_loop = False
-        elif not is_tick_event:
-            # print "   appending, ", event.name
-            self.event_queue.append(event)
-        # print "   level decreasing"
-        # self.level = self.level - 1
+        #DO NOT DELETE, recursive/stack overflow protected method:
+        # is_tick_event = isinstance(event, TickEvent)
+        # if (not self.__in_loop) and is_tick_event:
+        #     # print "   Tick event recieved, loop starting"
+        #     self.__in_loop = True
+        #     while len(self.event_queue) > 0:
+        #         event = self.event_queue.popleft()#pop off front(to save memory)
+        #                           #p.s. a linked list would be awesome for this
+        #         # print "   launching: " + event.name, " level = ", str(self.level)
+        #         self._single_event_notify(event)
+        #         while self.event_stack != []:
+        #             self._single_event_notify(self.event_stack.pop())
+        #     #self.event_queue = deque()
+        #     self.event_queue.clear()
+        #     # print "loop ending"
+        #     self.__in_loop = False
+        # elif not is_tick_event:
+        #     # print "   appending, ", event.name
+        #     self.event_queue.append(event)
+        # # print "   level decreasing"
+        # # self.level = self.level - 1
 
     def notify_stack(self, event):
         """

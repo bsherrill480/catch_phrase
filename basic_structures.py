@@ -130,14 +130,23 @@ class Order:
         elif not isinstance(order, (tuple, list)):
             raise Exception("Invalid type passed to Order, order must take " + \
                             "a list or tuple")
+        if self.order == []:
+            raise Exception("No empty lists")
+        self.current_player = order[0]
+    def remove_player(self, id):
+        self.order.remove(id)
+        if id in self._stack:
+            self._stack.remove(id)
 
     def __repr__(self):
         return str((self.order, self._stack))
 
     def get_next(self):
         if not (self._stack == []):
-            return self._stack.pop()
-        return self._next_in_list()
+            self.current_player = self._stack.pop()
+            return self.current_player
+        self.current_player = self._next_in_list()
+        return self.current_player
 
     def _next_in_list(self):
         self._index = self._index + 1

@@ -56,13 +56,15 @@
     word_label: word_box
     bottom_buttons: buttons
     time_label: timer
+    scores_label: score
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
             Label:
+                id: display_name
                 text: "Current Turn: "
             Label:
-                id: display_name
+                id: score
         BoxLayout:
             Label:
                 id: word_box

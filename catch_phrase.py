@@ -123,10 +123,13 @@ class LoginScreen(Screen):
             app.generic_popup("can't connect to server")
             return result
         def change_to_gamechooser_screen(result):
-            app.close_popup()
-            app.uplink.evm_registered = True
-            app.root.current = "game chooser"
-            return result
+            if result:
+                app.close_popup()
+                app.uplink.evm_registered = True
+                app.root.current = "game chooser"
+                return result
+            else:
+                app.generic_popup("Empty Username Not Acceptable")
 
         d.addErrback(failed_to_connect) # change to errback when done debug
         d.addCallback(app.uplink.give_root_obj)
@@ -328,6 +331,7 @@ class MyGameScreen(Screen):
     word_label = ObjectProperty(None)
     bottom_buttons = ObjectProperty(None)
     time_label = ObjectProperty(None)
+    scores_label = ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super(MyGameScreen, self).__init__(*args, **kwargs)
         self.start_round_button = Button(text="Start Round")
@@ -347,6 +351,7 @@ class MyGameScreen(Screen):
 
     def post_end_turn(self, instance):
         self.looping_call.stop()
+        self.bottom_buttons.clear_widgets()
         app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id, self.time_remaining()))
         self.word_label.text = "Not Your Turn"
 
@@ -362,10 +367,11 @@ class MyGameScreen(Screen):
             self.bottom_buttons.clear_widgets()
         elif isinstance(event, e.EndRoundEvent):
             self.bottom_buttons.clear_widgets()
+            self.scores_label.text = event.scores
             self.bottom_buttons.add_widget(self.start_round_button)
         elif isinstance(event, e.BeginTurnEvent):
             print event.word, event.time_left, event.nickname, event.client_id
-            self.players_turn_label.text = event.nickname
+            self.players_turn_label.text = "Current Turn: " + event.nickname
             if event.client_id == app.uplink.id:
                 self.my_turn(event.time_left, event.word)
 
@@ -376,7 +382,7 @@ class MyGameScreen(Screen):
         self.turn_time = time_left
         self.word_label.text = word
         def count_downer():
-            self.time_label.text = str(self.time_remaining())
+            self.time_label.text = str(round(self.time_remaining()))
         self.looping_call = LoopingCall(count_downer)
         self.looping_call.start(1.0)
 
