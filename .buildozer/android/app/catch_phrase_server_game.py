@@ -55,11 +55,6 @@ class GameEventManager():
                     #     end_of_turn_event.name = end_of_turn_event.name + " DEAD CLIENT, No begin turn"
                     #     event_to_launch = end_of_turn_event
                     clients_to_remove.append(client)
-
-        if isinstance(event, e.QuitEvent):
-            for client in self.clients:
-                if client.client_id == event.client_id and client not in clients_to_remove: #fuck effeciency!
-                    clients_to_remove.append(client)
         self.game_stack.notify(event) #let it generate begin event
         for client in clients_to_remove:
             print "removing client:", client.client_id, client.nickname

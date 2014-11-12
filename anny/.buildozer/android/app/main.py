@@ -1,5 +1,3 @@
-#this is not main
-
 import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -343,8 +341,6 @@ class MyGameScreen(Screen):
         self.count_downer = None
     def quit(self, instance):
         app.root.current = "game chooser"
-        print app.uplink.id
-        app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
 
     def post_round_start_event(self, instance):

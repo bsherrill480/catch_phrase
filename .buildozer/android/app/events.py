@@ -85,13 +85,6 @@ class StartGameRequestEvent(CopyableEvent):
         self.name = "Start Game Requst Event"
 pb.setUnjellyableForClass(StartGameRequestEvent, StartGameRequestEvent)
 
-class QuitEvent(CopyableEvent):
-    def __init__(self, client_id):
-        CopyableEvent.__init__(self)
-        self.name = "Quit Event"
-        self.client_id = client_id
-pb.setUnjellyableForClass(QuitEvent, QuitEvent)
-
 # class NewWaitingEvent(CopyableEvent):
 #     def __init__(self, waiting_list):
 #         CopyableEvent.__init__(self)
