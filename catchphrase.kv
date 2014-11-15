@@ -1,22 +1,17 @@
-#:kivy 1.0.9
+#:kivy 1.8.0
 #:import BoxLayout kivy.uix.boxlayout.BoxLayout
 #:import TextInput kivy.uix.textinput.TextInput
 #:import Label kivy.uix.label.Label
 #:import Button kivy.uix.button.Button
-#:import Popup kivy.uix.popup.Popup
-#:import ScrollView kivy.uix.scrollview.ScrollView
-#:import label kivy.uix.label
-#:import sla kivy.adapters.simplelistadapter
 
 <MyScreenManager>:
     LoginScreen:
     GameChooserScreen:
     MakeGameScreen:
-    #  selection list screen done in python
     SelectWordsListScreen:
     JoinGameScreen:
     GameLobbyScreen:
-    MyGameScreen:
+    GameScreen:
 
 <JoinGameScreen>:
     game_name_input: join_game_id_input
@@ -38,23 +33,8 @@
                 text: 'Join Game'
                 on_release: app.root.current = 'game lobby'
 
-<MyLabel>:
-    size: self.texture_size
-    canvas.after:
-        Color:
-            rgba: (0,0,1,.5)
-        Rectangle:
-            pos: self.pos
-            size: self.size
-<MyScat>:
-    canvas.after:
-        Color:
-            rgba: (0,1,1,.5)
-        Rectangle:
-            pos: self.pos
-            size: self.size
 
-<MyGameScreen>:
+<GameScreen>:
     name: 'game'
     players_turn_label: display_name
     word_label: word_box
@@ -115,8 +95,6 @@
             Button
                 text: 'Start'
                 on_release: root.submit_start_game_request()
-
-<MyListView>:
 
 
 <GameChooserScreen>:

@@ -1,3 +1,5 @@
+#this is not main
+
 import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -112,7 +114,7 @@ class LoginScreen(Screen):
     def login(self, nickname, password):
         app.uplink.give_nickname_and_password(nickname, password)
         app.loading_popup(message="Logging in...")
-        reactor.connectTCP("192.168.0.111", 8800, self.factory)
+        reactor.connectTCP("54.69.181.128", 8800, self.factory)
         d = self.factory.getRootObject()
 
         def failed_to_connect(result):
@@ -341,6 +343,8 @@ class MyGameScreen(Screen):
         self.count_downer = None
     def quit(self, instance):
         app.root.current = "game chooser"
+        print app.uplink.id
+        app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
 
     def post_round_start_event(self, instance):
@@ -365,6 +369,7 @@ class MyGameScreen(Screen):
 
     def on_enter(self, *args, **kwargs):
         super(MyGameScreen, self).on_enter(*args, **kwargs)
+        self.bottom_buttons.clear_widgets()
         self.bottom_buttons.add_widget(self.start_round_button)
         app.event_manager.register_listener(self)
 

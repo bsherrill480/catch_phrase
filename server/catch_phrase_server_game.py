@@ -1,34 +1,25 @@
-from model import Model, DEFAULT_TIME
+from model import Model
 from game_stack import GameStack
 from twisted.spread import pb
-from twisted.internet import reactor #This isn't used, but maybe Looping cal needs?
-from twisted.internet.task import LoopingCall #Nope this is used...
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 from collections import deque
 import events as e
 
 
 class GameEventManager():
-    """
-    handles game events
-    """
     def __init__(self, clients, game_over_callback):
-        #externally stuff refers to done in setup_catch_phrase
-        self.clients = clients #list of clients
+        self.clients = clients
         self.game_over_callback = game_over_callback
-        self.game_stack = None # needs to be set externally
-        self.model = None # needs to be set externally
-        self.looping_call_clients = None #check for dead clients.
-        self.looping_call_self = LoopingCall(self.post, e.TickEvent()) #give myself TickEvents
-                                                             #needs to be started externally
-        self.event_queue = deque()# O(1) leftpop()
+        self.game_stack = None # needs to be set
+        self.model = None # needs to be set
+        self.looping_call_clients = None
+        self.looping_call_self = LoopingCall(self.post, e.TickEvent())
+        self.event_queue = deque()
         self.__in_loop = False
 
     def post(self, event):
-        """
-        posts to clients. Handles if they leave.
-        """
-        #TODO: see why I did this. Was I just tired or was there a reason?
-        if not self.looping_call_clients: #setup because we can't in __init__?
+        if not self.looping_call_clients: #setup client cleanup
             self.looping_call_clients = LoopingCall(self.post, e.CopyableEvent())#check for pulse of clients
             self.looping_call_clients.start(15.0) #every 15 seconds
         is_tick_event = isinstance(event, e.TickEvent)
@@ -36,11 +27,8 @@ class GameEventManager():
             self.__in_loop = True
             while len(self.event_queue) > 0:
                 event = self.event_queue.popleft()
-                self._single_event_notify(event)
-                if self.clients == []: #if game is over (clients are all gone)
-                    self.game_over_callback()
-                    self.looping_call_clients.stop()
-                    self.looping_call_self.stop()
+                is_game_over = self._single_event_notify(event)
+                if is_game_over:
                     break
             self.event_queue.clear()
             self.__in_loop = False
@@ -49,51 +37,58 @@ class GameEventManager():
 
     def _single_event_notify(self, event):
         """
-        Notifies clients of a single event. Removes clients if they are dead
-        and updates game appropriately.
+        returns False if game is over, True otherwise
         """
+        is_game_over = False
         clients_to_remove = []
-        if not isinstance(event, e.TickEvent): #technically I shouldn't be seeing any tick events
+        if not isinstance(event, e.TickEvent):
             for client in self.clients:
                 try:
                     client.root_obj.callRemote("notify", event)
                 except pb.DeadReferenceError:
+                    # if isinstance(event, e.BeginTurnEvent) and client.client_id == event.client_id:
+                    #     end_of_turn_event = e.EndTurnEvent(client.client_id,event.time_left)
+                    #     end_of_turn_event.name = end_of_turn_event.name + " DEAD CLIENT, saw begin turn"
+                    #     event_to_launch = end_of_turn_event
+                    # else: #incase it was the clients turn when they left.
+                    #     end_of_turn_event = e.EndTurnEvent(client.client_id, 30)
+                    #     end_of_turn_event.name = end_of_turn_event.name + " DEAD CLIENT, No begin turn"
+                    #     event_to_launch = end_of_turn_event
                     clients_to_remove.append(client)
+
         if isinstance(event, e.QuitEvent):
-            #fuck effeciency, get readability!
             for client in self.clients:
-                if client.client_id == event.client_id and client not in clients_to_remove:
+                if client.client_id == event.client_id and client not in clients_to_remove: #fuck effeciency!
                     clients_to_remove.append(client)
-        self.game_stack.notify(event) #let it generate begin event (if it was going to)
+        self.game_stack.notify(event) #let it generate begin event
         for client in clients_to_remove:
+            print "removing client:", client.client_id, client.nickname
             self.clients.remove(client)
             self.model.players_order.remove_player(client.client_id)
-            #TODO: make model keep track of timeleft, so it won't default to DEFAULT_TIME
-            #TODO: when someone leaves the game.
-            self.post(e.EndTurnEvent(client.client_id, DEFAULT_TIME))
+            self.post(e.EndTurnEvent(client.client_id,30))
+        if self.clients == []:
+            self.game_over_callback()
+            self.looping_call_clients.stop()
+            self.looping_call_self.stop()
+            print "GAME OVER"
+            is_game_over = True
+        return is_game_over
 
+
+
+class Game:
+    def __init__(self, game_stack):
+        self.game_stack = game_stack
 
 class BaseGame:
-    """
-    Used by game_stack. Base game.
-    model passed is "base model" in game_stack
-    and a Model() object
-    """
     def __init__(self, game_stack, model):
         self.game_stack = game_stack
         self.model = model
-
     def __call__(self, event):
         if isinstance(event, e.StartRoundEvent):
             self.game_stack.push(PlayerGuessGame(self.game_stack))
 
-class PlayerGuessGame:
-    """
-    Used by game_stack. 2nd level game.
-    """
-    def __init__(self, game_stack):
-        self.game_stack = game_stack
-
+class PlayerGuessGame(Game):
     def on_push(self):
         self.model = self.game_stack.get_model("base game")
         current_player = self.model.players_order.get_next()
@@ -102,7 +97,6 @@ class PlayerGuessGame:
         begin_turn_event = e.BeginTurnEvent(current_player,
                     self.model.nicknames[current_player], time_left, current_word)
         self.game_stack.post(begin_turn_event)
-
     def __call__(self, event):
         if isinstance(event, e.EndTurnEvent):
         #     print event.player, event.time_left, event.name
@@ -133,10 +127,10 @@ class PlayerGuessGame:
 def setup_catch_phrase(players, word_list, player_order, game_over_callback):
     """
     returns event_manager for game
-    players is a list of client objects (as defined in server)
+
+    players is a dictionary (client id: root_obj)
     word list is just a list of words
-    player_order is how turn should progress.
-        should be list of client_id. Will be turned into circular list
+    player_order is how turn should progress
     """
     event_manager = GameEventManager(players, game_over_callback)
     game_stack = GameStack(event_manager)
@@ -146,7 +140,7 @@ def setup_catch_phrase(players, word_list, player_order, game_over_callback):
     base_game = BaseGame(game_stack, model)
     event_manager.model = model
     game_stack.push(base_game, model, "base game")
-    event_manager.looping_call_self.start(.25) # to check for dead clients
+    event_manager.looping_call_self.start(.25)
     return event_manager
 
 if __name__ == '__main__':

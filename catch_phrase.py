@@ -3,22 +3,20 @@
 import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from kivy.uix.gridlayout import GridLayout
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
-from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
+
 
 class DataItem(object):
     """
@@ -44,6 +42,7 @@ class DataItem(object):
             self.selected_obj.selected = self
         self._is_selected = value
 
+
 class Selected():
     """
     used in buttons. Basically just using as a reference/pointer
@@ -57,27 +56,36 @@ class CatchPhraseApp(App):
     def build(self):
         self.event_manager = ClientEventManager()
         self.uplink = Uplink(self.event_manager)
-        self.popup  = None
-        self.lobby = None
+        self.popup = None
+        self.lobby = None # will be a root_obj, ie twisted.spread.pb.root
         self.game = None
         return MyScreenManager()
 
     def loading_popup(self, message = "Loading..."):
-        if self.popup:
-            self.close_popup()
+        """
+        makes a loading popup with no close button. Optional agrument
+        to change message
+        """
+        self.close_popup()
         self.popup = Popup(content=Label(text=message), auto_dismiss=False,
                                                 size_hint = (1,.5), title="")
         self.popup.open()
 
     def close_popup(self, result=None):
+        """
+        closes popup if open, takes optional argument incase used in twisted
+        deferred
+        """
         if self.popup:
             self.popup.dismiss()
-            self.popup = None
         return result
 
     def generic_popup(self, message):
-        if self.popup:
-            self.close_popup()
+        """
+        closes popup if there is one open. Makes new popup with a close button
+        and the passed message.
+        """
+        self.close_popup()
         box_layout = BoxLayout(orientation="vertical")
         box_layout.add_widget(Label(text=message,
                                     size_hint = (1,.8)))
@@ -88,20 +96,7 @@ class CatchPhraseApp(App):
         close_button.bind(on_release=self.popup.dismiss)
         self.popup.open()
 
-#    def on_stop(self, *args, **kwargs):
-
-        # sup = super(CatchPhraseApp, self)
-        # def container(result):
-        #     print "IN CONTAINER"
-        #     sup.on_stop(*args, **kwargs)
-        # d = self.uplink.unregister_evm()
-        # if d:#if we got a deferred
-        #     print "adding callback"
-        #     d.addCallback(container)
-        # else:
-        #     sup.on_stop(*args, **kwargs)
-
-#HOLY SHIT DON'T OVERLOOK THIS
+#added so all code should have access to app
 app = CatchPhraseApp()
 
 
@@ -112,9 +107,14 @@ class LoginScreen(Screen):
         self.factory = pb.PBClientFactory()
 
     def login(self, nickname, password):
+        """
+        attempts to login to server. displays loading popup until
+        logged in. Displays failed to connect popup if unable to
+        connect
+        """
         app.uplink.give_nickname_and_password(nickname, password)
         app.loading_popup(message="Logging in...")
-        reactor.connectTCP("192.168.0.111", 8800, self.factory)
+        reactor.connectTCP("localhost", 8800, self.factory)
         d = self.factory.getRootObject()
 
         def failed_to_connect(result):
@@ -135,29 +135,10 @@ class LoginScreen(Screen):
         d.addCallback(app.uplink.give_id)
         d.addCallback(change_to_gamechooser_screen)
 
-    def logging_in_popup(self):
-        # create content and add to the popup
-        label = Label(text='logging in...')
-        popup = Popup(content=label, auto_dismiss=False, size_hint = (1, .5), title="")
-        popup.open()
-        return popup
-
-
-class MainView(GridLayout):
-    '''
-    Implementation of a simple list view with 100 items.
-    '''
-
-    def __init__(self, **kwargs):
-        kwargs['cols'] = 1
-        super(MainView, self).__init__(**kwargs)
-        list_view = ListView(item_strings=[str(index) for index in range(100)])
-        self.add_widget(list_view)
-
 
 class SelectWordsListScreen(Screen):
     """
-    Note: get data from server when chaning to this screen
+    Screen for choosing list of words in MakeGameScreen
     """
 
     def __init__(self, *args, **kwargs):
@@ -193,21 +174,31 @@ class SelectWordsListScreen(Screen):
             box_layout.add_widget(button)
             self.add_widget(box_layout)
 
-
         d = app.uplink.root_obj.callRemote("get_word_list_options")
         d.addCallback(build_screen)
         d.addCallback(app.close_popup)
 
 
 class GameChooserScreen(Screen):
+    """
+    Join Game or Make Game screen.
+    """
     pass
 
 
 class MakeGameScreen(Screen):
+    """
+    Screen to select options and make a game
+    """
     unique_game_id = ObjectProperty(None)
     word_list_name = StringProperty("No List Selected")
+
     def get_unique_game_id(self):
-        print "changing id"
+        """
+        ask server for a game id. Technically not unique, as a user could choose
+        to make a game in the format of the unqiue_game_id". Format is
+        "Game" + str(total_number_of_games_ever_made)
+        """
         def set_game_id(result):
             self.unique_game_id.text = result
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
@@ -229,9 +220,13 @@ class MakeGameScreen(Screen):
             app.generic_popup("Please Select List")
 
 class GameLobbyScreen(Screen):
+    """
+    screen before game starts. Users need to input who they will pass the device
+    to.
+    """
     view_label = ObjectProperty(None)
     view_list = ObjectProperty(None)
-    pointing_to = ObjectProperty(None)
+    pointing_to = ObjectProperty(None)#List of buttons of players who can be point to
     class MyDataItem(DataItem):
         def __init__(self, selected_obj, text, client_id):
             super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
@@ -244,17 +239,14 @@ class GameLobbyScreen(Screen):
 
     def __init__(self, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
-        self.pointing_at = None
+        self.pointing_at = None # who user is pointing to
         self.waiting_label = Label(text="Waiting On:")
-        self.bad_setup_label = Label(text="Bad Setup:")
-        self.ready_label = Label(text="ready")
         self.selected_client = Selected()
         self.waiting_is_empty = False
 
     def submit_start_game_request(self):
         if self.waiting_is_empty:
-            start_request = e.StartGameRequestEvent()
-            app.lobby.callRemote("notify", start_request)
+            app.lobby.callRemote("notify", e.StartGameRequestEvent())
 
     def on_pre_enter(self, *args, **kwargs):
         join_screen = app.root.get_screen("join game")
@@ -274,13 +266,10 @@ class GameLobbyScreen(Screen):
         d.addCallback(was_success)
 
     def submit_point_at(self):
-        selection = self.pointing_to.adapter.selection
-        print ""
         if self.selected_client.selected:
             to_hand_off_to = e.ToHandoffToEvent(app.uplink.id,
                                                 self.selected_client.selected.client_id)
             app.lobby.callRemote("notify", to_hand_off_to)
-
 
     def notify(self, event):
         if isinstance(event, e.NewPlayerLineupEvent):
@@ -312,7 +301,6 @@ class GameLobbyScreen(Screen):
             self.view_list.adapter = ListAdapter(data=event.waiting_list,
                                        cls=ListItemLabel)
         elif isinstance(event, e.WrongOrderingEvent):
-            print event.print_out_list
             self.view_list.adapter = ListAdapter(
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
@@ -323,15 +311,15 @@ class GameLobbyScreen(Screen):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
-#for some reason it does not like "GameScreen" somehow conficts witih MakeGameScreen?
-class MyGameScreen(Screen):
+#for some reason it does not allow "GameScreen" somehow conficts with MakeGameScreen?
+class GameScreen(Screen):
     players_turn_label = ObjectProperty(None)
     word_label = ObjectProperty(None)
     bottom_buttons = ObjectProperty(None)
     time_label = ObjectProperty(None)
     scores_label = ObjectProperty(None)
     def __init__(self, *args, **kwargs):
-        super(MyGameScreen, self).__init__(*args, **kwargs)
+        super(GameScreen, self).__init__(*args, **kwargs)
         self.start_round_button = Button(text="Start Round")
         self.start_round_button.bind(on_release=self.post_round_start_event)
         self.word_guessed_button = Button(text="Someone Guess Right")
@@ -341,9 +329,12 @@ class MyGameScreen(Screen):
         self.start_time = 0
         self.turn_time = 0
         self.count_downer = None
+
     def quit(self, instance):
+        """
+        used in button
+        """
         app.root.current = "game chooser"
-        print app.uplink.id
         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
 
@@ -368,22 +359,21 @@ class MyGameScreen(Screen):
         self.word_label.text = "Not Your Turn"
 
     def on_enter(self, *args, **kwargs):
-        super(MyGameScreen, self).on_enter(*args, **kwargs)
+        super(GameScreen, self).on_enter(*args, **kwargs)
+        self.bottom_buttons.clear_widgets()#playing another game
         self.bottom_buttons.add_widget(self.start_round_button)
         app.event_manager.register_listener(self)
 
 
     def notify(self, event):
-        print event
         if isinstance(event, e.StartRoundEvent):
             self.bottom_buttons.clear_widgets()
         elif isinstance(event, e.EndRoundEvent):
             self.bottom_buttons.clear_widgets()
             self.scores_label.text = event.scores
-            self.bottom_buttons.add_widget(self.start_round_button)
             self.bottom_buttons.add_widget(self.quit_button)
+            self.bottom_buttons.add_widget(self.start_round_button)
         elif isinstance(event, e.BeginTurnEvent):
-            print event.word, event.time_left, event.nickname, event.client_id
             self.players_turn_label.text = "Current Turn: " + event.nickname
             if event.client_id == app.uplink.id:
                 self.my_turn(event.time_left, event.word)
@@ -396,35 +386,16 @@ class MyGameScreen(Screen):
         self.word_label.text = word
         def count_downer(interval):
             self.time_label.text = str(round(self.time_remaining()))
+        count_downer(0)#forced to pass some argument
         self.count_downer = count_downer
         Clock.schedule_interval(self.count_downer, 1.0)
 
     def on_leave(self, *args, **kwargs):
-        super(MyGameScreen, self).on_leave(*args, **kwargs)
+        super(GameScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
-
-class MyLabel(Label):
-    pass
-
-class MyScat(Scatter):
-    pass
-
-
-class MyListView(Widget):
-    pass
 
 
 class JoinGameScreen(Screen):
-    game_name_input = ObjectProperty(None)
-    def join_game(self):
-        print "JOINING GAME"
-
-
-class SetupScreen(Screen):
-    pass
-
-
-class GameScreen(Screen):
     pass
 
 

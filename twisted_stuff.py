@@ -2,6 +2,7 @@ from twisted.internet import reactor
 from twisted.spread import pb
 from twisted.internet import defer
 
+#TODO: UPDATE AND MAKE MORE USER FRIENDLY AND READABLE
 class Uplink():
     """
     A class which provides access to the server.
@@ -13,7 +14,7 @@ class Uplink():
     """
     def __init__(self, evm):
         """
-        Must past ClientEventManager
+        Must pass ClientEventManager
         """
         self.root_obj = None
         self.evm = evm
@@ -37,35 +38,31 @@ class Uplink():
         """
         return self.root_obj.callRemote("register_client", self.evm, self.nickname)
 
+    #TODO: refactor to get_id
     def give_id(self, result):
+        """
+        for getting id from server. Use in a callback.
+        """
         self.id = result
         return result
+
     def give_nickname_and_password(self, nickname, password):
+        """
+        just like it says.
+        """
         self.nickname = nickname
         self.password = password
 
-    def unregister_evm(self):
-        #TODO: GET THIS WORKING
-        """
-        returns deferred if need to unregister else returns None
-        """
-        print "unregister_evm called"
-        if self.evm_registered:
-            print "attempting unregister"
-            return self.root_obj.callRemote("unregister_client", self.username)
-
-
     def give_root_obj(self, root_obj):
         """
-        root_obj is server's root remotley referencable object.
+        root_obj is server's root remotely referencable object.
         """
         self.root_obj = root_obj
 
-###TWISTED SETUP DONE
 
 class ClientEventManager(pb.Root):
     """
-    Manages events on client side. Is remotley referencable
+    channels events on client side. Is remotley referencable
     """
     def __init__(self):
         self.listeners = []

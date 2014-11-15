@@ -1,5 +1,9 @@
-from random import shuffle as sh
+"""
+I made this for general use in making a game. So a lot of whats's here is
+not ready yet.
+"""
 
+from random import shuffle as sh
 
 class Card:
     def __init__(self):
@@ -109,48 +113,57 @@ class Player:
 
 class Order:
     """
-    returns turn order in cyclic fashion
-
+    This one is actually ready. Pretty simple class.
+    Basically a circular list with a stack if you want dynamic adding to turns.
+    also keeps track of who's current turn it is in current_player.
     """
-    def __init__(self ,order):
+    def __init__(self, order):
         """
-        order is a list player's of how turn order should go.
-        on the last index, switches back to first index. can
-        construct copy of passed order
+        order is a non-emtpy list/tuple of players.
+        order[0] goes first, order[1] goes second...
+        Raises TypeError if not given list/tuple
+        Raises ValueError if list/tuple is empty
         """
-        #internals:
-        #_stack is used to modify turn order
-        self._stack = []
+        if not isinstance(order, (tuple, list)):
+            raise TypeError("Invalid type passed to Order, order must take " + \
+                            "a list, tuple")
+        if order == [] or order == tuple():
+            raise ValueError("No empty lists/tuples")
+        self.stack = []
         self._index = -1
-        self.order = order
-        if isinstance(order, Order):
-            self._stack = list(order._stack)#new copies
-            self._index = order._index
-            self.order = list(order.order)#new copies
-        elif not isinstance(order, (tuple, list)):
-            raise Exception("Invalid type passed to Order, order must take " + \
-                            "a list or tuple")
-        if self.order == []:
-            raise Exception("No empty lists")
+        self._order = list(order) #incase was passed tuple
         self.current_player = order[0]
-    def remove_player(self, id):
-        self.order.remove(id)
-        if id in self._stack:
-            self._stack.remove(id)
+
+    def remove_player(self, player):
+        """
+        Only remove a player if he exists to this class.
+        removes player from being called again.
+        Does not change self.current_player.
+        """
+        self._order.remove(player)
+        if player in self.stack:
+            self.stack.remove(player)
 
     def __repr__(self):
-        return str((self.order, self._stack))
+        return "Order: " + str(self._order) + " Stack: " + str(self.stack)
 
     def get_next(self):
-        if not (self._stack == []):
-            self.current_player = self._stack.pop()
-            return self.current_player
-        self.current_player = self._next_in_list()
+        """
+        returns the next player and sets him to the current_player
+        """
+        if self.stack != []:
+            self.current_player = self.stack.pop()
+        else:
+            self.current_player = self._next_in_list()
         return self.current_player
 
     def _next_in_list(self):
+        """
+        returns the next in _order and incriments _index appropritley
+        so we can be circular
+        """
         self._index = self._index + 1
-        if self._index > (len(self.order) - 1):
+        if self._index > (len(self._order) - 1):
             self._index = 0
-        return self.order[self._index]
+        return self._order[self._index]
 

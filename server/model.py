@@ -1,15 +1,21 @@
 from basic_structures import Order
 import random as sh
-DEFAULT_TIME = 30.0
 class Model:
+    DEFAULT_TIME = 30.0
     def __init__(self, players, word_list, nicknames):
 
         """
         players is a list of client ids.
-        word_list is the list of words
-        nicknames is a dictionary of {client_id : client object}
         """
         self.nicknames = nicknames
+        print players
+        for player in players:
+            l2 = list(players)
+            l2.remove(player)
+            for player2 in l2:
+                assert player != player2
+        assert len(players) >= 1
+
         self.players_order = Order(players)
         sh.shuffle(word_list)
         self.word_order = Order(word_list)

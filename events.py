@@ -51,6 +51,9 @@ pb.setUnjellyableForClass(GameStartEvent, GameStartEvent)
 
 
 class ToHandoffToEvent(CopyableEvent):
+    """
+    For telling who should follow who in turn order.
+    """
     def __init__(self, my_id, to_handoff_to):
         """
         to_handoff_to is client_id
@@ -91,17 +94,3 @@ class QuitEvent(CopyableEvent):
         self.name = "Quit Event"
         self.client_id = client_id
 pb.setUnjellyableForClass(QuitEvent, QuitEvent)
-
-# class NewWaitingEvent(CopyableEvent):
-#     def __init__(self, waiting_list):
-#         CopyableEvent.__init__(self)
-#         self.waiting_list = waiting_list
-# pb.setUnjellyableForClass(NewWaitingEvent, NewWaitingEvent)
-
-# class NewOrderingEvent(CopyableEvent):
-#     def __init__(self, in_order, waiting):
-#         CopyableEvent.__init__(self)
-#         self.name = "New Order Event"
-#         self.in_order = in_order
-#         self.waiting = waiting
-# pb.setUnjellyableForClass(NewOrderingEvent, NewOrderingEvent)

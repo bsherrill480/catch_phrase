@@ -11,7 +11,6 @@ class TickEvent(Event):
         Event.__init__(self)
         self.name = "Tick Event"
 
-
 #Events which need to be sent through network
 class CopyableEvent(pb.RemoteCopy, pb.Copyable, Event):
     def __init__(self):

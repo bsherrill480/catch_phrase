@@ -12,6 +12,7 @@ class TickEvent(Event):
         self.name = "Tick Event"
 
 #Events which need to be sent through network
+#Also used as a TickEvent to see if network clients diconnected
 class CopyableEvent(pb.RemoteCopy, pb.Copyable, Event):
     def __init__(self):
         super(CopyableEvent, self).__init__()
