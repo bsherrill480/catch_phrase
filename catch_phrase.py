@@ -385,7 +385,10 @@ class GameScreen(Screen):
         self.turn_time = time_left
         self.word_label.text = word
         def count_downer(interval):
-            self.time_label.text = str(round(self.time_remaining()))
+            time_remaining  = self.time_remaining()
+            self.time_label.text = str(round(time_remaining))
+            if time_remaining < 0.0:
+                self.post_end_turn(0)#forced to pass some argument
         count_downer(0)#forced to pass some argument
         self.count_downer = count_downer
         Clock.schedule_interval(self.count_downer, 1.0)

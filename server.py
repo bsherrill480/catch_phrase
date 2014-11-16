@@ -44,7 +44,7 @@ class ServerEventManager(pb.Root):
     def remote_get_unique_game_id(self):
         """
         not <i>guaranteed</i> to be unique. But in practice
-        it is. Worst case scenario user gets a "game name in
+        it will be. Worst case scenario user gets a "game name in
         use" popup
         """
         game_name = "Game" + str(self.total_games)

@@ -8,19 +8,37 @@ Builder.load_string("""
 #:import sla kivy.adapters.simplelistadapter
 #:import Clock kivy.clock.Clock
 <MyListView>:
-    ListView:
-        id: cat_dog
-        adapter:
-            sla.SimpleListAdapter(
-            data=["Item #{0}".format(i) for i in range(100)],
-            cls=label.Label)
-    Button:
-        text: 'push me'
-        on_press:
-            self.text = str(Clock.get_time())
-            # cat_dog.adapter = sla.SimpleListAdapter(
-            # data=["Item #{0}".format(i) for i in range(10)],
-            # cls=label.Label)
+    BoxLayout:
+        size_hint_x: .5
+        canvas.before:
+            Color:
+                rgba: 1,0,0,.5
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            size_hint_x: .9
+            text: "poop"
+        Label:
+            size_hint_x: .1
+            text: "doop"
+    Label:
+        size_hint_x: .5
+
+        text: "gtfo"
+    # ListView:
+    #     id: cat_dog
+    #     adapter:
+    #         sla.SimpleListAdapter(
+    #         data=["Item #{0}".format(i) for i in range(100)],
+    #         cls=label.Label)
+    # Button:
+    #     text: 'push me'
+    #     on_press:
+    #         self.text = str(Clock.get_time())
+    #         # cat_dog.adapter = sla.SimpleListAdapter(
+    #         # data=["Item #{0}".format(i) for i in range(10)],
+    #         # cls=label.Label)
 """)
 
 

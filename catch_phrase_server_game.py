@@ -68,9 +68,7 @@ class GameEventManager():
         for client in clients_to_remove:
             self.clients.remove(client)
             self.model.players_order.remove_player(client.client_id)
-            #TODO: make model keep track of timeleft, so it won't default to DEFAULT_TIME
-            #TODO: when someone leaves the game.
-            self.post(e.EndTurnEvent(client.client_id, DEFAULT_TIME))
+            self.post(e.EndTurnEvent(client.client_id, self.model.time_left))
 
 
 class BaseGame:
@@ -86,6 +84,7 @@ class BaseGame:
     def __call__(self, event):
         if isinstance(event, e.StartRoundEvent):
             self.game_stack.push(PlayerGuessGame(self.game_stack))
+
 
 class PlayerGuessGame:
     """
@@ -104,23 +103,16 @@ class PlayerGuessGame:
         self.game_stack.post(begin_turn_event)
 
     def __call__(self, event):
-        if isinstance(event, e.EndTurnEvent):
-        #     print event.player, event.time_left, event.name
-        #     print "isinstance(event, e.EndTurnEvent) and self.model.players_order.current_player == event.player",
-        #     isinstance(event, e.EndTurnEvent) and self.model.players_order.current_player == event.player
-            print event, "current player",self.model.players_order.current_player, "event player", event.player
-
         if isinstance(event, e.EndTurnEvent) and self.model.players_order.current_player == event.player:
             if event.time_left <= 0.0:
-                player_score = self.model.scores[event.player]
-                print "*****ROUND OVER*****"
-                self.model.scores[event.player] = player_score - 1
-                print self.model.scores
-                self.game_stack.post(e.EndRoundEvent(str(self.model.scores)))
+                self.model.scores[event.player][0] -= 1 # scores is {client_id: [score, nickname]}
+                self.model.time_left = DEFAULT_TIME
+                self.game_stack.post(e.EndRoundEvent(str(self.model.scores.values())))
             else:
                 time_left = event.time_left
                 if time_left < 5.0:
                     time_left = 5.0
+                self.model.time_left = time_left
                 next_player = self.model.players_order.get_next()
                 word = self.model.word_order.get_next()
                 new_turn_event = e.BeginTurnEvent(next_player,

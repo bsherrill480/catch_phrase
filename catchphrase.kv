@@ -19,6 +19,7 @@
     BoxLayout:
         orientation: 'vertical'
         BoxLayout
+            size_hint_y: .8
             Label:
                 text: 'Enter Game Name:'
             TextInput:
@@ -44,12 +45,14 @@
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
+            size_hint_y: .4
             Label:
                 id: display_name
                 text: "Current Turn: "
             Label:
                 id: score
         BoxLayout:
+            size_hint_y: .4
             Label:
                 id: word_box
                 text: "Not Your Turn"
@@ -57,6 +60,7 @@
                 id: timer
                 text: ""
         BoxLayout:
+            size_hint_y: .2
             id: buttons
 
 <GameLobbyScreen>:
@@ -117,6 +121,7 @@
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
+            size_hint_y: .4
             orientation: 'horizontal'
             Label:
                 text: 'Game ID'
@@ -125,6 +130,7 @@
                 multiline: False
                 text: "Getting Unique Game ID"
         BoxLayout:
+            size_hint_y: .4
             orientation: 'horizontal'
             Label:
                 text: 'Select Word List'
@@ -132,6 +138,7 @@
                 on_release: app.root.current = 'select word list'
                 text: root.word_list_name
         BoxLayout:
+            size_hint_y: .2
             Button:
                 text: 'Back'
                 on_release: app.root.change_right('game chooser')
@@ -146,8 +153,8 @@
         size: root.size
         orientation: 'vertical'
         BoxLayout:
-            size_hint_y: None
-            height: self.parent.height * .4
+            size_hint_y: .4
+            # height: self.parent.height * .4
             orientation: 'horizontal'
             Label:
                 text: 'Nickname:'
@@ -155,10 +162,11 @@
                 id: username_input
                 text: 'default'
                 multiline: False
+                on_text_validate: root.login(self.text, "")
 
         BoxLayout:
-            size_hint_y: None
-            height: self.parent.height * .4
+            size_hint_y: .4
+            #height: self.parent.height * .4
             orientation: 'horizontal'
             Label:
                 text: 'Optional Password:'
@@ -168,8 +176,8 @@
                 password: True
 
         Button:
-            size_hint_y: None
-            height: self.parent.height * .2
+            size_hint_y: .2
+            #height: self.parent.height * .2
             on_release: root.login(username_input.text, password_input.text)
             text: 'login:'
 
