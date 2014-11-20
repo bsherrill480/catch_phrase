@@ -3,52 +3,55 @@ from kivy.lang import Builder
 from kivy.base import runTouchApp
 from kivy.properties import StringProperty
 from kivy.clock import Clock
-Builder.load_string("""
-#:import label kivy.uix.label
-#:import sla kivy.adapters.simplelistadapter
-#:import Clock kivy.clock.Clock
-<MyListView>:
-    BoxLayout:
-        size_hint_x: .5
-        canvas.before:
-            Color:
-                rgba: 1,0,0,.5
-            Rectangle:
-                size: self.size
-                pos: self.pos
-        Label:
-            size_hint_x: .9
-            text: "penis"
-        Label:
-            size_hint_x: .1
-            text: "doop"
-    Label:
-        size_hint_x: .5
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+from kivy.app import App
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.label import Label
+# class MyListView(BoxLayout):
+#     word_list_name = StringProperty("No List Selected")
+#     def penis(self):
+#         self.word_list_name = "PENIS"
+#         print type(self.word_list_name), self.word_list_name
+class MyApp(App):
+    def build(self):
+        return MyScrollView()
 
-        text: "gtfo"
-    # ListView:
-    #     id: cat_dog
-    #     adapter:
-    #         sla.SimpleListAdapter(
-    #         data=["Item #{0}".format(i) for i in range(100)],
-    #         cls=label.Label)
-    # Button:
-    #     text: 'push me'
-    #     on_press:
-    #         self.text = str(Clock.get_time())
-    #         # cat_dog.adapter = sla.SimpleListAdapter(
-    #         # data=["Item #{0}".format(i) for i in range(10)],
-    #         # cls=label.Label)
-""")
+app = MyApp()
 
+class MyScrollView(BoxLayout):
+    def __init__(self, *args, **kwargs):
+        print "__init__ called"
+        super(MyScrollView, self).__init__(*args,**kwargs)
+        button = Button(text = "make")
+        button.bind(on_press = self.make_it)
+        self.add_widget(button)
+    def make_it(self, instance):
+        self.orientation = 'vertical'
+        self.clear_widgets()
+        self.add_widget(Label(text='DOES ITWORK>'))
+        layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        # Make sure the height is such that there is something to scroll.
+        layout.bind(minimum_height=layout.setter('height'))
+        for i in range(30):
+            box_layout = BoxLayout(size_hint_y = None)
+            def printer(instance):
+                print "BUTTON PRESSED: ", instance.text
+            btn = Button(text=str(i) + ", 0", size_hint_y=None, height=40)
+            btn.bind(on_press = printer)
+            btn2 = Button(text=str(i)+", 1", size_hint_y=None, height=40)
+            btn2.bind(on_press = printer)
+            box_layout.add_widget(btn)
+            box_layout.add_widget(btn2)
+            layout.add_widget(box_layout)
+        sv = ScrollView()
+        sv.add_widget(layout)
+        self.add_widget(sv)
 
-class MyListView(BoxLayout):
-    word_list_name = StringProperty("No List Selected")
-    def penis(self):
-        self.word_list_name = "PENIS"
-        print type(self.word_list_name), self.word_list_name
 if __name__ == '__main__':
-    runTouchApp(MyListView())
+    print "hi"
+    app.run()
 
 
 

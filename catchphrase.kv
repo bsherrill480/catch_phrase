@@ -16,7 +16,7 @@
 
 <JoinGameScreen>:
     game_name_input: join_game_id_input
-    name: 'join game'
+#    name: 'join game'
     BoxLayout:
         orientation: 'vertical'
         BoxLayout
@@ -33,11 +33,10 @@
                 on_release: app.root.switch_to('game chooser', direction='right') # should be refactored to single button amoung all
             Button:
                 text: 'Join Game'
-                #on_release: app.root.current = 'game lobby'
                 on_release: app.root.switch_to('game lobby')
 
 <GameScreen>:
-    name: 'game'
+#    name: 'game'
     players_turn_label: display_name
     word_label: word_box
     bottom_buttons: buttons
@@ -65,7 +64,7 @@
             id: buttons
 
 <GameLobbyScreen>:
-    name: 'game lobby'
+#    name: 'game lobby'
     view_label: player_view_label
     view_list: player_view_list
     pointing_to: player_pointing_to
@@ -103,28 +102,52 @@
 
 
 <GameChooserScreen>:
-    name: 'game chooser'
+#    name: 'game chooser'
     BoxLayout:
         orientation: 'vertical'
         Button:
             text: 'Make Game'
             on_release:
-                #app.root.current = 'make game'
                 app.root.switch_to('make game')
                 app.root.current_screen.get_unique_game_id()#WAITING ISSUE?
         Button:
             text: 'Join Game'
-            #on_release: app.root.current = 'join game'
             on_release: app.root.switch_to('join game')
         Button:
             text: 'Manage Word Lists'
+            on_release: app.root.switch_to('manage word lists')
 
 <ManageWordListsScreen>
-    name: 'manage word lists'
+    box_layout: box_layout_kv
+    list_label: list_label_kv
+#    name: 'manage word lists'
+    BoxLayout:
+        id: box_layout_kv
+        orientation: 'vertical'
+        Label:
+            id: list_label_kv
+            size_hint_y: .1
+            text_size: self.text_size[0], self.size[1]
+            text: 'Lists:'
 
-
+<MakeWordListScreen>:
+#    name: 'make word list'
+    BoxLayout:
+        orientation: 'vertical'
+        TextInput:
+            id: name_text_input
+            multiline: False
+            text: 'name'
+        TextInput:
+            id: url_text_input
+            multiline: False
+            text: 'Enter Url'
+        Button:
+            text: 'submit'
+            on_press: app.loading_popup()
+            on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
 <MakeGameScreen>:
-    name: 'make game'
+#    name: 'make game'
     unique_game_id: make_game_id_input
 
     BoxLayout:
@@ -144,8 +167,7 @@
             Label:
                 text: 'Select Word List'
             Button:
-                #on_release: app.root.current = 'select word list'
-                on_release: app.root.switch_to('select word list')
+                on_release: app.root.switch_to('select words list')
                 text: root.word_list_name
         BoxLayout:
             size_hint_y: .2
@@ -158,7 +180,7 @@
 
 
 <LoginScreen>:
-    name: 'login'
+#    name: 'login'
     BoxLayout:
         size: root.size
         orientation: 'vertical'

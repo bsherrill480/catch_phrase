@@ -8,8 +8,10 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
+from kivy.uix.gridlayout import GridLayout
 from kivy.clock import Clock
 import urllib2
+from kivy.uix.scrollview import ScrollView
 from kivy.storage.jsonstore import JsonStore
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
@@ -30,7 +32,7 @@ class FileManager:
             self.word_lists_names = []
             self.store.put(self.WORD_LIST_NAMES, my_list=[])
 
-    def get_word_list_of_file(self, url = "https://www.dropbox.com/s/jvvh5a3wdwe7k3o/test?dl=1"):
+    def get_word_list_of_file(self, url):
         """
         returns an empty list if error
         """
@@ -54,23 +56,23 @@ class FileManager:
         l = l.split("\n")#split along new lines
 
         #eliminate blank lines ("  ") and empty lines ("")
-        return [value for value in l if value.stip(" ") != ""]
+        return [value for value in l if value.strip(" ") != ""]
 
     def store_word_list(self, name, word_list):
-        if name == self.WORD_LIST_NAMES:
-            return "Invalid Name"
+        # if name == self.WORD_LIST_NAMES:
+        #     return "Invalid Name"
         self.store.put(name, my_list = word_list)
         if name not in self.word_lists_names:
             self.word_lists_names.append(name)
-        self.save_word_list_names(name)
-        return "Successfully Added"
+        self._save_word_list_names()
+        #return "Successfully Added"
 
     def delete_word_list(self, name):
         self.word_lists_names.remove(name)
         self.store.delete(name)
-        self.save_word_list_names()
+        self._save_word_list_names()
 
-    def save_word_list_names(self):
+    def _save_word_list_names(self):
         self.store.put(self.WORD_LIST_NAMES, my_list=self.word_lists_names)
 
 
@@ -115,6 +117,9 @@ class CatchPhraseApp(App):
         self.popup = None
         self.lobby = None # will be a root_obj, ie twisted.spread.pb.root
         self.game = None
+        self.is_premium = False
+        self.file_manager = FileManager()
+
         return MyScreenManager()
 
     def loading_popup(self, message = "Loading..."):
@@ -180,7 +185,6 @@ class LoginScreen(Screen):
             if result:
                 app.close_popup()
                 app.uplink.evm_registered = True
-                #app.root.current = "game chooser"
                 app.root.switch_to("game chooser")
                 return result
             else:
@@ -199,7 +203,7 @@ class SelectWordsListScreen(Screen):
 
     def __init__(self, *args, **kwargs):
         super(SelectWordsListScreen, self).__init__(*args, **kwargs)
-        self.name = "select word list"
+        self.name = "select words list"
 
     def on_pre_enter(self, *args, **kwargs):
         super(SelectWordsListScreen, self).on_enter(*args, **kwargs)
@@ -268,7 +272,6 @@ class MakeGameScreen(Screen):
                 if result:
                     join_screen = app.root.my_get_screen("join game")
                     join_screen.game_name_input.text = self.unique_game_id.text
-                    #app.root.current = "game lobby"
                     app.root.switch_to("game lobby")
                 else:
                     app.generic_popup("Game Name Taken")
@@ -364,7 +367,6 @@ class GameLobbyScreen(Screen):
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
         elif isinstance(event, e.GameStartEvent):
-            #app.root.current = "game"
             app.root.switch_to("game")
 
     def on_leave(self, *args, **kwargs):
@@ -394,7 +396,6 @@ class GameScreen(Screen):
         """
         used in button
         """
-        #app.root.current = "game chooser"
         app.root.switch_to("game chooser")
         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
@@ -459,16 +460,100 @@ class GameScreen(Screen):
         app.event_manager.unregister_listener(self)
 
 class ManageWordListsScreen(Screen):
+    box_layout = ObjectProperty(None)
+    list_label = ObjectProperty(None)
+    SCROLL_BUTTON_SIZES = 40
     def __init__(self, *args, **kwargs):
         super(ManageWordListsScreen, self).__init__(*args, **kwargs)
-        self.file_manager = FileManager()
+
+    def on_pre_enter(self, *args, **kwargs):
+        super(ManageWordListsScreen, self).on_pre_enter(*args, **kwargs)
+        app.loading_popup()
 
     def on_enter(self, *args, **kwargs):
-        super(MakeGameScreen, self).on_enter(*args,**kwargs)
+        super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
+        self.box_layout.clear_widgets()#because I rebuild everytime
+        self.box_layout.add_widget(self.list_label)
+        word_list_names = app.file_manager.word_lists_names
+
+        #callbacks for buttons
+        def view_button_callback(instance):
+            print instance.parent.parent.minimum_height, instance.parent.parent.height #make later, use parent
+        def edit_button_callback(instance):
+            print instance.text #make later
+
+        #setup rows
+        if word_list_names == []:
+            self.box_layout.add_widget(Label(text="filler", size_hint_y = .7))
+        else:
+            scroll_view = ScrollView(size_hint_y = .7)
+            layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+            layout.bind(minimum_height=layout.setter('height'))
+            for list_name in word_list_names:
+                #setup
+                row = BoxLayout(size_hint_y = None)
+                label = Label(text=list_name, size_hint_x=.75, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                view_button.bind(on_release = view_button_callback)
+                edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                edit_button.bind(on_release = edit_button_callback)
+                #add to row
+                row.add_widget(label)
+                row.add_widget(view_button)
+                row.add_widget(edit_button)
+                #add to self.box_layout
+                layout.add_widget(row)
+            for list_name in [str(i) for i in range(10)]:
+                #setup
+                row = BoxLayout(size_hint_y = None)
+                label = Label(text=list_name, size_hint_x=.75, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                view_button.bind(on_release = view_button_callback)
+                edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
+                              height = self.SCROLL_BUTTON_SIZES)
+                edit_button.bind(on_release = edit_button_callback)
+                #add to row
+                row.add_widget(label)
+                row.add_widget(view_button)
+                row.add_widget(edit_button)
+                #add to self.box_layout
+                layout.add_widget(row)
+            print layout.minimum_height, layout.height
+            scroll_view.add_widget(layout)
+            self.box_layout.add_widget(scroll_view)
+
+        #add make new_list_button
+        def new_list_button_callback(instance):
+            app.root.switch_to("make word list")
+        new_list_button = Button(text="Make New List", size_hint_y=.2)
+        new_list_button.bind(on_release = new_list_button_callback)
+        self.box_layout.add_widget(new_list_button)
+        app.close_popup()
 
 class JoinGameScreen(Screen):
     pass
 
+class MakeWordListScreen(Screen):
+    def add_word_list(self, name, url):
+        if name == "" and url == "":
+            name = "test"
+            url = "https://www.dropbox.com/s/jvvh5a3wdwe7k3o/test?dl=1"
+        if name == app.file_manager.WORD_LIST_NAMES:
+            app.generic_popup("Invalid Name")
+        else:
+            app.loading_popup()#filemanger is a blocking call.
+            word_list = app.file_manager.get_word_list_of_file(url)
+            app.close_popup()
+            if isinstance(word_list, str):#we had an error
+                app.generic_popup(word_list)
+            else: #is the words list
+                app.file_manager.store_word_list(name, word_list)
+                app.root.switch_to("manage word lists", direction="right")
 
 class MyScreenManager(ScreenManager):
     def __init__(self, *args, **kwargs):
@@ -482,11 +567,12 @@ class MyScreenManager(ScreenManager):
         #    GameScreen:
         #    ManageWordListsScreen:
         login_screen = LoginScreen()
-        self.add_widget(login_screen)
+        self.switch_to(login_screen)
         self.my_screens = {"login": 1, "game chooser" : GameChooserScreen(),
                    "make game" : MakeGameScreen(), "select words list" : SelectWordsListScreen(),
                    "join game" : JoinGameScreen(), "game lobby" : GameLobbyScreen(),
-                   "game screen" : GameScreen(), "manage word lists" : ManageWordListsScreen()}
+                   "game" : GameScreen(), "manage word lists" : ManageWordListsScreen(),
+                   "make word list": MakeWordListScreen()}
 
     def my_get_screen(self, name):
         return self.my_screens[name]
@@ -502,12 +588,6 @@ class MyScreenManager(ScreenManager):
             screen = self.my_screens[screen]
         super(MyScreenManager, self).switch_to(screen, **options)
 
-    def change_right(self, screen):
-        app.root.transition.direction = "right"
-        app.root.current = screen
-        def change_left(interval):
-            app.root.transition.direction = "left"
-        Clock.schedule_once(change_left, 0.5)
 
 
 

@@ -1,15 +1,11 @@
-from kivy.storage.jsonstore import JsonStore
-
-store = JsonStore('hello.json')
-
-# put some values
-#store.put('tito', mylist = ["tito", "sucks", "balls"])
 
 
-# get a value using a index key and key
-print('tito is', store.get('joe')['mylist'])
 
-# or guess the key/entry for a part of the key
-# for item in store.find(name='Gabriel'):
-#     print('tshirtmans index key is', item[0])
-#     print('his key value pairs are', str(item[1]))
+layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+# Make sure the height is such that there is something to scroll.
+layout.bind(minimum_height=layout.setter('height'))
+for i in range(30):
+    btn = Button(text=str(i), size_hint_y=None, height=40)
+    layout.add_widget(btn)
+root = ScrollView(size_hint=(None, None), size=(400, 400))
+root.add_widget(layout)
