@@ -4,28 +4,44 @@ from twisted.internet.task import LoopingCall
 from catch_phrase_server_game import setup_catch_phrase
 import events as e
 import circle_graph as cg
+from word_list_manager import WordManager
 from time import sleep
 
 
 class Client:
     """
-    client class. Has client's root object, id, and nickname
+    client class. Has client's root object, id, and nickname.
+    Added observer pattern. Must add yourself as an observer,
+    and have notify_of_dead_client(client),
+    if you wish to disconnect client
     """
     def __init__(self, root_obj, client_id, nickname):
         self.root_obj = root_obj
         self.client_id = client_id
         self.nickname = nickname
+        self.observers = []
 
+    def remove_client(self):
+        print "all observers", self.observers
+        for observer in self.observers:
+            print observer
+            observer.dead_client(self)
 
 class ServerEventManager(pb.Root):
     def __init__(self):
         self.clients = {} #organized {client_id: client_obj}
         self.total_clients = 0
-        self.world_lists = {"animals": ["cat", "dog", "bird"],
-                            "objects": ["lamp", "waterbottle", "fork"]}
+        self.world_lists = WordManager()#a dict with the words preloaded
         self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"], "d_game")}
         self.total_games = 0
-        self.looping_call = None #TODO loop over clients to remove dead ones
+        self.looping_call = LoopingCall(self.remote_post, e.CopyableEvent())
+        self.looping_call.start(5.0)
+
+    def dead_client(self, client):
+        """
+        removes client from dict of clients (self.clients)
+        """
+        del self.clients[client.client_id]
 
     def remote_register_client(self, root_obj, client_nickname):
         """
@@ -37,7 +53,9 @@ class ServerEventManager(pb.Root):
             return ""
         client_id = "Client" + str(self.total_clients)
         self.total_clients = self.total_clients + 1
-        self.clients[client_id] = Client(root_obj, client_id, client_nickname)
+        client = Client(root_obj, client_id, client_nickname)
+        client.observers.append(self)#add self as observer
+        self.clients[client_id] = client
         print client_id + " : ///nickname: " + client_nickname
         return client_id
 
@@ -92,13 +110,18 @@ class ServerEventManager(pb.Root):
         attempts to notify all users of event. removes them if they
         are dead
         """
-        event.originator = client_id
-        print "Recieved ", event.name, " from ", client_id
-        for client in self.clients:
+        #event.originator = client_id
+        #print "Recieved ", event.name, " from ", client_id
+        for client in self.clients.values():#don't itervalues; we're possibly changing dictionary
             try:
                 client.root_obj.callRemote('notify', event)
             except pb.DeadReferenceError:
-                del self.clients[client.client_id]
+                print "calling client.remove_client() on: ", client.client_id, client.nickname
+                client.remove_client()
+
+    def remote_give_list(self, list):
+        expected = [str(i) for i in xrange(100000)]
+        print "List == expected: ", list == expected
 
 
 class Lobby(pb.Root):
@@ -123,11 +146,19 @@ class Lobby(pb.Root):
         """
         self.notify(event)
 
+    def dead_client(self, client):
+        """
+        used in client objects observers.
+        """
+        if not self.game: #i.e. if in game I don't care about keeping track
+            self.new_lineup_event()#will take care of recognizing he's gone
+
     def new_player(self, player):
         """
         player is a client object. Adds the new player to the lobby.
         """
         self.players.append(player)
+        player.observers.append(self)
         self.organizer.make_and_give_node(player, player.client_id)
         self.waiting.append((player.client_id, player.nickname))
         self.new_lineup_event()
@@ -196,13 +227,11 @@ class Lobby(pb.Root):
                 client.root_obj.callRemote('notify', event)
             except pb.DeadReferenceError:
                 dead_clients.append(client)
-                del self.server.clients[client.client_id]
 
         for client in dead_clients:
             self.players.remove(client)
             self.remove_client_from_waiting(client.client_id)
             self.organizer.delete_node(client.client_id)
-
         if dead_clients:
             self.new_lineup_event()
 

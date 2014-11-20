@@ -9,28 +9,33 @@ import events as e
 
 class GameEventManager():
     """
-    handles game events
+    handles game events. game does not care about client's notify
     """
     def __init__(self, clients, game_over_callback):
         #externally stuff refers to done in setup_catch_phrase
         self.clients = clients #list of clients
+        for client in self.clients:
+            client.observers.append(self)
         self.game_over_callback = game_over_callback
         self.game_stack = None # needs to be set externally
         self.model = None # needs to be set externally
-        self.looping_call_clients = None #check for dead clients.
+        #self.looping_call_clients = None #check for dead clients.
         self.looping_call_self = LoopingCall(self.post, e.TickEvent()) #give myself TickEvents
                                                              #needs to be started externally
         self.event_queue = deque()# O(1) leftpop()
         self.__in_loop = False
+
+    def dead_client(self, client):
+        self.post(e.CopyableEvent()) #post takes care of dead clients
 
     def post(self, event):
         """
         posts to clients. Handles if they leave.
         """
         #TODO: see why I did this. Was I just tired or was there a reason?
-        if not self.looping_call_clients: #setup because we can't in __init__?
-            self.looping_call_clients = LoopingCall(self.post, e.CopyableEvent())#check for pulse of clients
-            self.looping_call_clients.start(15.0) #every 15 seconds
+        # if not self.looping_call_clients: #setup because we can't in __init__?
+        #     self.looping_call_clients = LoopingCall(self.post, e.CopyableEvent())#check for pulse of clients
+        #     self.looping_call_clients.start(15.0) #every 15 seconds
         is_tick_event = isinstance(event, e.TickEvent)
         if (not self.__in_loop) and is_tick_event:
             self.__in_loop = True
@@ -67,9 +72,8 @@ class GameEventManager():
         self.game_stack.notify(event) #let it generate begin event (if it was going to)
         for client in clients_to_remove:
             self.clients.remove(client)
-            self.model.players_order.remove_player(client.client_id)
+            self.model.players_order.remove_item(client.client_id)
             self.post(e.EndTurnEvent(client.client_id, self.model.time_left))
-
 
 class BaseGame:
     """
@@ -103,7 +107,7 @@ class PlayerGuessGame:
         self.game_stack.post(begin_turn_event)
 
     def __call__(self, event):
-        if isinstance(event, e.EndTurnEvent) and self.model.players_order.current_player == event.player:
+        if isinstance(event, e.EndTurnEvent) and self.model.players_order.current_item == event.player:
             if event.time_left <= 0.0:
                 self.model.scores[event.player][0] -= 1 # scores is {client_id: [score, nickname]}
                 self.model.time_left = DEFAULT_TIME

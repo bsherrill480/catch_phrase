@@ -114,30 +114,38 @@ class Player:
 class Order:
     """
     This one is actually ready. Pretty simple class.
-    Basically a circular list with a stack if you want dynamic adding to turns.
-    also keeps track of who's current turn it is in current_player.
+    Basically a circular list with a stack if you want dynamic adding.
+    also keeps track of current item it in current_item.
+    If a list is passed, makes a copy of the list so no remove_items
+    will affect the actual copy. If tuple is passed does not make a
+    copy and remove_item will not be allowed
     """
     def __init__(self, order):
         """
-        order is a non-emtpy list/tuple of players.
+        order is a non-emtpy list/tuple of items.
         order[0] goes first, order[1] goes second...
+        Copies list if
         Raises TypeError if not given list/tuple
         Raises ValueError if list/tuple is empty
         """
-        if not isinstance(order, (tuple, list)):
+        if isinstance(order, list):
+            self._order = list(order)#copy of list. so we don't change the actual
+        elif isinstance(order, tuple):
+            self._order = order
+        else:
             raise TypeError("Invalid type passed to Order, order must take " + \
                             "a list, tuple")
         if order == [] or order == tuple():
             raise ValueError("No empty lists/tuples")
         self.stack = []
         self._index = -1
-        self._order = list(order) #incase was passed tuple
-        self.current_player = order[0]
 
-    def remove_player(self, player):
+        self.current_item = order[0]
+
+    def remove_item(self, player):
         """
-        Only remove a player if he exists to this class.
-        removes player from being called again.
+        Can only be called if order was a list.
+        Only remove a item if he exists to this class.
         Does not change self.current_player.
         """
         self._order.remove(player)
@@ -152,10 +160,10 @@ class Order:
         returns the next player and sets him to the current_player
         """
         if self.stack != []:
-            self.current_player = self.stack.pop()
+            self.current_item = self.stack.pop()
         else:
-            self.current_player = self._next_in_list()
-        return self.current_player
+            self.current_item = self._next_in_list()
+        return self.current_item
 
     def _next_in_list(self):
         """

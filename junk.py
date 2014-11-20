@@ -18,7 +18,7 @@ Builder.load_string("""
                 pos: self.pos
         Label:
             size_hint_x: .9
-            text: "poop"
+            text: "penis"
         Label:
             size_hint_x: .1
             text: "doop"

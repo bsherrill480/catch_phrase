@@ -1,5 +1,3 @@
-#this is not main
-
 import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -11,11 +9,69 @@ from kivy.uix.popup import Popup
 from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
 from kivy.clock import Clock
+import urllib2
+from kivy.storage.jsonstore import JsonStore
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
+
+class FileManager:
+    """
+    manages files
+    """
+    WORD_LIST_NAMES = "word_list_names" # the list of names for the word lists
+    def __init__(self):
+        self.store = JsonStore('word_lists.json')
+        try:
+            self.word_lists_names = self.store.get(self.WORD_LIST_NAMES)["my_list"]
+        except KeyError:
+            self.word_lists_names = []
+            self.store.put(self.WORD_LIST_NAMES, my_list=[])
+
+    def get_word_list_of_file(self, url = "https://www.dropbox.com/s/jvvh5a3wdwe7k3o/test?dl=1"):
+        """
+        returns an empty list if error
+        """
+        if not (url[0:8] == "https://" or url[0:7] == "http://"):
+            url = "http://" + url
+        try:
+            u = urllib2.urlopen(url)
+        except Exception, err:
+            return str(err)#for debugging
+        meta = u.info()
+        file_size = int(meta.getheaders("Content-Length")[0])
+        if file_size > 100000:
+            return "File To Large"
+        l = ""
+        block_sz = 4096 # apparently default for sql
+        while True:
+            buffer = u.read(block_sz)
+            if not buffer:
+                break
+            l += buffer
+        l = l.split("\n")#split along new lines
+
+        #eliminate blank lines ("  ") and empty lines ("")
+        return [value for value in l if value.stip(" ") != ""]
+
+    def store_word_list(self, name, word_list):
+        if name == self.WORD_LIST_NAMES:
+            return "Invalid Name"
+        self.store.put(name, my_list = word_list)
+        if name not in self.word_lists_names:
+            self.word_lists_names.append(name)
+        self.save_word_list_names(name)
+        return "Successfully Added"
+
+    def delete_word_list(self, name):
+        self.word_lists_names.remove(name)
+        self.store.delete(name)
+        self.save_word_list_names()
+
+    def save_word_list_names(self):
+        self.store.put(self.WORD_LIST_NAMES, my_list=self.word_lists_names)
 
 
 class DataItem(object):
@@ -105,7 +161,7 @@ class LoginScreen(Screen):
         super(LoginScreen, self).__init__(*args, **kwargs)
         self.name = "Login"
         self.factory = pb.PBClientFactory()
-
+        print app.get_application_config()
     def login(self, nickname, password):
         """
         attempts to login to server. displays loading popup until
@@ -124,7 +180,8 @@ class LoginScreen(Screen):
             if result:
                 app.close_popup()
                 app.uplink.evm_registered = True
-                app.root.current = "game chooser"
+                #app.root.current = "game chooser"
+                app.root.switch_to("game chooser")
                 return result
             else:
                 app.generic_popup("Empty Username Not Acceptable")
@@ -134,7 +191,6 @@ class LoginScreen(Screen):
         d.addCallback(app.uplink.register_evm)
         d.addCallback(app.uplink.give_id)
         d.addCallback(change_to_gamechooser_screen)
-
 
 class SelectWordsListScreen(Screen):
     """
@@ -166,7 +222,7 @@ class SelectWordsListScreen(Screen):
             list_view = ListView(adapter=list_adapter)
             button = Button(text = "Done", size_hint_y = .2)
             def return_to_make_game(instance):
-                app.root.change_right("make game")
+                app.root.switch_to("make game", direction="right")
                 app.root.current_screen.word_list_name = selected_button.selected.text
             button.bind(on_release = return_to_make_game)
             box_layout = BoxLayout(orientation="vertical")
@@ -183,7 +239,9 @@ class GameChooserScreen(Screen):
     """
     Join Game or Make Game screen.
     """
-    pass
+    def on_enter(self, *args):
+        super(GameChooserScreen, self).on_enter(*args)
+        app.uplink.root_obj.callRemote("give_list", [str(i) for i in xrange(100000)])
 
 
 class MakeGameScreen(Screen):
@@ -208,9 +266,10 @@ class MakeGameScreen(Screen):
         if self.word_list_name != "No List Selected":
             def was_success(result):
                 if result:
-                    join_screen = app.root.get_screen("join game")
+                    join_screen = app.root.my_get_screen("join game")
                     join_screen.game_name_input.text = self.unique_game_id.text
-                    app.root.current = "game lobby"
+                    #app.root.current = "game lobby"
+                    app.root.switch_to("game lobby")
                 else:
                     app.generic_popup("Game Name Taken")
             d = app.uplink.root_obj.callRemote("make_game_lobby",
@@ -249,7 +308,7 @@ class GameLobbyScreen(Screen):
             app.lobby.callRemote("notify", e.StartGameRequestEvent())
 
     def on_pre_enter(self, *args, **kwargs):
-        join_screen = app.root.get_screen("join game")
+        join_screen = app.root.my_get_screen("join game")
         game_name = join_screen.game_name_input.text
         super(GameLobbyScreen, self).on_enter(*args, **kwargs)
         app.event_manager.register_listener(self)
@@ -261,7 +320,7 @@ class GameLobbyScreen(Screen):
                 app.lobby = result
             else:
                 app.generic_popup(message="Unable To Join Game")
-                app.root.change_right("join game")
+                app.root.switch_to("join game", direction="right")
             return result
         d.addCallback(was_success)
 
@@ -305,7 +364,8 @@ class GameLobbyScreen(Screen):
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
         elif isinstance(event, e.GameStartEvent):
-            app.root.current = "game"
+            #app.root.current = "game"
+            app.root.switch_to("game")
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
@@ -334,7 +394,8 @@ class GameScreen(Screen):
         """
         used in button
         """
-        app.root.current = "game chooser"
+        #app.root.current = "game chooser"
+        app.root.switch_to("game chooser")
         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
 
@@ -397,18 +458,57 @@ class GameScreen(Screen):
         super(GameScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
+class ManageWordListsScreen(Screen):
+    def __init__(self, *args, **kwargs):
+        super(ManageWordListsScreen, self).__init__(*args, **kwargs)
+        self.file_manager = FileManager()
+
+    def on_enter(self, *args, **kwargs):
+        super(MakeGameScreen, self).on_enter(*args,**kwargs)
 
 class JoinGameScreen(Screen):
     pass
 
 
 class MyScreenManager(ScreenManager):
+    def __init__(self, *args, **kwargs):
+        super(MyScreenManager, self).__init__(*args, **kwargs)
+        #    LoginScreen:
+        #    GameChooserScreen:
+        #    MakeGameScreen:
+        #    SelectWordsListScreen:
+        #    JoinGameScreen:
+        #    GameLobbyScreen:
+        #    GameScreen:
+        #    ManageWordListsScreen:
+        login_screen = LoginScreen()
+        self.add_widget(login_screen)
+        self.my_screens = {"login": 1, "game chooser" : GameChooserScreen(),
+                   "make game" : MakeGameScreen(), "select words list" : SelectWordsListScreen(),
+                   "join game" : JoinGameScreen(), "game lobby" : GameLobbyScreen(),
+                   "game screen" : GameScreen(), "manage word lists" : ManageWordListsScreen()}
+
+    def my_get_screen(self, name):
+        return self.my_screens[name]
+
+    def switch_to(self, screen, **options):
+        """
+        overwriting so I can pass screen name or a screen.
+        Set defualt direction to left
+        """
+        if "direction" not in options:
+            options["direction"] = "left"
+        if isinstance(screen, str):
+            screen = self.my_screens[screen]
+        super(MyScreenManager, self).switch_to(screen, **options)
+
     def change_right(self, screen):
         app.root.transition.direction = "right"
         app.root.current = screen
         def change_left(interval):
             app.root.transition.direction = "left"
         Clock.schedule_once(change_left, 0.5)
+
 
 
 

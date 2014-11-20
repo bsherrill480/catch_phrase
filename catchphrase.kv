@@ -5,13 +5,14 @@
 #:import Button kivy.uix.button.Button
 
 <MyScreenManager>:
-    LoginScreen:
-    GameChooserScreen:
-    MakeGameScreen:
-    SelectWordsListScreen:
-    JoinGameScreen:
-    GameLobbyScreen:
-    GameScreen:
+#    LoginScreen:
+#    GameChooserScreen:
+#    MakeGameScreen:
+#    SelectWordsListScreen:
+#    JoinGameScreen:
+#    GameLobbyScreen:
+#    GameScreen:
+#    ManageWordListsScreen:
 
 <JoinGameScreen>:
     game_name_input: join_game_id_input
@@ -29,11 +30,11 @@
             size_hint_y: .2
             Button:
                 text: 'Back'
-                on_release: app.root.change_right('game chooser') # should be refactored to single button amoung all
+                on_release: app.root.switch_to('game chooser', direction='right') # should be refactored to single button amoung all
             Button:
                 text: 'Join Game'
-                on_release: app.root.current = 'game lobby'
-
+                #on_release: app.root.current = 'game lobby'
+                on_release: app.root.switch_to('game lobby')
 
 <GameScreen>:
     name: 'game'
@@ -108,11 +109,19 @@
         Button:
             text: 'Make Game'
             on_release:
-                app.root.current = 'make game'
-                app.root.current_screen.get_unique_game_id()
+                #app.root.current = 'make game'
+                app.root.switch_to('make game')
+                app.root.current_screen.get_unique_game_id()#WAITING ISSUE?
         Button:
             text: 'Join Game'
-            on_release: app.root.current = 'join game'
+            #on_release: app.root.current = 'join game'
+            on_release: app.root.switch_to('join game')
+        Button:
+            text: 'Manage Word Lists'
+
+<ManageWordListsScreen>
+    name: 'manage word lists'
+
 
 <MakeGameScreen>:
     name: 'make game'
@@ -135,13 +144,14 @@
             Label:
                 text: 'Select Word List'
             Button:
-                on_release: app.root.current = 'select word list'
+                #on_release: app.root.current = 'select word list'
+                on_release: app.root.switch_to('select word list')
                 text: root.word_list_name
         BoxLayout:
             size_hint_y: .2
             Button:
                 text: 'Back'
-                on_release: app.root.change_right('game chooser')
+                on_release: app.root.switch_to('game chooser', direction="right")
             Button:
                 text: 'Make Game'
                 on_release: root.make_and_join_game()
