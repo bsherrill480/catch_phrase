@@ -13,7 +13,7 @@
 #    GameLobbyScreen:
 #    GameScreen:
 #    ManageWordListsScreen:
-
+#    WordListViewScreen:
 <JoinGameScreen>:
     game_name_input: join_game_id_input
 #    name: 'join game'
@@ -120,8 +120,14 @@
 <ManageWordListsScreen>
     box_layout: box_layout_kv
     list_label: list_label_kv
+    new_list_okay: new_list_okay_kv
+    new_list_not_okay: new_list_not_okay_kv
 #    name: 'manage word lists'
     BoxLayout:
+        #Note. The layout is not as defined below
+        #I used kv-lang to make buttons so I woudn't
+        #have to bind everything, then use their id's
+        #and place them appropriatley in my python class
         id: box_layout_kv
         orientation: 'vertical'
         Label:
@@ -129,6 +135,32 @@
             size_hint_y: .1
             text_size: self.text_size[0], self.size[1]
             text: 'Lists:'
+        Button:
+            id: new_list_okay_kv
+            text: "Make New List"
+            size_hint_y: .2
+            on_release: app.root.switch_to("make word list")
+        PremiumLabel:
+            canvas.after:
+                Color:
+                    rgba: (1,1,1,.5)
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            id: new_list_not_okay_kv
+            text: "Make New List"
+
+<WordListViewerScreen>:
+    #name: 'word list viewer'
+    words_list_view: words_list_view_kv
+    BoxLayout:
+        orientation: "vertical"
+        ListView:
+            size_hint_y: .8
+            id: words_list_view_kv
+        BackButton:
+            size_hint_y:.2
+            switch_to: 'manage word lists'
 
 <MakeWordListScreen>:
 #    name: 'make word list'
@@ -146,6 +178,7 @@
             text: 'submit'
             on_press: app.loading_popup()
             on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
+
 <MakeGameScreen>:
 #    name: 'make game'
     unique_game_id: make_game_id_input

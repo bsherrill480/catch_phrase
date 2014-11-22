@@ -19,6 +19,9 @@ install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
 
+#notes: never name something an empty string, code relies often on emtpy string
+#refering to a null value
+
 class FileManager:
     """
     manages files
@@ -31,6 +34,12 @@ class FileManager:
         except KeyError:
             self.word_lists_names = []
             self.store.put(self.WORD_LIST_NAMES, my_list=[])
+
+    def get_word_list(self, name):
+        """
+        not a url, a wordlist in self.word_list_names
+        """
+        return self.store.get(name)["my_list"]
 
     def get_word_list_of_file(self, url):
         """
@@ -157,6 +166,8 @@ class CatchPhraseApp(App):
         close_button.bind(on_release=self.popup.dismiss)
         self.popup.open()
 
+    def buy_premium_popup(self):
+        self.generic_popup("BUY PREMIUM!")
 #added so all code should have access to app
 app = CatchPhraseApp()
 
@@ -462,6 +473,8 @@ class GameScreen(Screen):
 class ManageWordListsScreen(Screen):
     box_layout = ObjectProperty(None)
     list_label = ObjectProperty(None)
+    new_list_okay = ObjectProperty(None)
+    new_list_not_okay = ObjectProperty(None)
     SCROLL_BUTTON_SIZES = 40
     def __init__(self, *args, **kwargs):
         super(ManageWordListsScreen, self).__init__(*args, **kwargs)
@@ -470,19 +483,35 @@ class ManageWordListsScreen(Screen):
         super(ManageWordListsScreen, self).on_pre_enter(*args, **kwargs)
         app.loading_popup()
 
+    def view_button_callback(self, instance):
+        #note: parents of this will be a ChildWatchingBoxLayout
+        label = instance.parent.get_named_child("label") #the label in the boxlayout I'm in
+        list_name = label.text
+        words_list = app.file_manager.get_word_list(list_name)
+        args_converter = lambda row_index, word: {"text": word,
+                                                  "size_hint_y" : None,
+                                                  "height" : 25}
+        list_adapter = ListAdapter(data=words_list,
+                                   args_converter=args_converter,
+                                   cls=ListItemLabel)
+        list_view = app.root.my_get_screen('word list viewer').words_list_view
+        list_view.adapter = list_adapter
+        app.root.switch_to("word list viewer")
+    def edit_button_callback(self, instance):
+        print instance.parent
+
     def on_enter(self, *args, **kwargs):
         super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
         self.box_layout.clear_widgets()#because I rebuild everytime
         self.box_layout.add_widget(self.list_label)
         word_list_names = app.file_manager.word_lists_names
 
-        #callbacks for buttons
-        def view_button_callback(instance):
-            print instance.parent.parent.minimum_height, instance.parent.parent.height #make later, use parent
-        def edit_button_callback(instance):
-            print instance.text #make later
+        #can not add a widget that has a parent. Made them in kv file
+        #so they have a parent.
+        for widget in (self.list_label, self.new_list_okay, self.new_list_not_okay):
+            widget.parent = None
 
-        #setup rows
+        #make rows for the scroll view
         if word_list_names == []:
             self.box_layout.add_widget(Label(text="filler", size_hint_y = .7))
         else:
@@ -491,49 +520,89 @@ class ManageWordListsScreen(Screen):
             layout.bind(minimum_height=layout.setter('height'))
             for list_name in word_list_names:
                 #setup
-                row = BoxLayout(size_hint_y = None)
+                row = ChildWatchingBoxLayout(size_hint_y = None)
                 label = Label(text=list_name, size_hint_x=.75, size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
                 view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
-                view_button.bind(on_release = view_button_callback)
+                view_button.bind(on_release = self.view_button_callback)
                 edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
-                edit_button.bind(on_release = edit_button_callback)
+                edit_button.bind(on_release = self.edit_button_callback)
                 #add to row
-                row.add_widget(label)
+                row.add_widget(label, name="label")
                 row.add_widget(view_button)
                 row.add_widget(edit_button)
                 #add to self.box_layout
                 layout.add_widget(row)
-            for list_name in [str(i) for i in range(10)]:
-                #setup
-                row = BoxLayout(size_hint_y = None)
-                label = Label(text=list_name, size_hint_x=.75, size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
-                view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
-                view_button.bind(on_release = view_button_callback)
-                edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
-                edit_button.bind(on_release = edit_button_callback)
-                #add to row
-                row.add_widget(label)
-                row.add_widget(view_button)
-                row.add_widget(edit_button)
-                #add to self.box_layout
-                layout.add_widget(row)
-            print layout.minimum_height, layout.height
             scroll_view.add_widget(layout)
             self.box_layout.add_widget(scroll_view)
 
         #add make new_list_button
-        def new_list_button_callback(instance):
-            app.root.switch_to("make word list")
-        new_list_button = Button(text="Make New List", size_hint_y=.2)
-        new_list_button.bind(on_release = new_list_button_callback)
-        self.box_layout.add_widget(new_list_button)
-        app.close_popup()
+
+        back_or_new_list = BoxLayout(size_hint_y = .2)
+        back_or_new_list.add_widget(BackButton(switch_to="game chooser"))
+        if (not app.is_premium) and len(app.file_manager.word_lists_names) >= 1:
+            back_or_new_list.add_widget(self.new_list_not_okay)
+        else:
+            back_or_new_list.add_widget(self.new_list_okay)
+        self.box_layout.add_widget(back_or_new_list)
+        app.close_popup()#close loading popup
+
+class WordListViewerScreen(Screen):
+    words_list_view = ObjectProperty(None)
+
+class ChildWatchingBoxLayout(BoxLayout):
+    """
+    BoxLayout that lets you get a child by a name, if you gave one
+    """
+    def __init__(self, *args, **kwargs):
+        super(ChildWatchingBoxLayout, self).__init__(*args, **kwargs)
+        self.child_dic = {}
+
+    #format stolen from pycharm's autofill in feature. not 100% if correct.
+    def add_widget(self, widget, index=0, name=""):
+        """
+        can pass a name kw, as long as name is not an empty string
+        """
+        if name:
+            self.child_dic[name] = widget
+        super(ChildWatchingBoxLayout, self).add_widget(widget, index)
+
+    def get_named_child(self, name):
+        return self.child_dic[name]
+
+
+# class BackButton(Button):
+#     def __init__(self, *args, **kwargs):
+#         screen = None #switch_to will either be a string or screen
+#         if "switch_to" in kwargs:
+#             screen = kwargs["switch_to"]
+#             del kwargs["switch_to"]
+#         super(BackButton, self).__init__(*args, **kwargs)
+#         if screen:
+#             def switch_to_callback(instance):
+#                 app.root.switch_to(screen, direction="right")
+#             self.bind(on_release = switch_to_callback)
+class BackButton(Button): #EventDispatcher is already subclassed by Button it appears
+    """
+    switches to another screen that is in screenamangers dict of screens
+    """
+    switch_to = StringProperty("")
+    def __init__(self, *args, **kwargs):
+        """
+        switch_to is a string that is the screen name you wish to switch to.
+        can be initialized with switch_to as a keyword. or can set switch_to
+        after initalization. Can not do both.
+        """
+        self.screen = None
+        super(BackButton, self).__init__(*args, text="back", **kwargs)
+
+    def on_switch_to(self, instance, value):
+        self.screen = value
+        def switch_to_callback(instance):
+            app.root.switch_to(self.screen, direction="right")
+        self.bind(on_release = switch_to_callback)
 
 class JoinGameScreen(Screen):
     pass
@@ -568,11 +637,18 @@ class MyScreenManager(ScreenManager):
         #    ManageWordListsScreen:
         login_screen = LoginScreen()
         self.switch_to(login_screen)
-        self.my_screens = {"login": 1, "game chooser" : GameChooserScreen(),
-                   "make game" : MakeGameScreen(), "select words list" : SelectWordsListScreen(),
-                   "join game" : JoinGameScreen(), "game lobby" : GameLobbyScreen(),
-                   "game" : GameScreen(), "manage word lists" : ManageWordListsScreen(),
-                   "make word list": MakeWordListScreen()}
+        self.my_screens = {
+            "login": 1,
+            "game chooser" : GameChooserScreen(),
+            "make game" : MakeGameScreen(),
+            "select words list" : SelectWordsListScreen(),
+            "join game" : JoinGameScreen(),
+            "game lobby" : GameLobbyScreen(),
+            "game" : GameScreen(),
+            "manage word lists" : ManageWordListsScreen(),
+            "make word list": MakeWordListScreen(),
+            "word list viewer" : WordListViewerScreen()
+            }
 
     def my_get_screen(self, name):
         return self.my_screens[name]
@@ -588,7 +664,14 @@ class MyScreenManager(ScreenManager):
             screen = self.my_screens[screen]
         super(MyScreenManager, self).switch_to(screen, **options)
 
-
+class PremiumLabel(Label):
+    """
+    class to be used in kv. If clicked shows
+    popup for buying premium
+    """
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            app.buy_premium_popup()
 
 
 

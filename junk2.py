@@ -1,11 +1,22 @@
+from kivy.properties import NumericProperty
+from kivy.event import EventDispatcher
+class A(EventDispatcher):
+    value = NumericProperty(0)
+    def on_value(self, instance, value):
+        print self, instance, value
 
+a = A()
+b = A()
+a.value = 4
+print "a", a.value
+print "b", b.value
 
+class B(object):
+    value = []
 
-layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
-# Make sure the height is such that there is something to scroll.
-layout.bind(minimum_height=layout.setter('height'))
-for i in range(30):
-    btn = Button(text=str(i), size_hint_y=None, height=40)
-    layout.add_widget(btn)
-root = ScrollView(size_hint=(None, None), size=(400, 400))
-root.add_widget(layout)
+c = B()
+d = B()
+
+c.value.append("cats")
+print "c",c.value
+print "d",d.value
