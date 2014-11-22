@@ -136,7 +136,7 @@ class CatchPhraseApp(App):
 
         return MyScreenManager()
 
-    def loading_popup(self, message = "Loading..."):
+    def loading_popup(self, instance=None, message = "Loading..."):
         """
         makes a loading popup with no close button. Optional agrument
         to change message
@@ -433,7 +433,8 @@ class GameScreen(Screen):
         """
         Clock.unschedule(self.count_downer)
         self.bottom_buttons.clear_widgets()
-        app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id, self.time_remaining()))
+        app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id,
+                                                      self.time_remaining()))
         self.word_label.text = "Not Your Turn"
 
     def on_enter(self, *args, **kwargs):
@@ -476,10 +477,11 @@ class GameScreen(Screen):
         app.event_manager.unregister_listener(self)
 
 class ManageWordListsScreen(Screen):
-    box_layout = ObjectProperty(None)
     list_label = ObjectProperty(None)
     new_list_okay = ObjectProperty(None)
     new_list_not_okay = ObjectProperty(None)
+    scroll_view = ObjectProperty(None)
+    back_or_new_list = ObjectProperty(None)
     SCROLL_BUTTON_SIZES = 40
     def __init__(self, *args, **kwargs):
         super(ManageWordListsScreen, self).__init__(*args, **kwargs)
@@ -492,7 +494,7 @@ class ManageWordListsScreen(Screen):
         """
         instance is either a view_button or a edit_button in a row (see on_enter).
         """
-        label = instance.parent.get_named_child("label") #the label in the boxlayout I'm in
+        label = instance.parent.get_named_child("label")
         list_name = label.text
         word_list = app.file_manager.get_word_list(list_name)
         word_list.sort()
@@ -522,20 +524,17 @@ class ManageWordListsScreen(Screen):
         #TODO: refactor so that all I am doing is the rows and col. Put rest in kv lang
         #TODO: like word_list_editor
         super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
-        self.box_layout.clear_widgets()#because I rebuild everytime
-        self.box_layout.add_widget(self.list_label)
+        self.scroll_view.clear_widgets()#because I rebuild everytime
         word_list_names = app.file_manager.word_lists_names
 
         #can not add a widget that has a parent. Made them in kv file
         #so they have a parent.
-        for widget in (self.list_label, self.new_list_okay, self.new_list_not_okay):
-            widget.parent = None
 
         #make rows for the scroll view
         if word_list_names == []:
             self.box_layout.add_widget(Label(text="filler", size_hint_y = .7))
         else:
-            scroll_view = ScrollView(size_hint_y = .7)
+            self.scroll_view
             layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
             layout.bind(minimum_height=layout.setter('height'))
             for list_name in word_list_names:
@@ -555,39 +554,51 @@ class ManageWordListsScreen(Screen):
                 row.add_widget(edit_button)
                 #add to self.box_layout
                 layout.add_widget(row)
-            scroll_view.add_widget(layout)
-            self.box_layout.add_widget(scroll_view)
+            self.scroll_view.add_widget(layout)
 
         #add make new_list_button
 
-        back_or_new_list = BoxLayout(size_hint_y = .2)
-        back_or_new_list.add_widget(BackButton(switch_to="game chooser"))
+        self.back_or_new_list.clear_widgets()
+        self.back_or_new_list.add_widget(BackButton(switch_to="game chooser"))
         if (not app.is_premium) and len(app.file_manager.word_lists_names) >= 1:
-            back_or_new_list.add_widget(self.new_list_not_okay)
+            self.back_or_new_list.add_widget(self.new_list_not_okay)
         else:
-            back_or_new_list.add_widget(self.new_list_okay)
-        self.box_layout.add_widget(back_or_new_list)
+            self.back_or_new_list.add_widget(self.new_list_okay)
         app.close_popup()#close loading popup
 
 class WordListEditor(Screen):
     #needs view of words, add word, save name and note that if save_name =
     scroll_view = ObjectProperty(None)
     save_name_input = ObjectProperty(None)
+    new_word_input = ObjectProperty(None)
     ROW_BUTTON_SIZES = 25
     def __init__(self,list_name, word_list):
         super(WordListEditor, self).__init__()
-        self.word_list = [str(i) for i in xrange(1000)]#list(word_list) # don't want to change list unless we save!
+        self.word_list = list(word_list) # don't want to change list unless we save!
         self.list_name = list_name
 
+    def add_word(self, word):
+        if not word:
+            app.generic_popup("No empty words")
+        elif word in self.word_list:
+            app.generic_popup("word already in list")
+        else:
+            self.word_list.append(word)
+            self.new_word_input.text = ""
+            app.loading_popup()
+            self.build_scroll_word_list()
     def remove_word_callback(self, instance):
-        label = instance.parent.get_named_child("label") #the label in the boxlayout I'm in
-        word = label.text
-        self.word_list.remove(word) #O(n) when we could have O(log(n)) w/ lazy deletes
-        self.scroll_view.clear_widgets()
-        self.build_scroll_word_list()
-
+        #hacky workaround for my loading popup not displaying before
+        #(time intensive) remove operation.
+        def callback(junk):
+            label = instance.parent.get_named_child("label")
+            word = label.text
+            self.word_list.remove(word)#O(n) when we could have O(log(n)) w/ lazy deletes
+            self.scroll_view.clear_widgets()
+            self.build_scroll_word_list()
+        Clock.schedule_once(callback, 0.01)
     def build_scroll_word_list(self):
-        self.save_name_input.text = self.list_name #make the default.
+        self.scroll_view.clear_widgets()
         layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
         layout.bind(minimum_height=layout.setter('height'))
         for word in self.word_list:
@@ -596,6 +607,7 @@ class WordListEditor(Screen):
                           height = self.ROW_BUTTON_SIZES,)
             remove_button = Button(text="REMOVE", size_hint_x = .2, size_hint_y = None,
                           height = self.ROW_BUTTON_SIZES, background_color = [1,0,0,1])
+            remove_button.bind(on_press = app.loading_popup)
             remove_button.bind(on_release = self.remove_word_callback)
 
             #add to row
@@ -604,12 +616,33 @@ class WordListEditor(Screen):
             #add to self.box_layout
             layout.add_widget(row)
         self.scroll_view.add_widget(layout)
+        app.close_popup()
+
+    def save(self):
+        name = self.save_name_input.text
+        word_list_names = app.file_manager.word_lists_names
+        print name
+        print word_list_names
+        print name in word_list_names
+        if not name:
+            app.generic_popup("can not have empty name")
+        elif name in word_list_names:
+            app.file_manager.store_word_list(name, self.word_list)
+            app.root.switch_to("manage word lists", direction="right")
+        elif app.is_premium or len(word_list_names) < 1:
+            print "app.is_premium or len(word_list_names) < 1", app.is_premium , len(word_list_names) < 1
+            app.file_manager.word_lists_names.append(name)
+            app.file_manager.store_word_list(name, self.word_list)
+            app.root.switch_to("manage word lists", direction="right")
+
+        else:
+            app.generic_popup("You must upgrade to Premium to have more "
+                              "than 1 personal list")
 
     def on_enter(self, *args, **kwargs):
         super(WordListEditor, self).on_enter(*args, **kwargs)
         self.save_name_input.text = self.list_name #make the default.
         self.build_scroll_word_list()
-        app.close_popup()
 
 class WordListViewerScreen(Screen):
     words_list_view = ObjectProperty(None)

@@ -29,7 +29,7 @@
       <file leaf-file-name="catch_phrase.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="578" column="53" selection-start="23234" selection-end="23234" vertical-scroll-proportion="2.0998552" vertical-offset="11265" max-vertical-offset="16412">
+            <state line="587" column="31" selection-start="23451" selection-end="23451" vertical-scroll-proportion="16.63318" vertical-offset="1986" max-vertical-offset="17138">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,7 +40,7 @@
       <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="124" column="31" selection-start="3558" selection-end="3558" vertical-scroll-proportion="-2.5" vertical-offset="2643" max-vertical-offset="6204">
+            <state line="222" column="37" selection-start="6583" selection-end="6583" vertical-scroll-proportion="-4.5" vertical-offset="4731" max-vertical-offset="6600">
               <folding />
             </state>
           </provider>
@@ -139,8 +139,8 @@
         <option value="$PROJECT_DIR$/junk2.py" />
         <option value="$PROJECT_DIR$/junk3.py" />
         <option value="$PROJECT_DIR$/junk.py" />
-        <option value="$PROJECT_DIR$/catch_phrase.py" />
         <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/catch_phrase.py" />
       </list>
     </option>
   </component>
@@ -505,7 +505,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="3" />
+      <option name="time" value="4" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -792,14 +792,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/catchphrase.kv">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="124" column="31" selection-start="3558" selection-end="3558" vertical-scroll-proportion="-2.5" vertical-offset="2643" max-vertical-offset="6204">
+        <state line="222" column="37" selection-start="6583" selection-end="6583" vertical-scroll-proportion="-4.5" vertical-offset="4731" max-vertical-offset="6600">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="578" column="53" selection-start="23234" selection-end="23234" vertical-scroll-proportion="2.0998552" vertical-offset="11265" max-vertical-offset="16412">
+        <state line="587" column="31" selection-start="23451" selection-end="23451" vertical-scroll-proportion="16.63318" vertical-offset="1986" max-vertical-offset="17138">
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -118,18 +118,17 @@
             on_release: app.root.switch_to('manage word lists')
 
 <ManageWordListsScreen>
-    box_layout: box_layout_kv
     list_label: list_label_kv
-    new_list_okay: new_list_okay_kv
-    new_list_not_okay: new_list_not_okay_kv
+    new_list_okay: new_list_okay_kv.__self__
+    new_list_not_okay: new_list_not_okay_kv.__self__
     scroll_view: scroll_view_kv
+    back_or_new_list: back_or_new_list_kv
 #    name: 'manage word lists'
     BoxLayout:
         #Note. The layout is not as defined below
         #I used kv-lang to make buttons so I woudn't
         #have to bind everything, then use their id's
         #and place them appropriatley in my python class
-        id: box_layout_kv
         orientation: 'vertical'
         Label:
             id: list_label_kv
@@ -137,21 +136,25 @@
             text_size: self.text_size[0], self.size[1]
             text: 'Lists:'
         ScrollView:
+            size_hint_y: .7
             id: scroll_view_kv
-        Button:
-            id: new_list_okay_kv
-            text: "Make New List"
+
+        BoxLayout:
             size_hint_y: .2
-            on_release: app.root.switch_to("make word list")
-        PremiumLabel:
-            canvas.after:
-                Color:
-                    rgba: (1,1,1,.5)
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
-            id: new_list_not_okay_kv
-            text: "Make New List"
+            id: back_or_new_list_kv
+            Button:
+                id: new_list_okay_kv
+                text: "Make New List"
+                on_release: app.root.switch_to("make word list")
+            PremiumLabel:
+                id: new_list_not_okay_kv
+                canvas.after:
+                    Color:
+                        rgba: (1,1,1,.5)
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                text: "Make New List"
 
 <WordListViewerScreen>:
     #name: 'word list viewer'
@@ -217,12 +220,25 @@
 <WordListEditor>:
     scroll_view: scroll_view_kv
     save_name_input: save_name_input_kv
+    new_word_input: new_word_input_kv
     BoxLayout:
         orientation: 'vertical'
         ScrollView:
-            size_hint_y: .7
+            size_hint_y: .6
             id: scroll_view_kv
         BoxLayout:
+            size_hint_y: .1
+            TextInput:
+                id: new_word_input_kv
+                size_hint_x: .8
+                hint_text: "add word"
+                text: ""
+            Button:
+                size_hint_x: .2
+                text: "submit"
+                on_release: root.add_word(new_word_input_kv.text)
+        BoxLayout:
+            #TODO make input popup
             size_hint_y: .1
             Label:
                 text:"save name:"
@@ -230,12 +246,14 @@
                 width: self.texture_size[0]
             TextInput:
                 id: save_name_input_kv
+                text: ""
         BoxLayout:
             size_hint_y: .2
             BackButton:
                 switch_to: 'manage word lists'
             Button:
                 text: 'Save'
+                on_release: root.save()
 
 <LoginScreen>:
 #    name: 'login'
