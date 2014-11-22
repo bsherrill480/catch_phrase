@@ -29,7 +29,7 @@
       <file leaf-file-name="catch_phrase.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="590" column="34" selection-start="23392" selection-end="23392" vertical-scroll-proportion="2.7442923" vertical-offset="11177" max-vertical-offset="15048">
+            <state line="578" column="53" selection-start="23234" selection-end="23234" vertical-scroll-proportion="2.0998552" vertical-offset="11265" max-vertical-offset="16412">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,7 +40,7 @@
       <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="156" column="31" selection-start="4589" selection-end="4589" vertical-scroll-proportion="29.0" vertical-offset="4418" max-vertical-offset="5654">
+            <state line="124" column="31" selection-start="3558" selection-end="3558" vertical-scroll-proportion="-2.5" vertical-offset="2643" max-vertical-offset="6204">
               <folding />
             </state>
           </provider>
@@ -49,7 +49,7 @@
       <file leaf-file-name="web_file_loader.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/web_file_loader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="58" selection-start="91" selection-end="142" vertical-scroll-proportion="0.0" vertical-offset="13" max-vertical-offset="704">
+            <state line="3" column="58" selection-start="91" selection-end="142" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="704">
               <folding />
             </state>
           </provider>
@@ -58,7 +58,7 @@
       <file leaf-file-name="junk3.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="26" selection-start="109" selection-end="109" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="264">
+            <state line="3" column="26" selection-start="109" selection-end="109" vertical-scroll-proportion="0.0" vertical-offset="66" max-vertical-offset="264">
               <folding />
             </state>
           </provider>
@@ -94,11 +94,8 @@
       <file leaf-file-name="junk2.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="27" selection-start="121" selection-end="136" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="594">
-              <folding>
-                <marker date="1416622791756" expanded="true" signature="0:82" placeholder="import ..." />
-                <marker date="1416622791756" expanded="true" signature="301:316" placeholder="..." />
-              </folding>
+            <state line="3" column="27" selection-start="121" selection-end="136" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="572">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -106,8 +103,10 @@
       <file leaf-file-name="junk.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="29" selection-start="1262" selection-end="1322" vertical-scroll-proportion="0.0" vertical-offset="242" max-vertical-offset="3190">
-              <folding />
+            <state line="109" column="19" selection-start="3471" selection-end="3471" vertical-scroll-proportion="0.0" vertical-offset="1949" max-vertical-offset="3366">
+              <folding>
+                <marker date="1416660763793" expanded="true" signature="4359:4368" placeholder="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -137,11 +136,11 @@
         <option value="$PROJECT_DIR$/word_list_manager.py" />
         <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
         <option value="$PROJECT_DIR$/web_file_loader.py" />
-        <option value="$PROJECT_DIR$/junk.py" />
         <option value="$PROJECT_DIR$/junk2.py" />
         <option value="$PROJECT_DIR$/junk3.py" />
-        <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/junk.py" />
         <option value="$PROJECT_DIR$/catch_phrase.py" />
+        <option value="$PROJECT_DIR$/catchphrase.kv" />
       </list>
     </option>
   </component>
@@ -177,7 +176,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -212,6 +210,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -452,9 +451,9 @@
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.catch_phrase" />
-        <item index="1" class="java.lang.String" itemvalue="Python.junk3" />
-        <item index="2" class="java.lang.String" itemvalue="Python.junk2" />
-        <item index="3" class="java.lang.String" itemvalue="Python.junk" />
+        <item index="1" class="java.lang.String" itemvalue="Python.junk" />
+        <item index="2" class="java.lang.String" itemvalue="Python.junk3" />
+        <item index="3" class="java.lang.String" itemvalue="Python.junk2" />
         <item index="4" class="java.lang.String" itemvalue="Python.web_file_loader" />
       </list>
     </recent_temporary>
@@ -476,6 +475,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.10889488" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32825205" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2682927" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -487,7 +487,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32825205" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -513,7 +512,9 @@
     <entry file="file://$PROJECT_DIR$/junk.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="35" column="29" selection-start="1262" selection-end="1322" vertical-scroll-proportion="0.0" vertical-offset="462" max-vertical-offset="3410">
-          <folding />
+          <folding>
+            <marker date="1416660763793" expanded="true" signature="4359:4368" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -752,34 +753,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/web_file_loader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="58" selection-start="91" selection-end="142" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="704">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python2.7/dist-packages/kivy/uix/widget.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="343" column="0" selection-start="11861" selection-end="11861" vertical-scroll-proportion="0.33285093" vertical-offset="7096" max-vertical-offset="16148">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/junk.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="29" selection-start="1262" selection-end="1322" vertical-scroll-proportion="0.0" vertical-offset="462" max-vertical-offset="3410">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/junk2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="27" selection-start="121" selection-end="136" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="594">
-          <folding>
-            <marker date="1416622791756" expanded="true" signature="0:82" placeholder="import ..." />
-            <marker date="1416622791756" expanded="true" signature="301:316" placeholder="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -790,16 +767,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/web_file_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="58" selection-start="91" selection-end="142" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="704">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/junk2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="27" selection-start="121" selection-end="136" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="594">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/junk.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="109" column="19" selection-start="3471" selection-end="3471" vertical-scroll-proportion="0.0" vertical-offset="1949" max-vertical-offset="3366">
+          <folding>
+            <marker date="1416660763793" expanded="true" signature="4359:4368" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/catchphrase.kv">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="31" selection-start="4589" selection-end="4589" vertical-scroll-proportion="29.0" vertical-offset="4418" max-vertical-offset="5654">
+        <state line="124" column="31" selection-start="3558" selection-end="3558" vertical-scroll-proportion="-2.5" vertical-offset="2643" max-vertical-offset="6204">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="590" column="34" selection-start="23392" selection-end="23392" vertical-scroll-proportion="2.7442923" vertical-offset="11177" max-vertical-offset="15048">
+        <state line="578" column="53" selection-start="23234" selection-end="23234" vertical-scroll-proportion="2.0998552" vertical-offset="11265" max-vertical-offset="16412">
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

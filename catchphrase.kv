@@ -122,6 +122,7 @@
     list_label: list_label_kv
     new_list_okay: new_list_okay_kv
     new_list_not_okay: new_list_not_okay_kv
+    scroll_view: scroll_view_kv
 #    name: 'manage word lists'
     BoxLayout:
         #Note. The layout is not as defined below
@@ -135,6 +136,8 @@
             size_hint_y: .1
             text_size: self.text_size[0], self.size[1]
             text: 'Lists:'
+        ScrollView:
+            id: scroll_view_kv
         Button:
             id: new_list_okay_kv
             text: "Make New List"
@@ -211,6 +214,28 @@
                 text: 'Make Game'
                 on_release: root.make_and_join_game()
 
+<WordListEditor>:
+    scroll_view: scroll_view_kv
+    save_name_input: save_name_input_kv
+    BoxLayout:
+        orientation: 'vertical'
+        ScrollView:
+            size_hint_y: .7
+            id: scroll_view_kv
+        BoxLayout:
+            size_hint_y: .1
+            Label:
+                text:"save name:"
+                size_hint_x: None
+                width: self.texture_size[0]
+            TextInput:
+                id: save_name_input_kv
+        BoxLayout:
+            size_hint_y: .2
+            BackButton:
+                switch_to: 'manage word lists'
+            Button:
+                text: 'Save'
 
 <LoginScreen>:
 #    name: 'login'

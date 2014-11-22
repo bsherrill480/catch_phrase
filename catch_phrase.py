@@ -19,9 +19,14 @@ install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
 
-#notes: never name something an empty string, code relies often on emtpy string
+#notes:
+#-never name something an empty string, code relies often on emtpy string
 #refering to a null value
-
+#-I initially had kv lang initializing all my screens and a lot of stuff
+#as a result I have lots of *args, **kwargs for __init__, however
+#after refactoring I didn't end up making then in kv, but my methods
+#still do *args, **kwargs even though now I know it's unnecesary.
+#I should go back and refactor this. TODO: refactor that
 class FileManager:
     """
     manages files
@@ -483,24 +488,39 @@ class ManageWordListsScreen(Screen):
         super(ManageWordListsScreen, self).on_pre_enter(*args, **kwargs)
         app.loading_popup()
 
-    def view_button_callback(self, instance):
-        #note: parents of this will be a ChildWatchingBoxLayout
+    def get_word_list_from_row_button(self, instance):
+        """
+        instance is either a view_button or a edit_button in a row (see on_enter).
+        """
         label = instance.parent.get_named_child("label") #the label in the boxlayout I'm in
         list_name = label.text
-        words_list = app.file_manager.get_word_list(list_name)
+        word_list = app.file_manager.get_word_list(list_name)
+        word_list.sort()
+        return list_name, word_list
+
+    def view_button_callback(self, instance):
+        #note: parents of this will be a ChildWatchingBoxLayout
+        list_name, words_list = self.get_word_list_from_row_button(instance)
         args_converter = lambda row_index, word: {"text": word,
                                                   "size_hint_y" : None,
                                                   "height" : 25}
+        print words_list
         list_adapter = ListAdapter(data=words_list,
                                    args_converter=args_converter,
                                    cls=ListItemLabel)
         list_view = app.root.my_get_screen('word list viewer').words_list_view
         list_view.adapter = list_adapter
         app.root.switch_to("word list viewer")
+
     def edit_button_callback(self, instance):
-        print instance.parent
+        list_name, words_list = self.get_word_list_from_row_button(instance)
+        word_list_editor = WordListEditor(list_name, words_list)
+        app.loading_popup()
+        app.root.switch_to(word_list_editor)
 
     def on_enter(self, *args, **kwargs):
+        #TODO: refactor so that all I am doing is the rows and col. Put rest in kv lang
+        #TODO: like word_list_editor
         super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
         self.box_layout.clear_widgets()#because I rebuild everytime
         self.box_layout.add_widget(self.list_label)
@@ -549,6 +569,48 @@ class ManageWordListsScreen(Screen):
         self.box_layout.add_widget(back_or_new_list)
         app.close_popup()#close loading popup
 
+class WordListEditor(Screen):
+    #needs view of words, add word, save name and note that if save_name =
+    scroll_view = ObjectProperty(None)
+    save_name_input = ObjectProperty(None)
+    ROW_BUTTON_SIZES = 25
+    def __init__(self,list_name, word_list):
+        super(WordListEditor, self).__init__()
+        self.word_list = [str(i) for i in xrange(1000)]#list(word_list) # don't want to change list unless we save!
+        self.list_name = list_name
+
+    def remove_word_callback(self, instance):
+        label = instance.parent.get_named_child("label") #the label in the boxlayout I'm in
+        word = label.text
+        self.word_list.remove(word) #O(n) when we could have O(log(n)) w/ lazy deletes
+        self.scroll_view.clear_widgets()
+        self.build_scroll_word_list()
+
+    def build_scroll_word_list(self):
+        self.save_name_input.text = self.list_name #make the default.
+        layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        layout.bind(minimum_height=layout.setter('height'))
+        for word in self.word_list:
+            row = ChildWatchingBoxLayout(size_hint_y = None)
+            label = Label(text=word, size_hint_x=.8, size_hint_y = None,
+                          height = self.ROW_BUTTON_SIZES,)
+            remove_button = Button(text="REMOVE", size_hint_x = .2, size_hint_y = None,
+                          height = self.ROW_BUTTON_SIZES, background_color = [1,0,0,1])
+            remove_button.bind(on_release = self.remove_word_callback)
+
+            #add to row
+            row.add_widget(label, name="label")
+            row.add_widget(remove_button)
+            #add to self.box_layout
+            layout.add_widget(row)
+        self.scroll_view.add_widget(layout)
+
+    def on_enter(self, *args, **kwargs):
+        super(WordListEditor, self).on_enter(*args, **kwargs)
+        self.save_name_input.text = self.list_name #make the default.
+        self.build_scroll_word_list()
+        app.close_popup()
+
 class WordListViewerScreen(Screen):
     words_list_view = ObjectProperty(None)
 
@@ -560,7 +622,7 @@ class ChildWatchingBoxLayout(BoxLayout):
         super(ChildWatchingBoxLayout, self).__init__(*args, **kwargs)
         self.child_dic = {}
 
-    #format stolen from pycharm's autofill in feature. not 100% if correct.
+    #format stolen from pycharm's autofill in feature.
     def add_widget(self, widget, index=0, name=""):
         """
         can pass a name kw, as long as name is not an empty string
