@@ -217,13 +217,12 @@ class SelectWordsListScreen(Screen):
     Screen for choosing list of words in MakeGameScreen
     """
 
-    def __init__(self, *args, **kwargs):
-        super(SelectWordsListScreen, self).__init__(*args, **kwargs)
+    def __init__(self, word_lists_names = None):
+        super(SelectWordsListScreen, self).__init__()
         self.name = "select words list"
+        self.word_lists_names = word_lists_names
 
-    def on_pre_enter(self, *args, **kwargs):
-        super(SelectWordsListScreen, self).on_enter(*args, **kwargs)
-        app.loading_popup()
+    def build_screen(self):
         def build_screen(result):
             selected_button = Selected()
             data = [DataItem(selected_obj=selected_button,text=name) for name in result]
@@ -243,16 +242,30 @@ class SelectWordsListScreen(Screen):
             button = Button(text = "Done", size_hint_y = .2)
             def return_to_make_game(instance):
                 app.root.switch_to("make game", direction="right")
-                app.root.current_screen.word_list_name = selected_button.selected.text
+                curr_screen = app.root.current_screen
+                curr_screen.word_list_name = selected_button.selected.text
+                if self.word_lists_names is None:
+                    curr_screen.word_source = curr_screen.SERVER
+                else:
+                    curr_screen.word_source = curr_screen.LOCAL_LIST
             button.bind(on_release = return_to_make_game)
             box_layout = BoxLayout(orientation="vertical")
             box_layout.add_widget(list_view)
             box_layout.add_widget(button)
             self.add_widget(box_layout)
+        if self.word_lists_names is None: #remember, we could get a empty list passed!
+            d = app.uplink.root_obj.callRemote("get_word_list_options")
+            d.addCallback(build_screen)
+            d.addCallback(app.close_popup)
+        else:
+            build_screen(self.word_lists_names)
+            app.close_popup()
 
-        d = app.uplink.root_obj.callRemote("get_word_list_options")
-        d.addCallback(build_screen)
-        d.addCallback(app.close_popup)
+    def on_pre_enter(self, *args, **kwargs):
+        super(SelectWordsListScreen, self).on_enter(*args, **kwargs)
+        app.loading_popup()
+        self.build_screen()
+
 
 
 class GameChooserScreen(Screen):
@@ -261,7 +274,6 @@ class GameChooserScreen(Screen):
     """
     def on_enter(self, *args):
         super(GameChooserScreen, self).on_enter(*args)
-        app.uplink.root_obj.callRemote("give_list", [str(i) for i in xrange(100000)])
 
 
 class MakeGameScreen(Screen):
@@ -270,6 +282,11 @@ class MakeGameScreen(Screen):
     """
     unique_game_id = ObjectProperty(None)
     word_list_name = StringProperty("No List Selected")
+    LOCAL_LIST = "local"
+    SERVER = "server"
+    def __init__(self):
+        super(MakeGameScreen, self).__init__()
+        self.word_source = "" #Source is either LOCAL_LIST or SERVER
 
     def get_unique_game_id(self):
         """
@@ -282,6 +299,11 @@ class MakeGameScreen(Screen):
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
         d.addCallback(set_game_id)
 
+    def local_list(self):
+        app.root.switch_to(SelectWordsListScreen(app.file_manager.word_lists_names))
+    def server_list(self):
+        app.root.switch_to(SelectWordsListScreen())
+
     def make_and_join_game(self):
         if self.word_list_name != "No List Selected":
             def was_success(result):
@@ -291,8 +313,14 @@ class MakeGameScreen(Screen):
                     app.root.switch_to("game lobby")
                 else:
                     app.generic_popup("Game Name Taken")
-            d = app.uplink.root_obj.callRemote("make_game_lobby",
-                            self.unique_game_id.text, self.word_list_name)
+            if self.word_source == self.SERVER:
+                d = app.uplink.root_obj.callRemote("make_game_lobby",
+                                self.unique_game_id.text, self.word_list_name)
+            else:
+                d = app.uplink.root_obj.callRemote(
+                    "make_game_lobby", self.unique_game_id.text,
+                    app.file_manager.get_word_list(self.word_list_name)
+                )
             d.addCallback(was_success)
         else:
             app.generic_popup("Please Select List")
@@ -309,6 +337,7 @@ class GameLobbyScreen(Screen):
         def __init__(self, selected_obj, text, client_id):
             super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
             self.client_id = client_id
+
     class MyListItemButton(ListItemButton):
         def __init__(self, **kwargs):
             super(GameLobbyScreen.MyListItemButton,self).__init__(**kwargs)

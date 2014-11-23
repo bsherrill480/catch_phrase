@@ -73,7 +73,7 @@ class ServerEventManager(pb.Root):
                     return letter_name
         return game_name #sorry bud, out of luck
 
-    def remote_make_game_lobby(self, lobby_id, word_list_id):
+    def remote_make_game_lobby(self, lobby_id, word_list):
         """
         returns false if lobby_id is in use. Assumes word_list_id
         will be correct. Don't fuck me over me.
@@ -81,7 +81,9 @@ class ServerEventManager(pb.Root):
         if lobby_id in self.lobbys:
             return False
         else:
-            self.lobbys[lobby_id] = Lobby(self, self.world_lists[word_list_id], lobby_id)
+            if isinstance(word_list, str):#if it wasn't a local copy.
+                word_list = self.world_lists[word_list]
+            self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id)
             self.total_games = self.total_games + 1
             return True
 
@@ -119,9 +121,6 @@ class ServerEventManager(pb.Root):
                 print "calling client.remove_client() on: ", client.client_id, client.nickname
                 client.remove_client()
 
-    def remote_give_list(self, list):
-        expected = [str(i) for i in xrange(100000)]
-        print "List == expected: ", list == expected
 
 
 class Lobby(pb.Root):

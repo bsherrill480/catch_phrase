@@ -216,10 +216,13 @@
             size_hint_y: .4
             orientation: 'horizontal'
             Label:
-                text: 'Select Word List'
+                text: 'Selected Word List: ' + root.word_list_name
             Button:
-                on_release: app.root.switch_to('select words list')
-                text: root.word_list_name
+                on_release: root.server_list()
+                text: 'Server Word List'
+            Button:
+                text: 'My Word List'
+                on_release: root.local_list()
         BoxLayout:
             size_hint_y: .2
             Button:
