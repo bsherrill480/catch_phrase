@@ -175,11 +175,23 @@
         TextInput:
             id: name_text_input
             multiline: False
-            text: 'name'
-        TextInput:
-            id: url_text_input
-            multiline: False
-            text: 'Enter Url'
+            text: ""
+            hint_text: 'name of list'
+        BoxLayout:
+            TextInput:
+                size_hint_x: .4
+                text: ""
+                id: url_text_input
+                multiline: False
+                hint_text: 'Enter Url'
+            Label:
+                size_hint_x: .1
+                text: 'or'
+            Button:
+                size_hint_x: .4
+                text: "make list locally"
+                on_release: root.make_list_locally(name_text_input.text, [])
+
         Button:
             text: 'submit'
             on_press: app.loading_popup()

@@ -131,7 +131,7 @@ class CatchPhraseApp(App):
         self.popup = None
         self.lobby = None # will be a root_obj, ie twisted.spread.pb.root
         self.game = None
-        self.is_premium = False
+        self.is_premium = True
         self.file_manager = FileManager()
 
         return MyScreenManager()
@@ -520,10 +520,12 @@ class ManageWordListsScreen(Screen):
         app.loading_popup()
         app.root.switch_to(word_list_editor)
 
-    def on_enter(self, *args, **kwargs):
-        #TODO: refactor so that all I am doing is the rows and col. Put rest in kv lang
-        #TODO: like word_list_editor
-        super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
+    def delete_buton_callback(self, instance):
+        list_name, words_list = self.get_word_list_from_row_button(instance)
+        app.file_manager.delete_word_list(list_name)
+        self.build_screen()
+
+    def build_screen(self):
         self.scroll_view.clear_widgets()#because I rebuild everytime
         word_list_names = app.file_manager.word_lists_names
 
@@ -532,24 +534,29 @@ class ManageWordListsScreen(Screen):
 
         #make rows for the scroll view
         if word_list_names == []:
-            self.box_layout.add_widget(Label(text="filler", size_hint_y = .7))
+            self.scroll_view.add_widget(Label(text="filler"))
         else:
-            self.scroll_view
             layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
             layout.bind(minimum_height=layout.setter('height'))
             for list_name in word_list_names:
                 #setup
                 row = ChildWatchingBoxLayout(size_hint_y = None)
-                label = Label(text=list_name, size_hint_x=.75, size_hint_y = None,
+                label = Label(text=list_name, size_hint_x=(1.0-3*.125), size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
+                delete_button = Button(text="delete", background_color=(1,0,0,1),
+                                       size_hint_y = None, size_hint_x = .125,
+                                       height = self.SCROLL_BUTTON_SIZES)
+                delete_button.bind(on_release = self.delete_buton_callback)
                 view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
                 view_button.bind(on_release = self.view_button_callback)
                 edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
                 edit_button.bind(on_release = self.edit_button_callback)
+
                 #add to row
                 row.add_widget(label, name="label")
+                row.add_widget(delete_button)
                 row.add_widget(view_button)
                 row.add_widget(edit_button)
                 #add to self.box_layout
@@ -566,6 +573,12 @@ class ManageWordListsScreen(Screen):
             self.back_or_new_list.add_widget(self.new_list_okay)
         app.close_popup()#close loading popup
 
+
+    def on_enter(self, *args, **kwargs):
+        #TODO: refactor so that all I am doing is the rows and col. Put rest in kv lang
+        #TODO: like word_list_editor
+        super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
+        self.build_screen()
 class WordListEditor(Screen):
     #needs view of words, add word, save name and note that if save_name =
     scroll_view = ObjectProperty(None)
@@ -630,11 +643,9 @@ class WordListEditor(Screen):
             app.file_manager.store_word_list(name, self.word_list)
             app.root.switch_to("manage word lists", direction="right")
         elif app.is_premium or len(word_list_names) < 1:
-            print "app.is_premium or len(word_list_names) < 1", app.is_premium , len(word_list_names) < 1
             app.file_manager.word_lists_names.append(name)
             app.file_manager.store_word_list(name, self.word_list)
             app.root.switch_to("manage word lists", direction="right")
-
         else:
             app.generic_popup("You must upgrade to Premium to have more "
                               "than 1 personal list")
@@ -703,6 +714,8 @@ class JoinGameScreen(Screen):
     pass
 
 class MakeWordListScreen(Screen):
+    def make_list_locally(self, list_name, word_list):
+        app.root.switch_to(WordListEditor(list_name, word_list))
     def add_word_list(self, name, url):
         if name == "" and url == "":
             name = "test"
