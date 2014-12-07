@@ -20,7 +20,7 @@ class Client:
         self.client_id = client_id
         self.nickname = nickname
         self.observers = []
-
+        self.number_sharing_device = 1
     def remove_client(self):
         print "all observers", self.observers
         for observer in self.observers:
@@ -79,13 +79,15 @@ class ServerEventManager(pb.Root):
         will be correct. Don't fuck me over me.
         """
         if lobby_id in self.lobbys:
-            return False
+            return (False, "lobby id in use")
+        elif not word_list:
+            return (False, "word list is empty")
         else:
             if isinstance(word_list, str):#if it wasn't a local copy.
                 word_list = self.world_lists[word_list]
             self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id)
             self.total_games = self.total_games + 1
-            return True
+            return (True, "success")
 
     def remote_join_lobby(self, client_id, lobby_id):
         """
@@ -162,6 +164,9 @@ class Lobby(pb.Root):
         self.waiting.append((player.client_id, player.nickname))
         self.new_lineup_event()
 
+        #set default number of people sharing device
+        player.number_sharing_device = 1
+
     def remove_client_from_waiting(self, client_id):
         """
         removes the client from the waiting list.
@@ -188,21 +193,33 @@ class Lobby(pb.Root):
         if self.game:
             self.game.post(event)
         else:
-            if isinstance(event, e.ToHandoffToEvent):
+            if isinstance(event, e.QuitEvent):
+                client_id = event.client_id
+                self.players.remove(self.server.clients[client_id])
+                self.remove_client_from_waiting(client_id)
+                self.organizer.delete_node(client_id)
+                self.new_lineup_event()
+            elif isinstance(event, e.ToHandoffToEvent):
                 self.organizer.set_next(event.my_id, event.to_handoff_to)
                 self.remove_client_from_waiting(event.my_id)
                 self.new_lineup_event()
+            elif isinstance(event, e.NumberSharingDeviceEvent):
+                print "recieved: ", event.name
+                self.server.clients[event.client_id].number_sharing_device = event.number_sharing_device
             elif isinstance(event, e.StartGameRequestEvent):
                 self.post(e.CopyableEvent()) #make sure everyone is still here
                                             #(post handles if someone left)
                 if self.organizer.is_perfect_circle():
                     self.post(e.GameStartEvent())
+                    #SEE circle_graph.client_id_lists() to understand why indexing & slicing
+                    player_id_list = self.organizer.client_id_lists()[0][0:-1]
+                    self._setup_list_for_multiple_players(player_id_list)
                     self.game = setup_catch_phrase(
                         self.players,
                         self.word_list,
-                        #SEE circle_graph.client_id_lists() to understand why indexing & slicing
-                        self.organizer.client_id_lists()[0][0:-1],
-                        self.game_over_callback
+                        player_id_list,
+                        self.game_over_callback,
+                        self.lobby_id
                     )
                 elif self.waiting == []:
                     #was not an acceptable circle. If waiting is empty we should
@@ -215,6 +232,18 @@ class Lobby(pb.Root):
                     self.post(e.WrongOrderingEvent(self.organizer.visual_strings()))
             self.post(event) # sent to everyone!
 
+    def _setup_list_for_multiple_players(self, player_list):
+        """
+        takes in a player_id list and adds appropriate duplications such that the number
+        of appearences of id = number of peole sharing device
+        """
+        for player in self.players:
+            number_of_insertions = player.number_sharing_device - 1
+            if number_of_insertions > 0:
+                index_of_id = player_list.index(player.client_id)
+                for i in range(number_of_insertions):
+                    player_list.insert(index_of_id, player.client_id)
+
     def post(self, event):
         """
         posts event to all players/clients. If someone(s) is(are) dead, removes
@@ -226,8 +255,9 @@ class Lobby(pb.Root):
                 client.root_obj.callRemote('notify', event)
             except pb.DeadReferenceError:
                 dead_clients.append(client)
-
+        print "dead clients:",dead_clients
         for client in dead_clients:
+            print "removing:", client
             self.players.remove(client)
             self.remove_client_from_waiting(client.client_id)
             self.organizer.delete_node(client.client_id)

@@ -3,7 +3,7 @@
 #:import TextInput kivy.uix.textinput.TextInput
 #:import Label kivy.uix.label.Label
 #:import Button kivy.uix.button.Button
-
+#:import CoreLabel kivy.core.text.Label
 <MyScreenManager>:
 #    LoginScreen:
 #    GameChooserScreen:
@@ -26,14 +26,10 @@
             TextInput:
                 id: join_game_id_input
                 multiline: False
-        BoxLayout:
+        Button:
             size_hint_y: .2
-            Button:
-                text: 'Back'
-                on_release: app.root.switch_to('game chooser', direction='right') # should be refactored to single button amoung all
-            Button:
-                text: 'Join Game'
-                on_release: app.root.switch_to('game lobby')
+            text: 'Join Game'
+            on_release: root.join()
 
 <GameScreen>:
 #    name: 'game'
@@ -67,7 +63,8 @@
 #    name: 'game lobby'
     view_label: player_view_label
     view_list: player_view_list
-    pointing_to: player_pointing_to
+    pointing_to_spinner: player_pointing_to
+    number_sharing_device_spinner: number_sharing_device_spinner_kv
     #overall layout
     BoxLayout:
         orientation: 'vertical'
@@ -79,31 +76,50 @@
                 Label:
                     id: player_view_label
                     size_hint_y: .1
-                    text: ''
+                    text: "" if root.waiting_is_empty else "Waiting on:"
                 ListView:
                     id: player_view_list
             #Player that I "hand" device to
             BoxLayout:
                 orientation: 'vertical'
                 Label:
-                    size_hint_y: .1
-                    text: 'Player after me'
-                ListView:
+                    size_hint_y: None
+                    text: 'Player after me:'
+                    height: self.parent.height * .1
+                Spinner:
+                    size_hint_y: None
+                    height: root.SPINNER_HEIGHT
                     id: player_pointing_to
+                    text: "Player After Me"
+                    values: tuple()
+                Label:
+                    text: ""
+                    size_hint_y: .5
+                Label:
+                    size_hint_y: None
+                    height: self.parent.height * .1
+                    text: "number of people sharing device"
+                Spinner:
+                    id: number_sharing_device_spinner_kv
+                    size_hint_y: None
+                    height: root.SPINNER_HEIGHT
+                    text: "1"
+                    values: [str(i+1) for i in range(12)]
+                Label:
+                    text: ""
+
         #bottom buttons
-        BoxLayout:
+        Button:
             size_hint_y: .2
-            Button:
-                text: 'Submit'
-                on_release: root.submit_point_at()
-            Button
-                text: 'Start'
-                on_release: root.submit_start_game_request()
+            text: 'Start'
+            on_release: root.submit_start_game_request()
 
 
 <GameChooserScreen>:
 #    name: 'game chooser'
-    BoxLayout:
+    GridLayout:
+        cols: 1
+        spacing: "1dp"
         orientation: 'vertical'
         Button:
             text: 'Make Game'
@@ -122,7 +138,7 @@
     new_list_okay: new_list_okay_kv.__self__
     new_list_not_okay: new_list_not_okay_kv.__self__
     scroll_view: scroll_view_kv
-    back_or_new_list: back_or_new_list_kv
+    new_list_box: new_list_kv
 #    name: 'manage word lists'
     BoxLayout:
         #Note. The layout is not as defined below
@@ -135,13 +151,18 @@
             size_hint_y: .1
             text_size: self.text_size[0], self.size[1]
             text: 'Lists:'
+#        Button:
+#            size_hint_y: .05
+#            text: "help"
+#            on_release:
+#                root.help()
         ScrollView:
             size_hint_y: .7
             id: scroll_view_kv
 
         BoxLayout:
             size_hint_y: .2
-            id: back_or_new_list_kv
+            id: new_list_kv
             Button:
                 id: new_list_okay_kv
                 text: "Make New List"
@@ -162,11 +183,8 @@
     BoxLayout:
         orientation: "vertical"
         ListView:
-            size_hint_y: .8
+            size_hint_y: 1
             id: words_list_view_kv
-        BackButton:
-            size_hint_y:.2
-            switch_to: 'manage word lists'
 
 <MakeWordListScreen>:
 #    name: 'make word list'
@@ -223,18 +241,14 @@
             Button:
                 text: 'My Word List'
                 on_release: root.local_list()
-        BoxLayout:
+        Button:
             size_hint_y: .2
-            Button:
-                text: 'Back'
-                on_release: app.root.switch_to('game chooser', direction="right")
-            Button:
-                text: 'Make Game'
-                on_release: root.make_and_join_game()
+            text: 'Make Game'
+            on_release: root.make_and_join_game()
 
 <WordListEditor>:
     scroll_view: scroll_view_kv
-    save_name_input: save_name_input_kv
+    #save_name_input: save_name_input_kv
     new_word_input: new_word_input_kv
     BoxLayout:
         orientation: 'vertical'
@@ -252,57 +266,95 @@
                 size_hint_x: .2
                 text: "submit"
                 on_release: root.add_word(new_word_input_kv.text)
-        BoxLayout:
-            #TODO make input popup
-            size_hint_y: .1
-            Label:
-                text:"save name:"
-                size_hint_x: None
-                width: self.texture_size[0]
-            TextInput:
-                id: save_name_input_kv
-                text: ""
-        BoxLayout:
+#        BoxLayout:
+#            #TODO make input popup
+#            size_hint_y: .1
+#            Label:
+#                text:"save name:"
+#                size_hint_x: None
+#                width: self.texture_size[0]
+#            TextInput:
+#                id: save_name_input_kv
+#                text: ""
+        Button:
             size_hint_y: .2
-            BackButton:
-                switch_to: 'manage word lists'
-            Button:
-                text: 'Save'
-                on_release: root.save()
+            text: 'Save'
+            on_release: root.save()
+
+<MiddleTextInput@TextInput>:
+    #padding: [self.width/2 - CoreLabel(self.text).size, self.padding[1]]
+    on_text:
+        my_label = CoreLabel()
+        my_label.text = self.text
+        my_label.refresh()
+        self.padding = [self.width/2 - my_label.size[0], self.padding[1]]
+
 
 <LoginScreen>:
 #    name: 'login'
     BoxLayout:
-        size: root.size
-        orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: .4
-            # height: self.parent.height * .4
-            orientation: 'horizontal'
-            Label:
-                text: 'Nickname:'
-            TextInput:
-                id: username_input
-                text: 'default'
-                multiline: False
-                on_text_validate: root.login(self.text, "")
+        orientation: "vertical"
+        Label:
+            text:"LOGO"
+        MiddleTextInput:
+            id: login_text_input
+            hint_text: "nickname"
+            size_hint_y: None
+            height: "32dp"
+            on_text_validate: root.login(self.text)# reminant of password
 
-        BoxLayout:
-            size_hint_y: .4
-            #height: self.parent.height * .4
-            orientation: 'horizontal'
-            Label:
-                text: 'Optional Password:'
-            TextInput:
-                id: password_input
-                multiline: False
-                password: True
+        Label:
+            text: ""
+            size_hint_y: None
+            height: "10dp"
 
         Button:
-            size_hint_y: .2
-            #height: self.parent.height * .2
-            on_release: root.login(username_input.text, password_input.text)
-            text: 'login:'
+            text: "login"
+            height: "48dp"
+            size_hint: None,None
+            width: self.parent.width * .5
+            on_release: root.login(login_text_input.text)
+            pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
+
+        Label:
+            text: "filler3"
+
+        BoxLayout:
+            orientation: "horizontal"
+            Button:
+                text: "About"
+            Button:
+                text: "upgrade"
+
+#        orientation: 'vertical'
+#        BoxLayout:
+#            size_hint_y: .4
+#            # height: self.parent.height * .4
+#            orientation: 'horizontal'
+#            Label:
+#                text: 'Nickname:'
+#            TextInput:
+#                id: username_input
+#                text: 'default'
+#                multiline: False
+#                on_text_validate: root.login(self.text, "")
+#
+#        BoxLayout:
+#            size_hint_y: .4
+#            #height: self.parent.height * .4
+#            orientation: 'horizontal'
+#            Label:
+#                text: 'Optional Password:'
+#            TextInput:
+#                id: password_input
+#                multiline: False
+#                password: True
+#
+#        Button:
+#            size_hint_y: .2
+#            #height: self.parent.height * .2
+#            on_release: root.login(username_input.text, password_input.text)
+#            text: 'login:'
 
 
 

@@ -25,6 +25,7 @@ class GameEventManager():
         self.event_queue = deque()# O(1) leftpop()
         self.__in_loop = False
 
+        self.lobby_id = None #REMOVE WHEN DONE DEBUGGING
     def dead_client(self, client):
         self.post(e.CopyableEvent()) #post takes care of dead clients
 
@@ -36,6 +37,7 @@ class GameEventManager():
         # if not self.looping_call_clients: #setup because we can't in __init__?
         #     self.looping_call_clients = LoopingCall(self.post, e.CopyableEvent())#check for pulse of clients
         #     self.looping_call_clients.start(15.0) #every 15 seconds
+        event.lobby_id = self.lobby_id
         is_tick_event = isinstance(event, e.TickEvent)
         if (not self.__in_loop) and is_tick_event:
             self.__in_loop = True
@@ -44,7 +46,6 @@ class GameEventManager():
                 self._single_event_notify(event)
                 if self.clients == []: #if game is over (clients are all gone)
                     self.game_over_callback()
-                    self.looping_call_clients.stop()
                     self.looping_call_self.stop()
                     break
             self.event_queue.clear()
@@ -71,9 +72,12 @@ class GameEventManager():
                     clients_to_remove.append(client)
         self.game_stack.notify(event) #let it generate begin event (if it was going to)
         for client in clients_to_remove:
+            print "removing", client.client_id, client.nickname
             self.clients.remove(client)
-            self.model.players_order.remove_item(client.client_id)
-            self.post(e.EndTurnEvent(client.client_id, self.model.time_left))
+            filter(lambda a: a != client.client_id, self.model.players_order)
+            ev = e.EndTurnEvent(client.client_id, self.model.time_left)
+            ev.penis = True
+            self.post(ev)
 
 class BaseGame:
     """
@@ -126,7 +130,7 @@ class PlayerGuessGame:
             self.game_stack.pop()
 
 
-def setup_catch_phrase(players, word_list, player_order, game_over_callback):
+def setup_catch_phrase(players, word_list, player_order, game_over_callback, lobby_id = None):
     """
     returns event_manager for game
     players is a list of client objects (as defined in server)
@@ -143,6 +147,7 @@ def setup_catch_phrase(players, word_list, player_order, game_over_callback):
     event_manager.model = model
     game_stack.push(base_game, model, "base game")
     event_manager.looping_call_self.start(.25) # to check for dead clients
+    event_manager.lobby_id = lobby_id #REMOVE WHEN DONE DEBUGGING
     return event_manager
 
 if __name__ == '__main__':

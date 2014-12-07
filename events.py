@@ -94,3 +94,11 @@ class QuitEvent(CopyableEvent):
         self.name = "Quit Event"
         self.client_id = client_id
 pb.setUnjellyableForClass(QuitEvent, QuitEvent)
+
+class NumberSharingDeviceEvent(CopyableEvent):
+    def __init__(self, client_id, number_sharing_device):
+        CopyableEvent.__init__(self)
+        self.name = "Number Sharing Device Event"
+        self.client_id = client_id
+        self.number_sharing_device = number_sharing_device
+pb.setUnjellyableForClass(NumberSharingDeviceEvent, NumberSharingDeviceEvent)

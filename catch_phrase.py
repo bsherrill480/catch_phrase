@@ -1,7 +1,7 @@
 import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -10,9 +10,14 @@ from kivy.adapters.listadapter import ListAdapter
 from kivy.uix.listview import ListItemButton, ListView, ListItemLabel
 from kivy.uix.gridlayout import GridLayout
 from kivy.clock import Clock
-import urllib2
+import urllib as urllib2
 from kivy.uix.scrollview import ScrollView
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.textinput import TextInput
+from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+from random import random
+from kivy.uix.spinner import Spinner
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
@@ -132,8 +137,8 @@ class CatchPhraseApp(App):
         self.lobby = None # will be a root_obj, ie twisted.spread.pb.root
         self.game = None
         self.is_premium = True
+        Window.bind(on_keyboard=self.hook_keyboard)#bind back button on anroid
         self.file_manager = FileManager()
-
         return MyScreenManager()
 
     def loading_popup(self, instance=None, message = "Loading..."):
@@ -173,6 +178,13 @@ class CatchPhraseApp(App):
 
     def buy_premium_popup(self):
         self.generic_popup("BUY PREMIUM!")
+
+
+    def hook_keyboard(self, window, key, *args):
+        if key == 27:
+            self.close_popup()
+            return self.root.current_screen.back_to_screen()
+
 #added so all code should have access to app
 app = CatchPhraseApp()
 
@@ -183,7 +195,7 @@ class LoginScreen(Screen):
         self.name = "Login"
         self.factory = pb.PBClientFactory()
         print app.get_application_config()
-    def login(self, nickname, password):
+    def login(self, nickname, password=""):
         """
         attempts to login to server. displays loading popup until
         logged in. Displays failed to connect popup if unable to
@@ -212,6 +224,9 @@ class LoginScreen(Screen):
         d.addCallback(app.uplink.give_id)
         d.addCallback(change_to_gamechooser_screen)
 
+    def back_to_screen(self):
+        return False
+
 class SelectWordsListScreen(Screen):
     """
     Screen for choosing list of words in MakeGameScreen
@@ -221,6 +236,9 @@ class SelectWordsListScreen(Screen):
         super(SelectWordsListScreen, self).__init__()
         self.name = "select words list"
         self.word_lists_names = word_lists_names
+
+    def back_to_screen(self):
+        return False
 
     def build_screen(self):
         def build_screen(result):
@@ -266,7 +284,9 @@ class SelectWordsListScreen(Screen):
         app.loading_popup()
         self.build_screen()
 
-
+    def back_to_screen(self):
+        app.root.switch_to("make game", direction="right")
+        return True
 
 class GameChooserScreen(Screen):
     """
@@ -275,6 +295,8 @@ class GameChooserScreen(Screen):
     def on_enter(self, *args):
         super(GameChooserScreen, self).on_enter(*args)
 
+    def back_to_screen(self):
+        return False
 
 class MakeGameScreen(Screen):
     """
@@ -301,18 +323,20 @@ class MakeGameScreen(Screen):
 
     def local_list(self):
         app.root.switch_to(SelectWordsListScreen(app.file_manager.word_lists_names))
+
     def server_list(self):
         app.root.switch_to(SelectWordsListScreen())
 
     def make_and_join_game(self):
         if self.word_list_name != "No List Selected":
             def was_success(result):
-                if result:
+                if result[0]:
                     join_screen = app.root.my_get_screen("join game")
                     join_screen.game_name_input.text = self.unique_game_id.text
-                    app.root.switch_to("game lobby")
+                    #app.root.switch_to("game lobby")
+                    app.root.switch_to(GameLobbyScreen())
                 else:
-                    app.generic_popup("Game Name Taken")
+                    app.generic_popup(result[1])
             if self.word_source == self.SERVER:
                 d = app.uplink.root_obj.callRemote("make_game_lobby",
                                 self.unique_game_id.text, self.word_list_name)
@@ -325,32 +349,49 @@ class MakeGameScreen(Screen):
         else:
             app.generic_popup("Please Select List")
 
+    def back_to_screen(self):
+        app.root.switch_to("game chooser", direction="right")
+        return True
+
 class GameLobbyScreen(Screen):
     """
     screen before game starts. Users need to input who they will pass the device
     to.
     """
+    SPINNER_HEIGHT = "50dp"
     view_label = ObjectProperty(None)
     view_list = ObjectProperty(None)
-    pointing_to = ObjectProperty(None)#List of buttons of players who can be point to
-    class MyDataItem(DataItem):
-        def __init__(self, selected_obj, text, client_id):
-            super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
-            self.client_id = client_id
+    pointing_to_spinner = ObjectProperty(None)#List of buttons of players who can be point to
+    number_sharing_device_spinner = ObjectProperty(None)
+    waiting_is_empty = BooleanProperty(False)
+    # class MyDataItem(DataItem):
+    #     def __init__(self, selected_obj, text, client_id):
+    #         super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
+    #         self.client_id = client_id
+    #
+    # class MyListItemButton(ListItemButton):
+    #     def __init__(self, **kwargs):
+    #         super(GameLobbyScreen.MyListItemButton,self).__init__(**kwargs)
+    #         if "is_selected" in kwargs and kwargs["is_selected"]:
+    #             self.select()
 
-    class MyListItemButton(ListItemButton):
-        def __init__(self, **kwargs):
-            super(GameLobbyScreen.MyListItemButton,self).__init__(**kwargs)
-            if "is_selected" in kwargs and kwargs["is_selected"]:
-                self.select()
+    class StringHider(str):
+        def __new__(cls, string, dict_values):
+            obj = str.__new__(cls, string)
+            if isinstance(dict_values, dict):
+                for key, value in dict_values.iteritems():
+                    setattr(obj, key, value)
+            else:
+                raise TypeError("StringHider: dict_values must be a dict")
+            return obj
 
     def __init__(self, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
-        self.pointing_at = None # who user is pointing to
-        self.waiting_label = Label(text="Waiting On:")
+        self.pointing_at = self.StringHider("", {"client_id": ""}) # who user is pointing to
+        #self.waiting_label = Label(text="Waiting On:")
         self.selected_client = Selected()
-        self.waiting_is_empty = False
-
+        #self.waiting_is_empty = False
+        self.player_lineup = [] #list formated [...(client_id, name)...]
     def submit_start_game_request(self):
         if self.waiting_is_empty:
             app.lobby.callRemote("notify", e.StartGameRequestEvent())
@@ -372,36 +413,58 @@ class GameLobbyScreen(Screen):
             return result
         d.addCallback(was_success)
 
-    def submit_point_at(self):
-        if self.selected_client.selected:
-            to_hand_off_to = e.ToHandoffToEvent(app.uplink.id,
-                                                self.selected_client.selected.client_id)
+        #setup spinner
+        self.pointing_to_spinner.bind(text=self.submit_point_at)
+        self.number_sharing_device_spinner.bind(text=self.submit_number_sharing_device)
+
+    def submit_number_sharing_device(self, spinner, text):
+        print "sending event"
+        app.lobby.callRemote("notify", e.NumberSharingDeviceEvent(app.uplink.id, int(text)))
+
+    def submit_point_at(self, spinner, text):
+        if text: #i.e. not a blank string, which I plan to be a defalt back to if
+                #person i'm pointing at leaves
+            print text, text.client_id
+            self.pointing_at = text
+            to_hand_off_to = e.ToHandoffToEvent(app.uplink.id, text.client_id)
             app.lobby.callRemote("notify", to_hand_off_to)
 
+    def update_spinner(self):
+        values = []
+        seen_pointing_at = False
+        for client_id, name in self.player_lineup:
+            values.append(self.StringHider(name, {"client_id" : client_id}))
+            if self.pointing_at.client_id == client_id:
+                seen_pointing_at = True
+        if not seen_pointing_at:
+            self.pointing_to_spinner.text = ""
+        self.pointing_to_spinner.values = values
     def notify(self, event):
         if isinstance(event, e.NewPlayerLineupEvent):
+            self.player_lineup = event.id_nickname_list
+            self.update_spinner()
             #player point_at setup
-            data = [self.MyDataItem(self.selected_client, name, client_id)
-                    for client_id, name in event.id_nickname_list]
-            def args_converter(row_index, obj):
-                return_dict = {'text': obj.text, 'size_hint_y': .1}
-                #if we have a button, and if that button has same client_id
-                if (self.selected_client.selected) and \
-                        (obj.client_id == self.selected_client.selected.client_id):
-                    return_dict["is_selected"] = True
-                return return_dict
-
-            list_adapter = ListAdapter(data=data,
-                                       args_converter=args_converter,
-                                       cls=self.MyListItemButton,
-                                       propagate_selection_to_data=True,
-                                       selection_mode='single',
-                                       allow_empty_selection=True)
-            self.pointing_to.adapter = list_adapter
+            # data = [self.MyDataItem(self.selected_client, name, client_id)
+            #         for client_id, name in event.id_nickname_list]
+            # def args_converter(row_index, obj):
+            #     return_dict = {'text': obj.text, 'size_hint_y': .1}
+            #     #if we have a button, and if that button has same client_id
+            #     if (self.selected_client.selected) and \
+            #             (obj.client_id == self.selected_client.selected.client_id):
+            #         return_dict["is_selected"] = True
+            #     return return_dict
+            #
+            # list_adapter = ListAdapter(data=data,
+            #                            args_converter=args_converter,
+            #                            cls=self.MyListItemButton,
+            #                            propagate_selection_to_data=True,
+            #                            selection_mode='single',
+            #                            allow_empty_selection=True)
+            # self.pointing_to_spinner.adapter = list_adapter
 
             #player_view setup
             if event.waiting_list != []:
-                event.waiting_list = ["waiting on:"] + event.waiting_list
+                #event.waiting_list = ["waiting on:"] + event.waiting_list
                 self.waiting_is_empty = False
             else:
                 self.waiting_is_empty = True
@@ -412,13 +475,17 @@ class GameLobbyScreen(Screen):
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
         elif isinstance(event, e.GameStartEvent):
-            app.root.switch_to("game")
+            app.root.switch_to(GameScreen())
+
+    def back_to_screen(self):
+        app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
+        app.root.switch_to("game chooser", direction="right")
+        return True
 
     def on_leave(self, *args, **kwargs):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
-#for some reason it does not allow "GameScreen" somehow conficts with MakeGameScreen?
 class GameScreen(Screen):
     players_turn_label = ObjectProperty(None)
     word_label = ObjectProperty(None)
@@ -437,11 +504,11 @@ class GameScreen(Screen):
         self.turn_time = 0
         self.count_downer = None
 
-    def quit(self, instance):
+    def quit(self, instance = None):
         """
         used in button
         """
-        app.root.switch_to("game chooser")
+        app.root.switch_to("game chooser", direction="right")
         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
         app.lobby = None
 
@@ -474,6 +541,10 @@ class GameScreen(Screen):
 
 
     def notify(self, event):
+        if hasattr(event, "lobby_id"):
+            print "event recieved", event, event.lobby_id
+        else:
+            print "event", event
         if isinstance(event, e.StartRoundEvent):
             self.bottom_buttons.clear_widgets()
         elif isinstance(event, e.EndRoundEvent):
@@ -505,13 +576,19 @@ class GameScreen(Screen):
         super(GameScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
+    def back_to_screen(self):
+        Clock.unschedule(self.count_downer)
+        self.quit()
+        return True
+
 class ManageWordListsScreen(Screen):
     list_label = ObjectProperty(None)
     new_list_okay = ObjectProperty(None)
     new_list_not_okay = ObjectProperty(None)
     scroll_view = ObjectProperty(None)
-    back_or_new_list = ObjectProperty(None)
-    SCROLL_BUTTON_SIZES = 40
+    new_list_box = ObjectProperty(None)
+    SCROLL_BUTTON_SIZES = "40dp"
+    VIEW_WORDS_LABEL_HEIGHT = "25dp"
     def __init__(self, *args, **kwargs):
         super(ManageWordListsScreen, self).__init__(*args, **kwargs)
 
@@ -534,15 +611,18 @@ class ManageWordListsScreen(Screen):
         list_name, words_list = self.get_word_list_from_row_button(instance)
         args_converter = lambda row_index, word: {"text": word,
                                                   "size_hint_y" : None,
-                                                  "height" : 25}
+                                                  "height" : self.VIEW_WORDS_LABEL_HEIGHT}
         print words_list
         list_adapter = ListAdapter(data=words_list,
                                    args_converter=args_converter,
                                    cls=ListItemLabel)
-        list_view = app.root.my_get_screen('word list viewer').words_list_view
-        list_view.adapter = list_adapter
-        app.root.switch_to("word list viewer")
+        list_view_screen = WordListViewerScreen()
 
+        #list_view = app.root.my_get_screen('word list viewer').words_list_view
+        #list_view.adapter = list_adapter
+        list_view_screen.words_list_view.adapter = list_adapter
+        app.root.switch_to(list_view_screen)
+        #app.root.switch_to("word list viewer")
     def edit_button_callback(self, instance):
         list_name, words_list = self.get_word_list_from_row_button(instance)
         word_list_editor = WordListEditor(list_name, words_list)
@@ -565,13 +645,20 @@ class ManageWordListsScreen(Screen):
         if word_list_names == []:
             self.scroll_view.add_widget(Label(text="filler"))
         else:
-            layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+            layout = GridLayout(cols=1, spacing=0, size_hint_y=None)
             layout.bind(minimum_height=layout.setter('height'))
             for list_name in word_list_names:
                 #setup
-                row = ChildWatchingBoxLayout(size_hint_y = None)
+                row = ChildWatchingBoxLayout(size_hint_y = None, height = self.SCROLL_BUTTON_SIZES)
                 label = Label(text=list_name, size_hint_x=(1.0-3*.125), size_hint_y = None,
                               height = self.SCROLL_BUTTON_SIZES)
+                # with label.canvas.after:
+                #     color = Color()
+                #     color.rgba = [random() for x in range(3)] +[.1]
+                #     rec = Rectangle()
+                #     rec.size = self.size
+                #     rec.pos = self.pos
+
                 delete_button = Button(text="delete", background_color=(1,0,0,1),
                                        size_hint_y = None, size_hint_x = .125,
                                        height = self.SCROLL_BUTTON_SIZES)
@@ -591,34 +678,53 @@ class ManageWordListsScreen(Screen):
                 #add to self.box_layout
                 layout.add_widget(row)
             self.scroll_view.add_widget(layout)
-
+            self.help_layout = layout
+            # for child in layout.children:
+            #     if isinstance(child, ChildWatchingBoxLayout):
+            #         label = child.get_named_child('label')
+            #         print label.text, label.size, label.pos, label.canvas.after.color
         #add make new_list_button
 
-        self.back_or_new_list.clear_widgets()
-        self.back_or_new_list.add_widget(BackButton(switch_to="game chooser"))
+        self.new_list_box.clear_widgets()
         if (not app.is_premium) and len(app.file_manager.word_lists_names) >= 1:
-            self.back_or_new_list.add_widget(self.new_list_not_okay)
+            self.new_list_box.add_widget(self.new_list_not_okay)
         else:
-            self.back_or_new_list.add_widget(self.new_list_okay)
+            self.new_list_box.add_widget(self.new_list_okay)
         app.close_popup()#close loading popup
-
-
+    def help(self):
+        for child in self.help_layout.children:
+            print (child.size, child.pos)
+            print "===================="
+        # self.help_layout.cols = 1
+        # print "sceeen",app.root.current_screen.size, app.root.current_screen.pos
+        # print "scroll", self.scroll_view.size, self.scroll_view.pos
+        # print self.help_layout, self.help_layout.size, self.help_layout.pos, self.help_layout.spacing
+        # for child in self.help_layout.children:
+        #         print child.get_named_child('label').text
+        #         print [ (child2.text,child2.size, child2.pos) for child2 in child.children]
+        #         print "===================="
     def on_enter(self, *args, **kwargs):
         #TODO: refactor so that all I am doing is the rows and col. Put rest in kv lang
         #TODO: like word_list_editor
         super(ManageWordListsScreen, self).on_enter(*args,**kwargs)
         self.build_screen()
+
+    def back_to_screen(self):
+        app.root.switch_to("game chooser", direction="right")
+        return True
+
 class WordListEditor(Screen):
     #needs view of words, add word, save name and note that if save_name =
     scroll_view = ObjectProperty(None)
     save_name_input = ObjectProperty(None)
     new_word_input = ObjectProperty(None)
-    ROW_BUTTON_SIZES = 25
+    ROW_BUTTON_SIZES = "25dp"
     def __init__(self,list_name, word_list):
         super(WordListEditor, self).__init__()
         self.word_list = list(word_list) # don't want to change list unless we save!
         self.list_name = list_name
-
+        self.save_name_input_text = ""
+        self.popup = None
     def add_word(self, word):
         if not word:
             app.generic_popup("No empty words")
@@ -639,12 +745,13 @@ class WordListEditor(Screen):
             self.scroll_view.clear_widgets()
             self.build_scroll_word_list()
         Clock.schedule_once(callback, 0.01)
+
     def build_scroll_word_list(self):
         self.scroll_view.clear_widgets()
-        layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        layout = GridLayout(cols=1, spacing="10dp", size_hint_y=None)
         layout.bind(minimum_height=layout.setter('height'))
         for word in self.word_list:
-            row = ChildWatchingBoxLayout(size_hint_y = None)
+            row = ChildWatchingBoxLayout(size_hint_y = None, height=self.ROW_BUTTON_SIZES)
             label = Label(text=word, size_hint_x=.8, size_hint_y = None,
                           height = self.ROW_BUTTON_SIZES,)
             remove_button = Button(text="REMOVE", size_hint_x = .2, size_hint_y = None,
@@ -660,14 +767,69 @@ class WordListEditor(Screen):
         self.scroll_view.add_widget(layout)
         app.close_popup()
 
-    def save(self):
-        name = self.save_name_input.text
+    def save_popup(self):
+        """
+        a popup made to save list
+        """
+        class PopupHelper:
+            def __init__(self, err_label, text_input, popup, word_list, close_popup):
+                self.err_label = err_label
+                self.text_input = text_input
+                self.popup = popup
+                self.word_list = word_list
+                self.close_popup = close_popup
+            def __call__(self, instance):
+                name = self.text_input.text
+                word_list_names = app.file_manager.word_lists_names
+                if not name:
+                    self.err_label.text = ("ERROR: can not have empty name")
+                elif name in word_list_names:
+                    app.file_manager.store_word_list(name, self.word_list)
+                    self.close_popup()
+                    app.root.switch_to("manage word lists", direction="right")
+                elif app.is_premium or len(word_list_names) < 1:
+                    app.file_manager.word_lists_names.append(name)
+                    app.file_manager.store_word_list(name, self.word_list)
+                    self.close_popup()
+                    app.root.switch_to("manage word lists", direction="right")
+                else:
+                    self.err_label.text = ("ERROR: You must upgrade to Premium to have more "
+                                      "than 1 personal list")
+
+        content = BoxLayout(orientation = "vertical")
+        question_label = Label(text="Please input save name")
+        err_label = Label(text="")
+        buttons = BoxLayout()
+        save_name_input = TextInput(text=self.save_name_input_text, multiline = False)
+        close_button = Button(text="cancel")
+        save_button = Button(text="save 1") #CHANGED TO "save 1" for debugging
+        buttons.add_widget(close_button)
+        buttons.add_widget(save_button)
+        for widget in [question_label,err_label,save_name_input,buttons]:
+            content.add_widget(widget)
+        popup = Popup(title="save popup", auto_dismiss = False, content=content)
+        def close_popup():
+            popup.dismiss()
+            self.popup = None #needs to be set back to None, so I can check if a popup is open
+        close_button.bind(on_release = popup.dismiss)
+        save_button.bind(on_release = PopupHelper(err_label, save_name_input, popup, self.word_list, close_popup))
+        popup.open()
+        self.popup = popup
+    def popup_save(self, instance):
+        """
+        popup's save method
+        """
+        name = None #debug
+        err_label = None #debug
         word_list_names = app.file_manager.word_lists_names
-        print name
-        print word_list_names
-        print name in word_list_names
+        box_layout_of_popup = instance.parent.parent
+        for child in box_layout_of_popup.children:
+            if isinstance(child, TextInput):
+                name = child.text
+            if isinstance(child, Label) and child.text == "":#e.g. err_label
+                err_label = child
         if not name:
-            app.generic_popup("can not have empty name")
+            err_label.text = ("ERROR: can not have empty name")
         elif name in word_list_names:
             app.file_manager.store_word_list(name, self.word_list)
             app.root.switch_to("manage word lists", direction="right")
@@ -676,16 +838,32 @@ class WordListEditor(Screen):
             app.file_manager.store_word_list(name, self.word_list)
             app.root.switch_to("manage word lists", direction="right")
         else:
-            app.generic_popup("You must upgrade to Premium to have more "
+            err_label.text = ("ERROR: You must upgrade to Premium to have more "
                               "than 1 personal list")
+
+
+    def save(self):
+        self.save_popup()
 
     def on_enter(self, *args, **kwargs):
         super(WordListEditor, self).on_enter(*args, **kwargs)
-        self.save_name_input.text = self.list_name #make the default.
+        self.save_name_input_text = self.list_name #make the default.
         self.build_scroll_word_list()
+
+    def back_to_screen(self):
+        if self.popup:
+            self.popup.dismiss()
+            self.popup = None
+        else:
+            app.root.switch_to("manage word lists", direction="right")
+        return True
 
 class WordListViewerScreen(Screen):
     words_list_view = ObjectProperty(None)
+
+    def back_to_screen(self):
+        app.root.switch_to("manage word lists", direction="right")
+        return True
 
 class ChildWatchingBoxLayout(BoxLayout):
     """
@@ -740,7 +918,11 @@ class BackButton(Button): #EventDispatcher is already subclassed by Button it ap
         self.bind(on_release = switch_to_callback)
 
 class JoinGameScreen(Screen):
-    pass
+    def join(self):
+        app.root.switch_to(GameLobbyScreen())
+    def back_to_screen(self):
+        app.root.switch_to("game chooser", direction="right")
+        return True
 
 class MakeWordListScreen(Screen):
     def make_list_locally(self, list_name, word_list):
@@ -761,6 +943,10 @@ class MakeWordListScreen(Screen):
                 app.file_manager.store_word_list(name, word_list)
                 app.root.switch_to("manage word lists", direction="right")
 
+    def back_to_screen(self):
+        app.root.switch_to("manage word lists", direction="right")
+        return True
+
 class MyScreenManager(ScreenManager):
     def __init__(self, *args, **kwargs):
         super(MyScreenManager, self).__init__(*args, **kwargs)
@@ -772,19 +958,20 @@ class MyScreenManager(ScreenManager):
         #    GameLobbyScreen:
         #    GameScreen:
         #    ManageWordListsScreen:
-        login_screen = LoginScreen()
-        self.switch_to(login_screen)
+        self.screen_stack = []
+        #login_screen = LoginScreen()
+        self.switch_to(LoginScreen())
         self.my_screens = {
-            "login": 1,
+            #"login": 1,
             "game chooser" : GameChooserScreen(),
             "make game" : MakeGameScreen(),
             "select words list" : SelectWordsListScreen(),
             "join game" : JoinGameScreen(),
-            "game lobby" : GameLobbyScreen(),
-            "game" : GameScreen(),
+            #"game lobby" : GameLobbyScreen(),
+            #"game" : GameScreen(),
             "manage word lists" : ManageWordListsScreen(),
             "make word list": MakeWordListScreen(),
-            "word list viewer" : WordListViewerScreen()
+            #"word list viewer" : WordListViewerScreen()
             }
 
     def my_get_screen(self, name):
@@ -799,6 +986,7 @@ class MyScreenManager(ScreenManager):
             options["direction"] = "left"
         if isinstance(screen, str):
             screen = self.my_screens[screen]
+        #print "switching to: ",screen, type(screen)
         super(MyScreenManager, self).switch_to(screen, **options)
 
 class PremiumLabel(Label):
