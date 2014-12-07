@@ -15,6 +15,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
+from kivy.uix.togglebutton import ToggleButton
 from kivy.graphics import Color, Rectangle
 from random import random
 from kivy.uix.spinner import Spinner
@@ -298,17 +299,35 @@ class GameChooserScreen(Screen):
     def back_to_screen(self):
         return False
 
+class MakeGameScreenContents(GridLayout):
+    game_name_text_input = ObjectProperty(None)
+
+class MakeGameScreenScoreSystemPopupContent(BoxLayout):
+    the_widgets = ObjectProperty(None)
 class MakeGameScreen(Screen):
     """
     Screen to select options and make a game
     """
-    unique_game_id = ObjectProperty(None)
+    scroll_layout = ObjectProperty(None)
+    unique_game_id = StringProperty("")
+    select_word_list_button = ObjectProperty(None)
     word_list_name = StringProperty("No List Selected")
     LOCAL_LIST = "local"
     SERVER = "server"
     def __init__(self):
         super(MakeGameScreen, self).__init__()
         self.word_source = "" #Source is either LOCAL_LIST or SERVER
+        grid_layout = MakeGameScreenContents()
+        grid_layout.bind(minimum_height=grid_layout.setter('height'))
+        self.scroll_layout.add_widget(grid_layout)
+        self.contents = grid_layout
+        self.popup = None
+
+    def on_word_list_name(self, instance, value):
+        self.contents.select_word_list_button.text = value
+
+    def on_unique_game_id(self, instance, value):
+        self.contents.game_name_text_input.text = value
 
     def get_unique_game_id(self):
         """
@@ -317,16 +336,25 @@ class MakeGameScreen(Screen):
         "Game" + str(total_number_of_games_ever_made)
         """
         def set_game_id(result):
-            self.unique_game_id.text = result
+            self.unique_game_id = result
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
         d.addCallback(set_game_id)
 
-    def local_list(self):
+    def score_system(self):
+        self.popup = Popup(title = "",
+                           content=MakeGameScreenScoreSystemPopupContent(),
+                           auto_dismiss=False)
+        self.popup.open()
+
+    def local_list(self, instance=None, value=None):
         app.root.switch_to(SelectWordsListScreen(app.file_manager.word_lists_names))
+        self.popup.dismiss()
+        self.popup = None
 
-    def server_list(self):
+    def server_list(self, instance=None, value=None):
         app.root.switch_to(SelectWordsListScreen())
-
+        self.popup.dismiss()
+        self.popup = None
     def make_and_join_game(self):
         if self.word_list_name != "No List Selected":
             def was_success(result):
@@ -350,8 +378,68 @@ class MakeGameScreen(Screen):
             app.generic_popup("Please Select List")
 
     def back_to_screen(self):
-        app.root.switch_to("game chooser", direction="right")
+        if self.popup:
+            print "closing popup"
+            self.popup.dismiss()
+            self.popup = None
+        else:
+            print "switching to game chooser"
+            app.root.switch_to("game chooser", direction="right")
         return True
+# class MakeGameScreen(Screen):
+#     """
+#     Screen to select options and make a game
+#     """
+#     unique_game_id = ObjectProperty(None)
+#     word_list_name = StringProperty("No List Selected")
+#     LOCAL_LIST = "local"
+#     SERVER = "server"
+#     def __init__(self):
+#         super(MakeGameScreen, self).__init__()
+#         self.word_source = "" #Source is either LOCAL_LIST or SERVER
+#
+#     def get_unique_game_id(self):
+#         """
+#         ask server for a game id. Technically not unique, as a user could choose
+#         to make a game in the format of the unqiue_game_id". Format is
+#         "Game" + str(total_number_of_games_ever_made)
+#         """
+#         def set_game_id(result):
+#             self.unique_game_id.text = result
+#         d = app.uplink.root_obj.callRemote("get_unique_game_id")
+#         d.addCallback(set_game_id)
+#
+#     def local_list(self):
+#         app.root.switch_to(SelectWordsListScreen(app.file_manager.word_lists_names))
+#
+#     def server_list(self):
+#         app.root.switch_to(SelectWordsListScreen())
+#
+#     def make_and_join_game(self):
+#         if self.word_list_name != "No List Selected":
+#             def was_success(result):
+#                 if result[0]:
+#                     join_screen = app.root.my_get_screen("join game")
+#                     join_screen.game_name_input.text = self.unique_game_id.text
+#                     #app.root.switch_to("game lobby")
+#                     app.root.switch_to(GameLobbyScreen())
+#                 else:
+#                     app.generic_popup(result[1])
+#             if self.word_source == self.SERVER:
+#                 d = app.uplink.root_obj.callRemote("make_game_lobby",
+#                                 self.unique_game_id.text, self.word_list_name)
+#             else:
+#                 d = app.uplink.root_obj.callRemote(
+#                     "make_game_lobby", self.unique_game_id.text,
+#                     app.file_manager.get_word_list(self.word_list_name)
+#                 )
+#             d.addCallback(was_success)
+#         else:
+#             app.generic_popup("Please Select List")
+#
+#     def back_to_screen(self):
+#         app.root.switch_to("game chooser", direction="right")
+#         return True
 
 class GameLobbyScreen(Screen):
     """

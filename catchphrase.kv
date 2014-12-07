@@ -4,6 +4,7 @@
 #:import Label kivy.uix.label.Label
 #:import Button kivy.uix.button.Button
 #:import CoreLabel kivy.core.text.Label
+#:import Popup kivy.uix.popup.Popup
 <MyScreenManager>:
 #    LoginScreen:
 #    GameChooserScreen:
@@ -16,18 +17,32 @@
 #    WordListViewScreen:
 <JoinGameScreen>:
     game_name_input: join_game_id_input
+    middle_space: .7
 #    name: 'join game'
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout
-            size_hint_y: .8
-            Label:
-                text: 'Enter Game Name:'
-            TextInput:
-                id: join_game_id_input
-                multiline: False
+        Label:
+        TextInput:
+            id: join_game_id_input
+            hint_text: "Game Name"
+            size_hint_y: None
+            size_hint_x: None
+            height: "32dp"
+            multiline: False
+            width: self.parent.width * root.middle_space
+            pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
+            on_text_validate: root.join()
+        Label:
+#        BoxLayout
+#            size_hint_y: .8
+#            Label:
+#                text: 'Enter Game Name:'
+#            TextInput:
+#                id: join_game_id_input
+#                multiline: False
         Button:
-            size_hint_y: .2
+            size_hint_y: None
+            height: self.parent.height * .2
             text: 'Join Game'
             on_release: root.join()
 
@@ -214,37 +229,168 @@
             text: 'submit'
             on_press: app.loading_popup()
             on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
+<MySpacer@Label>:
+    size_hint_y:None
+    height: "25dp"
+<MyButton@Button>:
+    size_hint_y: None
+    height: "32dp"
+<MyLabel@Label>:
+    size_hint_y: None
+    height: "25dp"
+<MyTextInput@TextInput>:
+    size_hint_y: None
+    height: "32dp"
+    multiline: False
 
 <MakeGameScreen>:
 #    name: 'make game'
-    unique_game_id: make_game_id_input
-
+    scroll_layout: scroll_layout_kv
+    #grid_layout: grid_layout_kv
+    #unique_game_id: make_game_id_input
+    middle_space: .9
     BoxLayout:
-        orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: .4
-            orientation: 'horizontal'
-            Label:
-                text: 'Game ID'
-            TextInput:
-                id: make_game_id_input
-                multiline: False
-                text: "Getting Unique Game ID"
-        BoxLayout:
-            size_hint_y: .4
-            orientation: 'horizontal'
-            Label:
-                text: 'Selected Word List: ' + root.word_list_name
-            Button:
-                on_release: root.server_list()
-                text: 'Server Word List'
-            Button:
-                text: 'My Word List'
-                on_release: root.local_list()
+        orientation: "vertical"
+        ScrollView:
+            size_hint_y: .8
+            size_hint_x:None
+            width: self.parent.width * root.middle_space
+            pos: [self.parent.width*(1-root.middle_space)/2, self.pos[1]]
+            id: scroll_layout_kv
         Button:
             size_hint_y: .2
-            text: 'Make Game'
-            on_release: root.make_and_join_game()
+            text: "Make Game"
+<MakeGameScreenPopupContent>:
+    BoxLayout:
+        Button:
+            text:
+<MakeGameScreenContents>:
+    game_name_text_input: make_game_id_input
+    size_hint_y: None
+    select_word_list_button: select_word_list_button_kv
+    cols: 1
+    MyLabel:
+        text: "Game Name"
+    MyTextInput:
+        id: make_game_id_input
+        text: "Getting Unique Game ID"
+    MySpacer:
+    MyLabel:
+        text: "select word list"
+    MyButton:
+        id: select_word_list_button_kv
+        text: "no list selected"
+        on_release:
+            popup_content = BoxLayout()
+            local_list_btn = Button(text="local list")
+            server_list_btn = Button(text="server list")
+            make_game_screen = root.parent.parent
+            local_list_btn.bind(on_release=app.root.current_screen.local_list)
+            server_list_btn.bind(on_release=app.root.current_screen.server_list)
+            popup_content.add_widget(local_list_btn)
+            popup_content.add_widget(server_list_btn)
+            app.root.current_screen.popup = Popup(title='Please choose',
+            size_hint=(1,.25),
+            auto_dismiss = False,
+            content=popup_content
+            )
+            app.root.current_screen.popup.open()
+    MySpacer:
+    MyLabel:
+        text: "round length"
+    Widget:
+        size_hint_y: None
+        height: "32dp"
+        MyTextInput:
+            size_hint_x:None
+            center_x: self.parent.width/2
+            y: self.parent.y
+            width: "50dp"
+            text: "120"
+    MySpacer:
+    MyLabel:
+        text: "Leeway Time"
+    Widget:
+        size_hint_y: None
+        height: "32dp"
+        MyTextInput:
+            size_hint_x:None
+            center_x: self.parent.width/2
+            y: self.parent.y
+            width: "50dp"
+            text: "0"
+    MySpacer:
+    MyLabel:
+        text: "Score System"
+    MyButton:
+        text: "2 teams"
+        on_release: app.root.current_screen.score_system()
+
+<MakeGameScreenScoreSystemPopupContent>
+    the_widgets: the_widgets_kv.__self__
+    orientation: "vertical"
+    Label:
+        text: "Score System"
+        size_hint_y: .1
+
+    BoxLayout:
+        size_hint_y: .3
+        ToggleButton:
+            text: "Teams"
+            group: "group"
+            state: "down"
+            on_state:
+                if args[1] == 'down': num_teams_kv.clear_widgets()
+                if args[1] == 'down': num_teams_kv.add_widget(the_widgets_kv)
+        ToggleButton:
+            text: "Individuals"
+            group: "group"
+            on_state:
+                if args[1] == 'down': num_teams_kv.clear_widgets()
+                if args[1] == 'down': num_teams_kv.add_widget(Label())
+
+    BoxLayout:
+        size_hint_y: .3
+        id: num_teams_kv
+        BoxLayout:
+            orientation: "vertical"
+            id: the_widgets_kv
+            Label:
+                text: "Number of Players"
+            Spinner:
+                text: "2"
+                values: [str(i+1) for i in range(12)]
+    Label:
+        size_hint_y: .1
+    Button:
+        size_hint_y: .2
+        text: "Done"
+#        BoxLayout:
+#            size_hint_y: .4
+#            orientation: 'horizontal'
+#            Label:
+#                text: 'Game ID'
+#            TextInput:
+#                id: make_game_id_input
+#                multiline: False
+#                text: "Getting Unique Game ID"
+#        BoxLayout:
+#            size_hint_y: .4
+#            orientation: 'horizontal'
+#            Label:
+#                text: 'Selected Word List: ' + root.word_list_name
+#            Button:
+#                on_release: root.server_list()
+#                text: 'Server Word List'
+#            Button:
+#                text: 'My Word List'
+#                on_release: root.local_list()
+#        Button:
+#            size_hint_y: .2
+#            text: 'Make Game'
+#            on_release: root.make_and_join_game()
+
+
 
 <WordListEditor>:
     scroll_view: scroll_view_kv
@@ -282,27 +428,38 @@
             on_release: root.save()
 
 <MiddleTextInput@TextInput>:
-    #padding: [self.width/2 - CoreLabel(self.text).size, self.padding[1]]
+    padding_x: [self.width/2]
     on_text:
         my_label = CoreLabel()
         my_label.text = self.text
+        my_label.font_name = self.font_name
+        my_label.font_size = self.font_size
+        print self.font_size
         my_label.refresh()
-        self.padding = [self.width/2 - my_label.size[0], self.padding[1]]
+        self.padding = [self.width/2 - my_label.size[0]/2, 6, self.width/2 - my_label.size[0]/2, 6]
+
+<MyMiddleButton@Button>
+    width: self.parent.width * .5
+    pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
 
 
 <LoginScreen>:
 #    name: 'login'
+    middle_space: .7
     BoxLayout:
         orientation: "vertical"
         Label:
             text:"LOGO"
-        MiddleTextInput:
+        TextInput:
             id: login_text_input
-            hint_text: "nickname"
+            hint_text: "nickname123"
             size_hint_y: None
+            size_hint_x: None
             height: "32dp"
+            multiline: False
+            width: self.parent.width * root.middle_space
+            pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
             on_text_validate: root.login(self.text)# reminant of password
-
         Label:
             text: ""
             size_hint_y: None
@@ -312,15 +469,17 @@
             text: "login"
             height: "48dp"
             size_hint: None,None
-            width: self.parent.width * .5
+            width: self.parent.width * .7
             on_release: root.login(login_text_input.text)
             pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
 
         Label:
-            text: "filler3"
+            text: ""
 
         BoxLayout:
             orientation: "horizontal"
+            size_hint_y: None
+            height: self.parent.height * .2
             Button:
                 text: "About"
             Button:
