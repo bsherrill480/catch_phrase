@@ -33,7 +33,7 @@ class ServerEventManager(pb.Root):
         self.total_clients = 0
         self.world_lists = WordManager()#a dict with the words preloaded
         self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"], "d_game")}
-        self.total_games = 0
+        self.total_game_requests = 0
         self.looping_call = LoopingCall(self.remote_post, e.CopyableEvent())
         self.looping_call.start(5.0)
 
@@ -65,12 +65,13 @@ class ServerEventManager(pb.Root):
         it will be. Worst case scenario user gets a "game name in
         use" popup
         """
-        game_name = "Game" + str(self.total_games)
+        game_name = "Game" + str(self.total_game_requests)
         if game_name in self.lobbys:
             for i in xrange(26):
                 letter_name = game_name + chr(97 + i)
                 if letter_name not in self.lobbys:
                     return letter_name
+        self.total_game_requests = self.total_game_requests + 1
         return game_name #sorry bud, out of luck
 
     def remote_make_game_lobby(self, lobby_id, word_list):
@@ -86,7 +87,6 @@ class ServerEventManager(pb.Root):
             if isinstance(word_list, str):#if it wasn't a local copy.
                 word_list = self.world_lists[word_list]
             self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id)
-            self.total_games = self.total_games + 1
             return (True, "success")
 
     def remote_join_lobby(self, client_id, lobby_id):

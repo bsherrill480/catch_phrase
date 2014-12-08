@@ -46,33 +46,69 @@
             text: 'Join Game'
             on_release: root.join()
 
+<ScoreLabel>:
+    size_hint_x: None
+    width: "100dp"
+    canvas.after:
+        Color:
+            rgba: 1,0,0,.5
 <GameScreen>:
 #    name: 'game'
     players_turn_label: display_name
     word_label: word_box
     bottom_buttons: buttons
     time_label: timer
-    scores_label: score
+    scores_scroll_view: scores_scroll_view_kv
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
+        ScrollView:
+            id: scores_scroll_view_kv
+            size_hint_y: .2
+
+        Label:
+            size_hint_y: .1
+            id: display_name
+            text: "Current Turn: "
+        Label:
             size_hint_y: .4
-            Label:
-                id: display_name
-                text: "Current Turn: "
-            Label:
-                id: score
-        BoxLayout:
-            size_hint_y: .4
-            Label:
-                id: word_box
-                text: "Not Your Turn"
-            Label:
-                id: timer
-                text: ""
+            id: word_box
+            text: "Not Your Turn"
+
+        Label:
+            size_hint_y: .1
+            id: timer
+            text: ""
         BoxLayout:
             size_hint_y: .2
             id: buttons
+
+#<GameScreen>:
+##    name: 'game'
+#    players_turn_label: display_name
+#    word_label: word_box
+#    bottom_buttons: buttons
+#    time_label: timer
+#    scores_label: score
+#    BoxLayout:
+#        orientation: 'vertical'
+#        BoxLayout:
+#            size_hint_y: .4
+#            Label:
+#                id: display_name
+#                text: "Current Turn: "
+#            Label:
+#                id: score
+#        BoxLayout:
+#            size_hint_y: .4
+#            Label:
+#                id: word_box
+#                text: "Not Your Turn"
+#            Label:
+#                id: timer
+#                text: ""
+#        BoxLayout:
+#            size_hint_y: .2
+#            id: buttons
 
 <GameLobbyScreen>:
 #    name: 'game lobby'
@@ -260,12 +296,11 @@
         Button:
             size_hint_y: .2
             text: "Make Game"
-<MakeGameScreenPopupContent>:
-    BoxLayout:
-        Button:
-            text:
+            on_release: root.make_and_join_game()
+
 <MakeGameScreenContents>:
     game_name_text_input: make_game_id_input
+    score_system_button: score_system_button_kv
     size_hint_y: None
     select_word_list_button: select_word_list_button_kv
     cols: 1
@@ -323,16 +358,18 @@
     MyLabel:
         text: "Score System"
     MyButton:
+        id: score_system_button_kv
         text: "2 teams"
         on_release: app.root.current_screen.score_system()
 
 <MakeGameScreenScoreSystemPopupContent>
     the_widgets: the_widgets_kv.__self__
+    score_system: "teams"
+    number_of_teams: 2
     orientation: "vertical"
     Label:
         text: "Score System"
         size_hint_y: .1
-
     BoxLayout:
         size_hint_y: .3
         ToggleButton:
@@ -342,12 +379,14 @@
             on_state:
                 if args[1] == 'down': num_teams_kv.clear_widgets()
                 if args[1] == 'down': num_teams_kv.add_widget(the_widgets_kv)
+                if args[1] == 'down': root.score_system = app.root.current_screen.TEAM_SCORE_SYSTEM
         ToggleButton:
             text: "Individuals"
             group: "group"
             on_state:
                 if args[1] == 'down': num_teams_kv.clear_widgets()
                 if args[1] == 'down': num_teams_kv.add_widget(Label())
+                if args[1] == 'down': root.score_system = app.root.current_screen.INDIVIDUAL_SCORE_SYSTEM
 
     BoxLayout:
         size_hint_y: .3
@@ -358,13 +397,20 @@
             Label:
                 text: "Number of Players"
             Spinner:
-                text: "2"
-                values: [str(i+1) for i in range(12)]
+                text: str(app.root.current_screen.number_of_teams)
+                values: [str(i+2) for i in range(11)]
+                on_text: root.number_of_teams = int(args[1])
     Label:
         size_hint_y: .1
     Button:
         size_hint_y: .2
         text: "Done"
+        on_release:
+            app.root.current_screen.score_system_mode = root.score_system
+            app.root.current_screen.number_of_teams = root.number_of_teams
+            popup = self.parent.parent.parent.parent
+            popup.dismiss()
+            app.root.current_screen.popup = None
 #        BoxLayout:
 #            size_hint_y: .4
 #            orientation: 'horizontal'

@@ -26,10 +26,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="catch_phrase.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="catch_phrase.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="387" column="8" selection-start="14064" selection-end="14064" vertical-scroll-proportion="0.66091955" vertical-offset="6119" max-vertical-offset="18649">
+            <state line="565" column="65" selection-start="21758" selection-end="21758" vertical-scroll-proportion="-6.428571" vertical-offset="9245" max-vertical-offset="20043">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -37,10 +37,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="catchphrase.kv" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="293" column="33" selection-start="8959" selection-end="8959" vertical-scroll-proportion="0.0" vertical-offset="4675" max-vertical-offset="8942">
+            <state line="53" column="26" selection-start="1518" selection-end="1518" vertical-scroll-proportion="0.33333334" vertical-offset="669" max-vertical-offset="9724">
               <folding />
             </state>
           </provider>
@@ -49,7 +49,7 @@
       <file leaf-file-name="server.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="229" column="72" selection-start="9204" selection-end="9206" vertical-scroll-proportion="-0.8235294" vertical-offset="3746" max-vertical-offset="4811">
+            <state line="73" column="63" selection-start="2783" selection-end="2783" vertical-scroll-proportion="-17.0" vertical-offset="544" max-vertical-offset="4811">
               <folding />
             </state>
           </provider>
@@ -138,12 +138,12 @@
         <option value="$PROJECT_DIR$/web_file_loader.py" />
         <option value="$PROJECT_DIR$/junk2.py" />
         <option value="$PROJECT_DIR$/events.py" />
-        <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
         <option value="$PROJECT_DIR$/junk.py" />
         <option value="$PROJECT_DIR$/junk3.py" />
-        <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/catch_phrase.py" />
+        <option value="$PROJECT_DIR$/catchphrase.kv" />
       </list>
     </option>
   </component>
@@ -422,10 +422,10 @@
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.catch_phrase" />
-        <item index="1" class="java.lang.String" itemvalue="Python.junk" />
-        <item index="2" class="java.lang.String" itemvalue="Python.junk3" />
-        <item index="3" class="java.lang.String" itemvalue="Python.junk2" />
-        <item index="4" class="java.lang.String" itemvalue="Python.server" />
+        <item index="1" class="java.lang.String" itemvalue="Python.server" />
+        <item index="2" class="java.lang.String" itemvalue="Python.junk" />
+        <item index="3" class="java.lang.String" itemvalue="Python.junk3" />
+        <item index="4" class="java.lang.String" itemvalue="Python.junk2" />
       </list>
     </recent_temporary>
   </component>
@@ -477,6 +477,25 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32825205" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
+    <layout-to-restore>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22865854" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.052267488" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32825205" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24980783" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+    </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -754,20 +773,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python2.7/dist-packages/kivy/uix/scrollview.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="767" column="0" selection-start="27360" selection-end="27360" vertical-scroll-proportion="0.3328767" vertical-offset="12626" max-vertical-offset="14943">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="229" column="72" selection-start="9204" selection-end="9206" vertical-scroll-proportion="-0.8235294" vertical-offset="3746" max-vertical-offset="4811">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python2.7/dist-packages/twisted/internet/defer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="576" column="0" selection-start="19797" selection-end="19797" vertical-scroll-proportion="0.3328767" vertical-offset="9447" max-vertical-offset="27438">
@@ -775,19 +780,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/catchphrase.kv">
+    <entry file="file://$PROJECT_DIR$/server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="293" column="33" selection-start="8959" selection-end="8959" vertical-scroll-proportion="0.0" vertical-offset="4675" max-vertical-offset="8942">
+        <state line="73" column="63" selection-start="2783" selection-end="2783" vertical-scroll-proportion="-17.0" vertical-offset="544" max-vertical-offset="4811">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/dist-packages/kivy/uix/scrollview.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="767" column="0" selection-start="27360" selection-end="27360" vertical-scroll-proportion="0.3328767" vertical-offset="12626" max-vertical-offset="14943">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="387" column="8" selection-start="14064" selection-end="14064" vertical-scroll-proportion="0.66091955" vertical-offset="6119" max-vertical-offset="18649">
+        <state line="565" column="65" selection-start="21758" selection-end="21758" vertical-scroll-proportion="-6.428571" vertical-offset="9245" max-vertical-offset="20043">
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/catchphrase.kv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="53" column="26" selection-start="1518" selection-end="1518" vertical-scroll-proportion="0.33333334" vertical-offset="669" max-vertical-offset="9724">
+          <folding />
         </state>
       </provider>
     </entry>
