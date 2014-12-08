@@ -51,7 +51,15 @@
     width: "100dp"
     canvas.after:
         Color:
-            rgba: 1,0,0,.5
+            rgba: 1,1,1,.35
+#        Rectangle:
+#            size: self.size
+#            pos: self.pos
+        Line:
+            points: [self.right, self.top, self.right, self.y]
+        Line:
+            points: [self.x, self.top, self.x, self.y]
+
 <GameScreen>:
 #    name: 'game'
     players_turn_label: display_name
