@@ -32,7 +32,7 @@ class ServerEventManager(pb.Root):
         self.clients = {} #organized {client_id: client_obj}
         self.total_clients = 0
         self.world_lists = WordManager()#a dict with the words preloaded
-        self.lobbys = {"d_game": Lobby(self, self.world_lists["animals"], "d_game")}
+        self.lobbys = {}
         self.total_game_requests = 0
         self.looping_call = LoopingCall(self.remote_post, e.CopyableEvent())
         self.looping_call.start(5.0)
@@ -74,11 +74,12 @@ class ServerEventManager(pb.Root):
         self.total_game_requests = self.total_game_requests + 1
         return game_name #sorry bud, out of luck
 
-    def remote_make_game_lobby(self, lobby_id, word_list):
+    def remote_make_game_lobby(self, lobby_id, word_list, score_system_mode, num_teams):
         """
         returns false if lobby_id is in use. Assumes word_list_id
         will be correct. Don't fuck me over me.
         """
+
         if lobby_id in self.lobbys:
             return (False, "lobby id in use")
         elif not word_list:
@@ -86,7 +87,8 @@ class ServerEventManager(pb.Root):
         else:
             if isinstance(word_list, str):#if it wasn't a local copy.
                 word_list = self.world_lists[word_list]
-            self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id)
+            self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id,
+                                          score_system_mode, num_teams)
             return (True, "success")
 
     def remote_join_lobby(self, client_id, lobby_id):
@@ -130,7 +132,9 @@ class Lobby(pb.Root):
     Lobby used before game is started. Also acts as proxy to
     game once game has started.
     """
-    def __init__(self, server_evm, world_list, lobby_id):
+    TEAM_SCORE_SYSTEM = "teams"
+    INDIVIDUAL_SCORE_SYSTEM = "individual"
+    def __init__(self, server_evm, world_list, lobby_id, score_system_mode, num_of_teams):
         self.server = server_evm
         self.players = [] # [...,client object,...]
         self.waiting = [] # organized: [..., (id, nickname), ...]
@@ -140,6 +144,16 @@ class Lobby(pb.Root):
         self.word_list = world_list
         self.game = None
         self.lobby_id = lobby_id
+        #setup [...[score, team_name, team_id]...]
+        self.team_scores = self.setup_teams(score_system_mode, num_of_teams)
+
+    def setup_teams(self, score_system_mode, num_of_teams):
+        if score_system_mode == self.INDIVIDUAL_SCORE_SYSTEM:
+            teams = [[0, player.nickname, player.client_id] for player in self.players]
+        else:
+            teams = [ [0,"team " + str(i),"team " + str(i) ] for i in range(1, num_of_teams + 1)]
+        return teams
+
     def remote_notify(self, event):
         """
         so clients can do lobby.callRemote(notify, event) to give us an event.
@@ -210,7 +224,7 @@ class Lobby(pb.Root):
                 self.post(e.CopyableEvent()) #make sure everyone is still here
                                             #(post handles if someone left)
                 if self.organizer.is_perfect_circle():
-                    self.post(e.GameStartEvent())
+                    self.post(e.GameStartEvent(self.team_scores))
                     #SEE circle_graph.client_id_lists() to understand why indexing & slicing
                     player_id_list = self.organizer.client_id_lists()[0][0:-1]
                     self._setup_list_for_multiple_players(player_id_list)

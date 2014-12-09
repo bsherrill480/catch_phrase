@@ -29,16 +29,18 @@
       <file leaf-file-name="catch_phrase.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="569" column="44" selection-start="21993" selection-end="21993" vertical-scroll-proportion="0.0" vertical-offset="8803" max-vertical-offset="19703">
-              <folding />
+            <state line="535" column="32" selection-start="20144" selection-end="20144" vertical-scroll-proportion="-6.0" vertical-offset="7521" max-vertical-offset="17415">
+              <folding>
+                <marker date="1418096225828" expanded="true" signature="19848:20195" placeholder="..." />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="catchphrase.kv" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="13" selection-start="1609" selection-end="1609" vertical-scroll-proportion="0.44246575" vertical-offset="646" max-vertical-offset="9860">
+            <state line="72" column="28" selection-start="2023" selection-end="2023" vertical-scroll-proportion="0.0" vertical-offset="850" max-vertical-offset="8745">
               <folding />
             </state>
           </provider>
@@ -47,7 +49,7 @@
       <file leaf-file-name="server.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="63" selection-start="2783" selection-end="2783" vertical-scroll-proportion="0.0" vertical-offset="1241" max-vertical-offset="4811">
+            <state line="226" column="41" selection-start="8838" selection-end="8847" vertical-scroll-proportion="-7.7352943" vertical-offset="3022" max-vertical-offset="4455">
               <folding />
             </state>
           </provider>
@@ -56,16 +58,25 @@
       <file leaf-file-name="events.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/events.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="103" column="77" selection-start="3407" selection-end="3407" vertical-scroll-proportion="0.0" vertical-offset="1106" max-vertical-offset="1853">
+            <state line="45" column="15" selection-start="1375" selection-end="1384" vertical-scroll-proportion="-3.764706" vertical-offset="547" max-vertical-offset="1965">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="catch_phrase_server_game.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="catch_phrase_server_game.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="38" selection-start="1798" selection-end="1798" vertical-scroll-proportion="0.0" vertical-offset="663" max-vertical-offset="3162">
+            <state line="79" column="25" selection-start="3666" selection-end="3666" vertical-scroll-proportion="0.39086294" vertical-offset="941" max-vertical-offset="2760">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="basic_structures.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/basic_structures.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="155" column="43" selection-start="4498" selection-end="4498" vertical-scroll-proportion="0.0" vertical-offset="2040" max-vertical-offset="2790">
               <folding />
             </state>
           </provider>
@@ -74,7 +85,7 @@
       <file leaf-file-name="model.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="0" selection-start="466" selection-end="466" vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="442">
+            <state line="18" column="31" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0" vertical-offset="270" max-vertical-offset="390">
               <folding />
             </state>
           </provider>
@@ -83,7 +94,7 @@
       <file leaf-file-name="junk2.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="17" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0" vertical-offset="323" max-vertical-offset="561">
+            <state line="19" column="17" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="495">
               <folding />
             </state>
           </provider>
@@ -92,11 +103,8 @@
       <file leaf-file-name="junk.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="31" selection-start="855" selection-end="855" vertical-scroll-proportion="0.0" vertical-offset="442" max-vertical-offset="2720">
-              <folding>
-                <marker date="1417901606014" expanded="true" signature="782:1163" placeholder="..." />
-                <marker date="1417901606014" expanded="true" signature="1074:1163" placeholder="..." />
-              </folding>
+            <state line="26" column="31" selection-start="855" selection-end="855" vertical-scroll-proportion="0.0" vertical-offset="390" max-vertical-offset="2400">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -104,7 +112,7 @@
       <file leaf-file-name="junk3.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/junk3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="25" selection-start="1418" selection-end="1418" vertical-scroll-proportion="0.0" vertical-offset="585" max-vertical-offset="1003">
+            <state line="41" column="25" selection-start="1418" selection-end="1418" vertical-scroll-proportion="0.0" vertical-offset="476" max-vertical-offset="870">
               <folding />
             </state>
           </provider>
@@ -128,26 +136,26 @@
         <option value="$PROJECT_DIR$/circle_graph.py" />
         <option value="$PROJECT_DIR$/game_stack.py" />
         <option value="$PROJECT_DIR$/twisted_stuff.py" />
-        <option value="$PROJECT_DIR$/model.py" />
-        <option value="$PROJECT_DIR$/basic_structures.py" />
         <option value="$PROJECT_DIR$/word_list_manager.py" />
         <option value="$PROJECT_DIR$/web_file_loader.py" />
         <option value="$PROJECT_DIR$/junk2.py" />
-        <option value="$PROJECT_DIR$/events.py" />
-        <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
         <option value="$PROJECT_DIR$/junk.py" />
         <option value="$PROJECT_DIR$/junk3.py" />
+        <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/model.py" />
+        <option value="$PROJECT_DIR$/events.py" />
         <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/catch_phrase.py" />
-        <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/basic_structures.py" />
+        <option value="$PROJECT_DIR$/catch_phrase_server_game.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="65" />
-    <option name="y" value="24" />
-    <option name="width" value="1855" />
-    <option name="height" value="1056" />
+    <option name="y" value="-4" />
+    <option name="width" value="1301" />
+    <option name="height" value="772" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -177,7 +185,7 @@
     <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/junk3.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/basic_structures.py" />
     <property name="recentsLimit" value="5" />
     <property name="FullScreen" value="false" />
     <property name="SearchEverywhereHistory" value="&#10;url" />
@@ -196,7 +204,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.catch_phrase">
+  <component name="RunManager" selected="Python.server">
     <configuration default="false" name="catch_phrase" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -452,14 +460,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="65" y="-4" width="1301" height="772" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.052267488" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22865854" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33482143" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24980783" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -537,7 +545,9 @@
     <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="23" selection-start="159" selection-end="159" vertical-scroll-proportion="0.0" vertical-offset="154" max-vertical-offset="374">
-          <folding />
+          <folding>
+            <marker date="1418096225828" expanded="true" signature="19848:20195" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -666,11 +676,6 @@
         <state line="705" column="18" selection-start="29882" selection-end="29882" vertical-scroll-proportion="2.2120254" vertical-offset="14112" max-vertical-offset="19668" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basic_structures.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="137" column="8" selection-start="3924" selection-end="3924" vertical-scroll-proportion="0.0" vertical-offset="2697" max-vertical-offset="4026" />
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python2.7/random.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="288" column="0" selection-start="10841" selection-end="10841" vertical-scroll-proportion="0.4975" vertical-offset="5784" max-vertical-offset="19888" />
@@ -716,13 +721,6 @@
         <state line="130" column="0" selection-start="3996" selection-end="3996" vertical-scroll-proportion="0.3328767" vertical-offset="1933" max-vertical-offset="3893" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/events.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="103" column="77" selection-start="3407" selection-end="3407" vertical-scroll-proportion="0.0" vertical-offset="1106" max-vertical-offset="1853">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/junk2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="19" column="17" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="459">
@@ -733,30 +731,6 @@
     <entry file="file://$PROJECT_DIR$/junk.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="26" column="31" selection-start="855" selection-end="855" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2516">
-          <folding>
-            <marker date="1417901606014" expanded="true" signature="782:1163" placeholder="..." />
-            <marker date="1417901606014" expanded="true" signature="1074:1163" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/junk3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="25" selection-start="1418" selection-end="1418" vertical-scroll-proportion="0.0" vertical-offset="585" max-vertical-offset="1003">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="38" selection-start="1798" selection-end="1798" vertical-scroll-proportion="0.0" vertical-offset="663" max-vertical-offset="3162">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="0" selection-start="466" selection-end="466" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="425">
           <folding />
         </state>
       </provider>
@@ -771,23 +745,60 @@
         <state line="767" column="0" selection-start="27360" selection-end="27360" vertical-scroll-proportion="0.3328767" vertical-offset="12626" max-vertical-offset="14943" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server.py">
+    <entry file="file://$PROJECT_DIR$/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="63" selection-start="2783" selection-end="2783" vertical-scroll-proportion="0.0" vertical-offset="1241" max-vertical-offset="4811">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/catch_phrase.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="569" column="44" selection-start="21993" selection-end="21993" vertical-scroll-proportion="0.0" vertical-offset="8803" max-vertical-offset="19703">
+        <state line="18" column="31" selection-start="608" selection-end="608" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="375">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catchphrase.kv">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="13" selection-start="1609" selection-end="1609" vertical-scroll-proportion="0.44246575" vertical-offset="646" max-vertical-offset="9860">
+        <state line="72" column="28" selection-start="2023" selection-end="2023" vertical-scroll-proportion="0.0" vertical-offset="985" max-vertical-offset="8745">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/events.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="15" selection-start="1375" selection-end="1384" vertical-scroll-proportion="-3.764706" vertical-offset="547" max-vertical-offset="1965">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="226" column="41" selection-start="8838" selection-end="8847" vertical-scroll-proportion="-7.7352943" vertical-offset="3022" max-vertical-offset="4455">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/catch_phrase.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="535" column="32" selection-start="20144" selection-end="20144" vertical-scroll-proportion="-6.0" vertical-offset="7521" max-vertical-offset="17415">
+          <folding>
+            <marker date="1418096225828" expanded="true" signature="19848:20195" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/junk3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="25" selection-start="1418" selection-end="1418" vertical-scroll-proportion="0.0" vertical-offset="585" max-vertical-offset="1003">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/basic_structures.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="155" column="43" selection-start="4498" selection-end="4498" vertical-scroll-proportion="0.0" vertical-offset="2040" max-vertical-offset="2790">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/catch_phrase_server_game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="79" column="25" selection-start="3666" selection-end="3666" vertical-scroll-proportion="0.39086294" vertical-offset="941" max-vertical-offset="2760">
           <folding />
         </state>
       </provider>

@@ -16,5 +16,5 @@ class Model(object):
         sh.shuffle(word_list)
         self.word_order = Order(word_list)
         self.time_left = DEFAULT_TIME
-        self.scores = {player: [0, self.nicknames[player]] for player in players}
+        self.scores = {player: [0, self.nicknames[player], player] for player in players}
         self.__nickname_scores = {}

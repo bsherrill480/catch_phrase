@@ -316,7 +316,7 @@ class MakeGameScreen(Screen):
     unique_game_id = StringProperty("")
     select_word_list_button = ObjectProperty(None)
     word_list_name = StringProperty("No List Selected")
-    score_system_mode = StringProperty("team")
+    score_system_mode = StringProperty("teams")
     number_of_teams = NumericProperty(2)
     TEAM_SCORE_SYSTEM = "teams"
     INDIVIDUAL_SCORE_SYSTEM = "individual"
@@ -372,6 +372,7 @@ class MakeGameScreen(Screen):
         app.root.switch_to(SelectWordsListScreen())
         self.popup.dismiss()
         self.popup = None
+
     def make_and_join_game(self):
         if self.word_list_name != "No List Selected":
             def was_success(result):
@@ -382,14 +383,14 @@ class MakeGameScreen(Screen):
                     app.root.switch_to(GameLobbyScreen())
                 else:
                     app.generic_popup(result[1])
-            if self.word_source == self.SERVER:
-                d = app.uplink.root_obj.callRemote("make_game_lobby",
-                                self.unique_game_id, self.word_list_name)
-            else:
-                d = app.uplink.root_obj.callRemote(
-                    "make_game_lobby", self.unique_game_id,
-                    app.file_manager.get_word_list(self.word_list_name)
-                )
+            d = app.uplink.root_obj.callRemote(
+                "make_game_lobby",
+                self.unique_game_id,
+                self.word_list_name if self.word_source == self.SERVER
+                else app.file_manager.get_word_list(self.word_list_name),
+                self.score_system_mode,
+                self.number_of_teams
+            )
             d.addCallback(was_success)
         else:
             app.generic_popup("Please Select List")
@@ -443,6 +444,7 @@ class GameLobbyScreen(Screen):
         self.selected_client = Selected()
         #self.waiting_is_empty = False
         self.player_lineup = [] #list formated [...(client_id, name)...]
+
     def submit_start_game_request(self):
         if self.waiting_is_empty:
             app.lobby.callRemote("notify", e.StartGameRequestEvent())
@@ -494,26 +496,6 @@ class GameLobbyScreen(Screen):
         if isinstance(event, e.NewPlayerLineupEvent):
             self.player_lineup = event.id_nickname_list
             self.update_spinner()
-            #player point_at setup
-            # data = [self.MyDataItem(self.selected_client, name, client_id)
-            #         for client_id, name in event.id_nickname_list]
-            # def args_converter(row_index, obj):
-            #     return_dict = {'text': obj.text, 'size_hint_y': .1}
-            #     #if we have a button, and if that button has same client_id
-            #     if (self.selected_client.selected) and \
-            #             (obj.client_id == self.selected_client.selected.client_id):
-            #         return_dict["is_selected"] = True
-            #     return return_dict
-            #
-            # list_adapter = ListAdapter(data=data,
-            #                            args_converter=args_converter,
-            #                            cls=self.MyListItemButton,
-            #                            propagate_selection_to_data=True,
-            #                            selection_mode='single',
-            #                            allow_empty_selection=True)
-            # self.pointing_to_spinner.adapter = list_adapter
-
-            #player_view setup
             if event.waiting_list != []:
                 #event.waiting_list = ["waiting on:"] + event.waiting_list
                 self.waiting_is_empty = False
@@ -526,7 +508,7 @@ class GameLobbyScreen(Screen):
                 data = ["Error In Ordering", "Current Cycles:"] + event.print_out_list,
                 cls = ListItemLabel)
         elif isinstance(event, e.GameStartEvent):
-            app.root.switch_to(GameScreen())
+            app.root.switch_to(GameScreen(event.team_scores))
 
     def back_to_screen(self):
         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
@@ -538,12 +520,23 @@ class GameLobbyScreen(Screen):
         app.event_manager.unregister_listener(self)
 
 class ScoreLabel(Label):
+    score = NumericProperty(0)
+    def __init__(self, team_name, team_id, **kwargs):
+        super(ScoreLabel, self).__init__(**kwargs)
+        self.team_id = team_id
+        self.team_name = team_name
+        self.text = team_name + "\n" + "0"
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
-                print "is double tap"
+                event = e.ScoreDecreaseRequestEvent(self.team_id)
+                print "doubletap"
             else:
-                print "single tap"
+                event = e.ScoreIncreaseRequestEvent(self.team_id)
+                print "singletap"
+            app.lobby.callRemote("notify", event)
+    def on_score(self, instance, value):
+        self.text = self.team_name + "\n" + str(value)
 
 class GameScreen(Screen):
     players_turn_label = ObjectProperty(None)
@@ -552,7 +545,7 @@ class GameScreen(Screen):
     time_label = ObjectProperty(None)
     scores_label = ObjectProperty(None)
     scores_scroll_view = ObjectProperty(None)
-    def __init__(self, *args, **kwargs):
+    def __init__(self, team_scores, *args, **kwargs):
         super(GameScreen, self).__init__(*args, **kwargs)
         self.start_round_button = Button(text="Start Round")
         self.start_round_button.bind(on_release=self.post_round_start_event)
@@ -561,12 +554,15 @@ class GameScreen(Screen):
         self.start_time = 0
         self.turn_time = 0
         self.count_downer = None
-
+        self.team_scores = team_scores #setup [...[score, team_name, team_id]...]
+        self.team_scores_label_dict = {}
         #setup scroll view
         grid_layout_scores = GridLayout(rows=1, size_hint_x=None)
         grid_layout_scores.bind(minimum_width=grid_layout_scores.setter('width'))
-        for l in [ScoreLabel(text=str(i)) for i in range(20)]:
-            grid_layout_scores.add_widget(l)
+        for score, team_name, team_id in self.team_scores:
+            label = ScoreLabel(team_name, team_id)
+            grid_layout_scores.add_widget(label)
+            self.team_scores_label_dict[team_id] = label
         self.scores_scroll_view.add_widget(grid_layout_scores)
 
     def make_text_big(self, instance, value):
@@ -616,6 +612,8 @@ class GameScreen(Screen):
 
         #make big letters
         self.word_label.bind(text = self.make_text_big)
+
+        #setup scores
     def notify(self, event):
         # if hasattr(event, "lobby_id"):
         #     print "event recieved", event, event.lobby_id
@@ -631,6 +629,10 @@ class GameScreen(Screen):
             self.players_turn_label.text = "Current Turn: " + event.nickname
             if event.client_id == app.uplink.id:
                 self.my_turn(event.time_left, event.word)
+        elif isinstance(event, e.ScoreDecreaseRequestEvent):
+            self.team_scores_label_dict[event.team_id].score -= 1
+        elif isinstance(event, e.ScoreIncreaseRequestEvent):
+            self.team_scores_label_dict[event.team_id].score += 1
 
     def my_turn(self, time_left, word):
         self.bottom_buttons.clear_widgets()

@@ -69,12 +69,15 @@
     scores_scroll_view: scores_scroll_view_kv
     BoxLayout:
         orientation: 'vertical'
+        Label:
+            size_hint_y: .05
+            text: "tap to +1, double tap to -1"
         ScrollView:
             id: scores_scroll_view_kv
             size_hint_y: .2
 
         Label:
-            size_hint_y: .1
+            size_hint_y: .05
             id: display_name
             text: "Current Turn: "
         Label:

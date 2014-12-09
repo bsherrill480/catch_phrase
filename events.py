@@ -44,8 +44,9 @@ pb.setUnjellyableForClass(WrongOrderingEvent, WrongOrderingEvent)
 
 
 class GameStartEvent(CopyableEvent):
-    def __init__(self):
+    def __init__(self, team_scores):
         CopyableEvent.__init__(self)
+        self.team_scores = team_scores #players should be [...(team_id,nickname)...]
         self.name = "Game Start Event"
 pb.setUnjellyableForClass(GameStartEvent, GameStartEvent)
 
@@ -102,3 +103,24 @@ class NumberSharingDeviceEvent(CopyableEvent):
         self.client_id = client_id
         self.number_sharing_device = number_sharing_device
 pb.setUnjellyableForClass(NumberSharingDeviceEvent, NumberSharingDeviceEvent)
+
+class ScoreIncreaseRequestEvent(CopyableEvent):
+    def __init__(self, team_id):
+        CopyableEvent.__init__(self)
+        self.name = "Score Increase Request Event"
+        self.team_id = team_id
+pb.setUnjellyableForClass(ScoreIncreaseRequestEvent, ScoreIncreaseRequestEvent)
+
+class ScoreDecreaseRequestEvent(CopyableEvent):
+    def __init__(self, team_id):
+        CopyableEvent.__init__(self)
+        self.name = "Score Decrease Request Event"
+        self.team_id = team_id
+pb.setUnjellyableForClass(ScoreDecreaseRequestEvent, ScoreDecreaseRequestEvent)
+
+class ScoreChangedEvent(CopyableEvent):
+    def __init__(self, new_scores):
+        CopyableEvent.__init__(self)
+        self.name = "Score Changed Event"
+        self.new_scores = new_scores
+pb.setUnjellyableForClass(ScoreChangedEvent, ScoreChangedEvent)

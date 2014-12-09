@@ -50,6 +50,7 @@ class GameEventManager():
                     break
             self.event_queue.clear()
             self.__in_loop = False
+
         elif not is_tick_event:
             self.event_queue.append(event)
 
@@ -59,7 +60,7 @@ class GameEventManager():
         and updates game appropriately.
         """
         clients_to_remove = []
-        if not isinstance(event, e.TickEvent): #technically I shouldn't be seeing any tick events
+        if not isinstance(event, e.TickEvent): #I shouldn't be seeing any tick events, can remove later
             for client in self.clients:
                 try:
                     client.root_obj.callRemote("notify", event)
@@ -74,7 +75,10 @@ class GameEventManager():
         for client in clients_to_remove:
             print "removing", client.client_id, client.nickname
             self.clients.remove(client)
-            filter(lambda a: a != client.client_id, self.model.players_order)
+            print "before self.model.players_order", self.model.players_order._order
+            self.model.players_order.remove_all_item(client.client_id)
+            print "after self.model.players_order", self.model.players_order._order
+
             ev = e.EndTurnEvent(client.client_id, self.model.time_left)
             ev.penis = True
             self.post(ev)
