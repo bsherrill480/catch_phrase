@@ -145,13 +145,15 @@ class Lobby(pb.Root):
         self.game = None
         self.lobby_id = lobby_id
         #setup [...[score, team_name, team_id]...]
-        self.team_scores = self.setup_teams(score_system_mode, num_of_teams)
+        self.score_system_mode = score_system_mode
+        self.num_of_teams = num_of_teams
+        #self.team_scores = self.setup_teams(score_system_mode, num_of_teams)
 
-    def setup_teams(self, score_system_mode, num_of_teams):
-        if score_system_mode == self.INDIVIDUAL_SCORE_SYSTEM:
+    def setup_teams(self ):
+        if self.score_system_mode == self.INDIVIDUAL_SCORE_SYSTEM:
             teams = [[0, player.nickname, player.client_id] for player in self.players]
         else:
-            teams = [ [0,"team " + str(i),"team " + str(i) ] for i in range(1, num_of_teams + 1)]
+            teams = [ [0,"team " + str(i),"team " + str(i) ] for i in range(1, self.num_of_teams + 1)]
         return teams
 
     def remote_notify(self, event):
@@ -224,7 +226,7 @@ class Lobby(pb.Root):
                 self.post(e.CopyableEvent()) #make sure everyone is still here
                                             #(post handles if someone left)
                 if self.organizer.is_perfect_circle():
-                    self.post(e.GameStartEvent(self.team_scores))
+                    self.post(e.GameStartEvent(self.setup_teams()))
                     #SEE circle_graph.client_id_lists() to understand why indexing & slicing
                     player_id_list = self.organizer.client_id_lists()[0][0:-1]
                     self._setup_list_for_multiple_players(player_id_list)

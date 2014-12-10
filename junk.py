@@ -11,6 +11,9 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.base import Builder
 from kivy.uix.textinput import TextInput
+
+
+
 class MyListView(BoxLayout):
     word_list_name = StringProperty("No List Selected")
     def penis(self):
@@ -26,7 +29,7 @@ class MyScrollView(BoxLayout):
     def __init__(self, *args, **kwargs):
         print "__init__ called"
         super(MyScrollView, self).__init__(*args,**kwargs)
-        button = Label(text = "make")
+        button = Button(text = "make", state="down")
         button.bind(on_touch_down = self.make_it)
         self.add_widget(button)
     def make_it(self, instance, touch):

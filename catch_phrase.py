@@ -191,6 +191,7 @@ app = CatchPhraseApp()
 
 
 class LoginScreen(Screen):
+    MAX_LOGIN_NAME_LENGTH = 12
     def __init__(self, *args, **kwargs):
         super(LoginScreen, self).__init__(*args, **kwargs)
         self.name = "Login"
@@ -202,6 +203,11 @@ class LoginScreen(Screen):
         logged in. Displays failed to connect popup if unable to
         connect
         """
+        if len(nickname) > self.MAX_LOGIN_NAME_LENGTH:
+            app.generic_popup(
+                "nickname must be less than " + str(self.MAX_LOGIN_NAME_LENGTH) + " characters")
+            return
+
         app.uplink.give_nickname_and_password(nickname, password)
         app.loading_popup(message="Logging in...")
         reactor.connectTCP("localhost", 8800, self.factory)
@@ -232,7 +238,7 @@ class SelectWordsListScreen(Screen):
     """
     Screen for choosing list of words in MakeGameScreen
     """
-
+    LIST_ITEM_BUTTON_HEIGHT = "35dp"
     def __init__(self, word_lists_names = None):
         super(SelectWordsListScreen, self).__init__()
         self.name = "select words list"
@@ -248,7 +254,10 @@ class SelectWordsListScreen(Screen):
 
             args_converter = lambda row_index, obj: {'text': obj.text,
                                                      'size_hint_y': None,
-                                                     'height': 25}
+                                                     'height': self.LIST_ITEM_BUTTON_HEIGHT,
+                                                     'deselected_color': [176./255,196./255,222./255, 1],
+                                                     'selected_color': [51./255, 164./255, 206./255, 1],
+                                                     }
 
             list_adapter = ListAdapter(data=data,
                                        args_converter=args_converter,
@@ -303,11 +312,19 @@ class MakeGameScreenContents(GridLayout):
     game_name_text_input = ObjectProperty(None)
     score_system_button = ObjectProperty(None)
 
-
 class MakeGameScreenScoreSystemPopupContent(BoxLayout):
     the_widgets = ObjectProperty(None)
+    individuals_button = ObjectProperty(None)
+    teams_button = ObjectProperty(None)
 
-
+    def __init__(self, *args, **kwargs):
+        super(MakeGameScreenScoreSystemPopupContent, self).__init__(*args, **kwargs)
+        self.score_system = app.root.current_screen.score_system_mode
+        self.number_of_teams = app.root.current_screen.number_of_teams
+        if app.root.current_screen.score_system_mode == app.root.current_screen.TEAM_SCORE_SYSTEM:
+            self.teams_button.state = "down"
+        else:
+            self.individuals_button.state = "down"
 class MakeGameScreen(Screen):
     """
     Screen to select options and make a game
@@ -519,24 +536,36 @@ class GameLobbyScreen(Screen):
         super(GameLobbyScreen, self).on_leave(*args, **kwargs)
         app.event_manager.unregister_listener(self)
 
-class ScoreLabel(Label):
+class ScoreLabel(BoxLayout):
     score = NumericProperty(0)
+    score_label = ObjectProperty(None)
+    team_label = ObjectProperty(None)
     def __init__(self, team_name, team_id, **kwargs):
         super(ScoreLabel, self).__init__(**kwargs)
         self.team_id = team_id
-        self.team_name = team_name
-        self.text = team_name + "\n" + "0"
-    def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            if touch.is_double_tap:
-                event = e.ScoreDecreaseRequestEvent(self.team_id)
-                print "doubletap"
-            else:
-                event = e.ScoreIncreaseRequestEvent(self.team_id)
-                print "singletap"
-            app.lobby.callRemote("notify", event)
+        self.team_label.text = team_name
+        self.score_label.text = "0"
     def on_score(self, instance, value):
-        self.text = self.team_name + "\n" + str(value)
+        self.score_label.text = str(value)
+
+# class ScoreLabel(Label):
+#     score = NumericProperty(0)
+#     def __init__(self, team_name, team_id, **kwargs):
+#         super(ScoreLabel, self).__init__(**kwargs)
+#         self.team_id = team_id
+#         self.team_name = team_name
+#         self.text = team_name + "\n" + "0"
+#     def on_touch_down(self, touch):
+#         if self.collide_point(*touch.pos):
+#             if touch.is_double_tap:
+#                 event = e.ScoreDecreaseRequestEvent(self.team_id)
+#                 print "doubletap"
+#             elif touch.is_triple_tap:
+#                 event = e.ScoreIncreaseRequestEvent(self.team_id)
+#                 print "tripletap"
+#             #app.lobby.callRemote("notify", event)
+#     def on_score(self, instance, value):
+#         self.text = self.team_name + "\n" + str(value)
 
 class GameScreen(Screen):
     players_turn_label = ObjectProperty(None)
@@ -545,6 +574,7 @@ class GameScreen(Screen):
     time_label = ObjectProperty(None)
     scores_label = ObjectProperty(None)
     scores_scroll_view = ObjectProperty(None)
+    NOT_YOUR_TURN = "Not Your Turn"
     def __init__(self, team_scores, *args, **kwargs):
         super(GameScreen, self).__init__(*args, **kwargs)
         self.start_round_button = Button(text="Start Round")
@@ -567,12 +597,14 @@ class GameScreen(Screen):
 
     def make_text_big(self, instance, value):
         instance.font_size = 12 #default font size
-        label_width, label_height = instance.size
-        texture_width, texture_height = instance.texture.size
-        while texture_width < label_width and texture_height < label_height:
-            instance.font_size += 1
-            instance.texture_update()
+        if value != self.NOT_YOUR_TURN:
+            print "resziing ", value
+            label_width, label_height = instance.size
             texture_width, texture_height = instance.texture.size
+            while texture_width < label_width and texture_height < label_height:
+                instance.font_size += 1
+                instance.texture_update()
+                texture_width, texture_height = instance.texture.size
 
 
     def quit(self, instance = None):
@@ -602,7 +634,7 @@ class GameScreen(Screen):
         self.bottom_buttons.clear_widgets()
         app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id,
                                                       self.time_remaining()))
-        self.word_label.text = "Not Your Turn"
+        self.word_label.text = self.NOT_YOUR_TURN
 
     def on_enter(self, *args, **kwargs):
         super(GameScreen, self).on_enter(*args, **kwargs)
@@ -642,9 +674,10 @@ class GameScreen(Screen):
         self.word_label.text = word
         def count_downer(interval):
             time_remaining  = self.time_remaining()
-            self.time_label.text = str(round(time_remaining))
-            if time_remaining < 0.0:
+            if time_remaining <= 0.0:
+                time_remaining = 0
                 self.post_end_turn(0)#forced to pass some argument
+            self.time_label.text = str(int(round(time_remaining)))
         count_downer(0)#forced to pass some argument
         self.count_downer = count_downer
         Clock.schedule_interval(self.count_downer, 1.0)

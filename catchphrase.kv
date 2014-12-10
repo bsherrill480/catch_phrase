@@ -17,7 +17,7 @@
 #    WordListViewScreen:
 <JoinGameScreen>:
     game_name_input: join_game_id_input
-    middle_space: .7
+    #middle_space: .7
 #    name: 'join game'
     BoxLayout:
         orientation: 'vertical'
@@ -26,11 +26,11 @@
             id: join_game_id_input
             hint_text: "Game Name"
             size_hint_y: None
-            size_hint_x: None
+            #size_hint_x: None
             height: "32dp"
             multiline: False
-            width: self.parent.width * root.middle_space
-            pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
+            #width: self.parent.width * root.middle_space
+            #pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
             on_text_validate: root.join()
         Label:
 #        BoxLayout
@@ -47,19 +47,39 @@
             on_release: root.join()
 
 <ScoreLabel>:
+    team_label: team_label_kv
+    score_label: score_label_kv
     size_hint_x: None
     width: "100dp"
     canvas.after:
         Color:
             rgba: 1,1,1,.35
-#        Rectangle:
-#            size: self.size
-#            pos: self.pos
         Line:
             points: [self.right, self.top, self.right, self.y]
         Line:
             points: [self.x, self.top, self.x, self.y]
-
+    Label:
+        size_hint_x: .1
+    BoxLayout:
+        orientation: "vertical"
+        Button:
+            size_hint_y: .25
+            text: "^"
+            on_release: root.score +=1
+        Label:
+            size_hint_y: .25
+            id: team_label_kv
+            valign: "bottom"
+        Label
+            size_hint_y: .25
+            id: score_label_kv
+            valign: "top"
+        Button:
+            text: "v"
+            size_hint_y: .25
+            on_release: root.score -= 1
+    Label:
+        size_hint_x: .1
 <GameScreen>:
 #    name: 'game'
     players_turn_label: display_name
@@ -69,15 +89,12 @@
     scores_scroll_view: scores_scroll_view_kv
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            size_hint_y: .05
-            text: "tap to +1, double tap to -1"
         ScrollView:
             id: scores_scroll_view_kv
             size_hint_y: .2
 
         Label:
-            size_hint_y: .05
+            size_hint_y: .1
             id: display_name
             text: "Current Turn: "
         Label:
@@ -252,27 +269,36 @@
 #    name: 'make word list'
     BoxLayout:
         orientation: 'vertical'
+        Label:
         TextInput:
+            size_hint_y: None
+            height: "32dp"
             id: name_text_input
             multiline: False
             text: ""
             hint_text: 'name of list'
+        Label:
         BoxLayout:
+            size_hint_y: None
+            height: "32dp"
             TextInput:
-                size_hint_x: .4
+                size_hint_x: .55
                 text: ""
+
                 id: url_text_input
                 multiline: False
                 hint_text: 'Enter Url'
+                on_text_validate: root.add_word_list(name_text_input.text,url_text_input.text)
             Label:
-                size_hint_x: .1
-                text: 'or'
+                size_hint_x: .05
             Button:
                 size_hint_x: .4
                 text: "make list locally"
                 on_release: root.make_list_locally(name_text_input.text, [])
-
+        Label:
         Button:
+            size_hint_y: None
+            height: root.height * .2
             text: 'submit'
             on_press: app.loading_popup()
             on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
@@ -375,8 +401,8 @@
 
 <MakeGameScreenScoreSystemPopupContent>
     the_widgets: the_widgets_kv.__self__
-    score_system: "teams"
-    number_of_teams: 2
+    teams_button: teams_button_kv
+    individuals_button: individuals_button_kv
     orientation: "vertical"
     Label:
         text: "Score System"
@@ -384,16 +410,19 @@
     BoxLayout:
         size_hint_y: .3
         ToggleButton:
+            id: teams_button_kv
             text: "Teams"
             group: "group"
-            state: "down"
+            #state: "down" if app.root.current_screen.score_system_mode == app.root.current_screen.TEAM_SCORE_SYSTEM else "normal"
             on_state:
                 if args[1] == 'down': num_teams_kv.clear_widgets()
                 if args[1] == 'down': num_teams_kv.add_widget(the_widgets_kv)
                 if args[1] == 'down': root.score_system = app.root.current_screen.TEAM_SCORE_SYSTEM
         ToggleButton:
+            id: individuals_button_kv
             text: "Individuals"
             group: "group"
+            #state: "down" if app.root.current_screen.score_system_mode == app.root.current_screen.INDIVIDUAL_SCORE_SYSTEM else "normal"
             on_state:
                 if args[1] == 'down': num_teams_kv.clear_widgets()
                 if args[1] == 'down': num_teams_kv.add_widget(Label())
@@ -507,16 +536,29 @@
         orientation: "vertical"
         Label:
             text:"LOGO"
-        TextInput:
-            id: login_text_input
-            hint_text: "nickname123"
-            size_hint_y: None
+        BoxLayout:
             size_hint_x: None
-            height: "32dp"
-            multiline: False
-            width: self.parent.width * root.middle_space
+            width: self.parent.width * .7
             pos: [(self.parent.size[0] - self.size[0]) / 2, self.pos[1]]
-            on_text_validate: root.login(self.text)# reminant of password
+            size_hint_y: None
+            height: "32dp"
+            TextInput:
+                id: login_text_input
+                hint_text: "nickname"
+                size_hint_y: None
+                size_hint_x: None
+                width: "50dp"
+                height: "32dp"
+                multiline: False
+                width: self.parent.width - char_len.width
+                on_text: char_len.text = str(len(self.text))
+                on_text_validate: root.login(self.text)# reminant of password
+            Label:
+                size_hint_x: None
+                width: "30dp"
+                id: char_len
+                text: "cats"
+                on_text: print("my text changed", args[1], self.pos)
         Label:
             text: ""
             size_hint_y: None

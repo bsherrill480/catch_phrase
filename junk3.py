@@ -41,14 +41,20 @@
 # box_layout.add_widget(spinner)
 # runTouchApp(box_layout)
 
-from kivy.core.text import Label as CoreLabel
+# from kivy.core.text import Label as CoreLabel
 from kivy.base import EventLoop
-EventLoop.ensure_window()
-my_label = CoreLabel()
-my_label.text = 'hello'
-# the label is usually not drawn until needed, so force it to draw.
-my_label.refresh()
-# Now access the texture of the label and use it wherever and
-# however you may please.
-hello_texture = my_label.texture
-print my_label.content_size, my_label.size
+# EventLoop.ensure_window()
+# my_label = CoreLabel()
+# my_label.text = 'hello'
+# # the label is usually not drawn until needed, so force it to draw.
+# my_label.refresh()
+# # Now access the texture of the label and use it wherever and
+# # however you may please.
+# hello_texture = my_label.texture
+# print my_label.content_size, my_label.size
+from kivy.properties import NumericProperty
+from kivy.uix.widget import Widget
+class B(Widget):
+    a = NumericProperty(2)
+b = B()
+print type(b.a)
