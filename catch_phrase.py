@@ -19,6 +19,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.graphics import Color, Rectangle
 from random import random
 from kivy.uix.spinner import Spinner
+from text_strings import about
+
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
@@ -33,6 +35,26 @@ from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 #after refactoring I didn't end up making then in kv, but my methods
 #still do *args, **kwargs even though now I know it's unnecesary.
 #I should go back and refactor this. TODO: refactor that
+
+class MultiLineLabel(Label):
+    def __init__(self, **kwargs):
+        super(MultiLineLabel, self).__init__( **kwargs)
+        self.text_size = self.size
+        self.bind(size= self.on_size)
+        self.bind(text= self.on_text_changed)
+        self.size_hint_y = None # Not needed here
+
+    def on_size(self, widget, size):
+        self.text_size = size[0], None
+        self.texture_update()
+        if self.size_hint_y == None and self.size_hint_x != None:
+            self.height = max(self.texture_size[1], self.line_height)
+        elif self.size_hint_x == None and self.size_hint_y != None:
+            self.width  = self.texture_size[0]
+
+    def on_text_changed(self, widget, text):
+        self.on_size(self, self.size)
+
 class FileManager:
     """
     manages files
@@ -94,6 +116,8 @@ class FileManager:
 
     def _save_word_list_names(self):
         self.store.put(self.WORD_LIST_NAMES, my_list=self.word_lists_names)
+
+
 
 
 class DataItem(object):
@@ -161,21 +185,42 @@ class CatchPhraseApp(App):
             self.popup.dismiss()
         return result
 
-    def generic_popup(self, message):
+    def generic_popup(self, message, popup_size_hint_y = .5, paragraph = False, title = ""):
         """
         closes popup if there is one open. Makes new popup with a close button
         and the passed message.
         """
         self.close_popup()
         box_layout = BoxLayout(orientation="vertical")
-        box_layout.add_widget(Label(text=message,
-                                    size_hint = (1,.8)))
+        if paragraph:
+            scroll_view = ScrollView(size_hint_y = .8)
+            scroll_view.add_widget(MultiLineLabel(text=message))
+            box_layout.add_widget(scroll_view)
+        else:
+            box_layout.add_widget(Label(text=message,
+                                        size_hint = (1,.8)))
         close_button = Button(text='close', size_hint = (1, .2))
         box_layout.add_widget(close_button)
         self.popup = Popup(content=box_layout, auto_dismiss=False,
-                          size_hint = (1, .5), title="")
+                          size_hint = (1, popup_size_hint_y), title=title)
         close_button.bind(on_release=self.popup.dismiss)
         self.popup.open()
+
+    # def generic_popup(self, message, popup_size_hint_y = .5):
+    #     """
+    #     closes popup if there is one open. Makes new popup with a close button
+    #     and the passed message.
+    #     """
+    #     self.close_popup()
+    #     box_layout = BoxLayout(orientation="vertical")
+    #     box_layout.add_widget(Label(text=message,
+    #                                 size_hint = (1,.8)))
+    #     close_button = Button(text='close', size_hint = (1, .2))
+    #     box_layout.add_widget(close_button)
+    #     self.popup = Popup(content=box_layout, auto_dismiss=False,
+    #                       size_hint = (1, popup_size_hint_y), title="")
+    #     close_button.bind(on_release=self.popup.dismiss)
+    #     self.popup.open()
 
     def buy_premium_popup(self):
         self.generic_popup("BUY PREMIUM!")
@@ -542,6 +587,7 @@ class ScoreLabel(BoxLayout):
     team_label = ObjectProperty(None)
     def __init__(self, team_name, team_id, **kwargs):
         super(ScoreLabel, self).__init__(**kwargs)
+        self.e = e #give kv access to events
         self.team_id = team_id
         self.team_label.text = team_name
         self.score_label.text = "0"

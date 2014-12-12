@@ -5,6 +5,7 @@
 #:import Button kivy.uix.button.Button
 #:import CoreLabel kivy.core.text.Label
 #:import Popup kivy.uix.popup.Popup
+#:import about text_strings.about
 <MyScreenManager>:
 #    LoginScreen:
 #    GameChooserScreen:
@@ -65,7 +66,7 @@
         Button:
             size_hint_y: .25
             text: "^"
-            on_release: root.score +=1
+            on_release: app.lobby.callRemote("notify", root.e.ScoreIncreaseRequestEvent(root.team_id))
         Label:
             size_hint_y: .25
             id: team_label_kv
@@ -77,7 +78,7 @@
         Button:
             text: "v"
             size_hint_y: .25
-            on_release: root.score -= 1
+            on_release: app.lobby.callRemote("notify", root.e.ScoreDecreaseRequestEvent(root.team_id)) #root.score -= 1
     Label:
         size_hint_x: .1
 <GameScreen>:
@@ -557,8 +558,6 @@
                 size_hint_x: None
                 width: "30dp"
                 id: char_len
-                text: "cats"
-                on_text: print("my text changed", args[1], self.pos)
         Label:
             text: ""
             size_hint_y: None
@@ -581,8 +580,10 @@
             height: self.parent.height * .2
             Button:
                 text: "About"
+                on_release: app.generic_popup(about, paragraph=True, popup_size_hint_y = 1)
             Button:
                 text: "upgrade"
+                on_release: app.generic_popup("UPGRADE")
 
 #        orientation: 'vertical'
 #        BoxLayout:

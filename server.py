@@ -7,7 +7,7 @@ import circle_graph as cg
 from word_list_manager import WordManager
 from time import sleep
 
-
+#TODO: QUIT EVENT NOT WORKING, SCORE ACROSS OTHER DEVICES,
 class Client:
     """
     client class. Has client's root object, id, and nickname.

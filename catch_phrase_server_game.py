@@ -67,6 +67,7 @@ class GameEventManager():
                 except pb.DeadReferenceError:
                     clients_to_remove.append(client)
         if isinstance(event, e.QuitEvent):
+            print event.client_id, " is quitting"
             #fuck effeciency, get readability!
             for client in self.clients:
                 if client.client_id == event.client_id and client not in clients_to_remove:
