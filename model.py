@@ -1,8 +1,7 @@
 from basic_structures import Order
 import random as sh
-DEFAULT_TIME = 30.0
 class Model(object):
-    def __init__(self, players, word_list, nicknames):
+    def __init__(self, players, word_list, nicknames, round_time, leeway_time):
 
         """
         players is a list of client ids.
@@ -15,6 +14,8 @@ class Model(object):
         self.players_order = Order(players)
         sh.shuffle(word_list)
         self.word_order = Order(word_list)
-        self.time_left = DEFAULT_TIME
+        self.time_left = round_time
         self.scores = {player: [0, self.nicknames[player], player] for player in players}
         self.__nickname_scores = {}
+        self.round_time = round_time
+        self.leeway_time = leeway_time

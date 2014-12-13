@@ -1,4 +1,4 @@
-from model import Model, DEFAULT_TIME
+from model import Model
 from game_stack import GameStack
 from twisted.spread import pb
 from twisted.internet import reactor #This isn't used, but maybe Looping cal needs?
@@ -93,19 +93,21 @@ class BaseGame:
     def __init__(self, game_stack, model):
         self.game_stack = game_stack
         self.model = model
-
+        self.round_time = model.round_time
+        self.leeway_time = model.leeway_time
     def __call__(self, event):
         if isinstance(event, e.StartRoundEvent):
-            self.game_stack.push(PlayerGuessGame(self.game_stack))
+            self.game_stack.push(PlayerGuessGame(self.game_stack, self.round_time, self.leeway_time))
 
 
 class PlayerGuessGame:
     """
     Used by game_stack. 2nd level game.
     """
-    def __init__(self, game_stack):
+    def __init__(self, game_stack, round_time, leeway_time):
         self.game_stack = game_stack
-
+        self.round_time = round_time
+        self.leeway_time = leeway_time
     def on_push(self):
         self.model = self.game_stack.get_model("base game")
         current_player = self.model.players_order.get_next()
@@ -119,12 +121,12 @@ class PlayerGuessGame:
         if isinstance(event, e.EndTurnEvent) and self.model.players_order.current_item == event.player:
             if event.time_left <= 0.0:
                 self.model.scores[event.player][0] -= 1 # scores is {client_id: [score, nickname]}
-                self.model.time_left = DEFAULT_TIME
+                self.model.time_left = self.round_time
                 self.game_stack.post(e.EndRoundEvent(str(self.model.scores.values())))
             else:
                 time_left = event.time_left
-                if time_left < 5.0:
-                    time_left = 5.0
+                if time_left < self.leeway_time and time_left > 0:
+                    time_left = self.leeway_time
                 self.model.time_left = time_left
                 next_player = self.model.players_order.get_next()
                 word = self.model.word_order.get_next()
@@ -135,7 +137,8 @@ class PlayerGuessGame:
             self.game_stack.pop()
 
 
-def setup_catch_phrase(players, word_list, player_order, game_over_callback, lobby_id = None):
+def setup_catch_phrase(players, word_list, player_order, game_over_callback,
+                       round_time, leeway_time, lobby_id = None):
     """
     returns event_manager for game
     players is a list of client objects (as defined in server)
@@ -147,7 +150,7 @@ def setup_catch_phrase(players, word_list, player_order, game_over_callback, lob
     game_stack = GameStack(event_manager)
     event_manager.game_stack = game_stack
     model = Model(player_order, word_list,
-                  {player.client_id: player.nickname for player in players})
+                  {player.client_id: player.nickname for player in players}, round_time, leeway_time)
     base_game = BaseGame(game_stack, model)
     event_manager.model = model
     game_stack.push(base_game, model, "base game")

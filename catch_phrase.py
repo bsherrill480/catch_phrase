@@ -2,7 +2,7 @@ import events as e
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, NumericProperty
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
@@ -26,7 +26,6 @@ from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 ###/TWISTED SETUP
-
 #notes:
 #-never name something an empty string, code relies often on emtpy string
 #refering to a null value
@@ -59,6 +58,7 @@ class FileManager:
     """
     manages files
     """
+    MAX_FILE_SIZE_KB = 500
     WORD_LIST_NAMES = "word_list_names" # the list of names for the word lists
     def __init__(self):
         self.store = JsonStore('word_lists.json')
@@ -86,7 +86,7 @@ class FileManager:
             return str(err)#for debugging
         meta = u.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-        if file_size > 100000:
+        if file_size > self.MAX_FILE_SIZE_KB * 1024:
             return "File To Large"
         l = ""
         block_sz = 4096 # apparently default for sql
@@ -284,11 +284,11 @@ class SelectWordsListScreen(Screen):
     Screen for choosing list of words in MakeGameScreen
     """
     LIST_ITEM_BUTTON_HEIGHT = "35dp"
-    def __init__(self, word_lists_names = None):
+    def __init__(self, word_lists_names = None, switch_to_screen = "make game"):
         super(SelectWordsListScreen, self).__init__()
         self.name = "select words list"
         self.word_lists_names = word_lists_names
-
+        self.switch_to_screen = switch_to_screen
     def back_to_screen(self):
         return False
 
@@ -313,15 +313,16 @@ class SelectWordsListScreen(Screen):
 
             list_view = ListView(adapter=list_adapter)
             button = Button(text = "Done", size_hint_y = .2)
-            def return_to_make_game(instance):
-                app.root.switch_to("make game", direction="right")
+            def return_to_screen(instance):
+                app.root.switch_to(self.switch_to_screen, direction="right")
                 curr_screen = app.root.current_screen
                 curr_screen.word_list_name = selected_button.selected.text
-                if self.word_lists_names is None:
-                    curr_screen.word_source = curr_screen.SERVER
-                else:
-                    curr_screen.word_source = curr_screen.LOCAL_LIST
-            button.bind(on_release = return_to_make_game)
+                if self.switch_to_screen == "make game": #i.e. we didn't come from somewhere else
+                    if self.word_lists_names is None:
+                        curr_screen.word_source = curr_screen.SERVER
+                    else:
+                        curr_screen.word_source = curr_screen.LOCAL_LIST
+            button.bind(on_release = return_to_screen)
             box_layout = BoxLayout(orientation="vertical")
             box_layout.add_widget(list_view)
             box_layout.add_widget(button)
@@ -356,6 +357,17 @@ class GameChooserScreen(Screen):
 class MakeGameScreenContents(GridLayout):
     game_name_text_input = ObjectProperty(None)
     score_system_button = ObjectProperty(None)
+    round_length = ObjectProperty(None)
+    leeway_time = ObjectProperty(None)
+
+    def check_is_int(self, instance, defualt_val):
+        try:
+            int(instance.text)
+            return True
+        except ValueError:
+            app.generic_popup("Inappropriate Value in field")
+            instance.text = str(defualt_val)
+        return False
 
 class MakeGameScreenScoreSystemPopupContent(BoxLayout):
     the_widgets = ObjectProperty(None)
@@ -370,6 +382,7 @@ class MakeGameScreenScoreSystemPopupContent(BoxLayout):
             self.teams_button.state = "down"
         else:
             self.individuals_button.state = "down"
+
 class MakeGameScreen(Screen):
     """
     Screen to select options and make a game
@@ -401,7 +414,6 @@ class MakeGameScreen(Screen):
             value = str(self.number_of_teams) + " " + value
         self.contents.score_system_button.text = value
 
-
     def on_word_list_name(self, instance, value):
         self.contents.select_word_list_button.text = value
 
@@ -419,6 +431,16 @@ class MakeGameScreen(Screen):
         d = app.uplink.root_obj.callRemote("get_unique_game_id")
         d.addCallback(set_game_id)
 
+    def check_text_is_int(self, instance, defualt_val):
+        try:
+            int(instance.text)
+            return True
+        except ValueError:
+            app.generic_popup("Inappropriate Value in field")
+            instance.text = str(defualt_val)
+        return False
+
+
     def score_system(self):
         self.popup = Popup(title = "",
                            content=MakeGameScreenScoreSystemPopupContent(),
@@ -435,8 +457,20 @@ class MakeGameScreen(Screen):
         self.popup.dismiss()
         self.popup = None
 
+    def setup_correct(self):
+        message = ""
+        if self.word_list_name == "No List Selected":
+            message =  "Please Select List"
+        elif not self.check_text_is_int(self.contents.round_length, 120):
+            message = "Round Length Was Incorrectly Formatted"
+        elif not self.check_text_is_int(self.contents.leeway_time, 0):
+            message = "Leeway Time Was Incorrectly Formatted"
+        if message:
+            app.generic_popup(message)
+        return not message
+
     def make_and_join_game(self):
-        if self.word_list_name != "No List Selected":
+        if self.setup_correct():
             def was_success(result):
                 if result[0]:
                     join_screen = app.root.my_get_screen("join game")
@@ -451,11 +485,12 @@ class MakeGameScreen(Screen):
                 self.word_list_name if self.word_source == self.SERVER
                 else app.file_manager.get_word_list(self.word_list_name),
                 self.score_system_mode,
-                self.number_of_teams
+                self.number_of_teams,
+                int(self.contents.round_length.text),
+                int(self.contents.leeway_time.text)
             )
             d.addCallback(was_success)
-        else:
-            app.generic_popup("Please Select List")
+
 
     def back_to_screen(self):
         if self.popup:
@@ -737,100 +772,6 @@ class GameScreen(Screen):
         self.quit()
         return True
 
-# class GameScreen(Screen):
-#     players_turn_label = ObjectProperty(None)
-#     word_label = ObjectProperty(None)
-#     bottom_buttons = ObjectProperty(None)
-#     time_label = ObjectProperty(None)
-#     scores_label = ObjectProperty(None)
-#     def __init__(self, *args, **kwargs):
-#         super(GameScreen, self).__init__(*args, **kwargs)
-#         self.start_round_button = Button(text="Start Round")
-#         self.start_round_button.bind(on_release=self.post_round_start_event)
-#         self.word_guessed_button = Button(text="Someone Guess Right")
-#         self.word_guessed_button.bind(on_release = self.post_end_turn)
-#         self.quit_button = Button(text="quit")
-#         self.quit_button.bind(on_release = self.quit)
-#         self.start_time = 0
-#         self.turn_time = 0
-#         self.count_downer = None
-#
-#     def quit(self, instance = None):
-#         """
-#         used in button
-#         """
-#         app.root.switch_to("game chooser", direction="right")
-#         app.lobby.callRemote("notify", e.QuitEvent(app.uplink.id))
-#         app.lobby = None
-#
-#     def post_round_start_event(self, instance):
-#         """
-#         used in button
-#         """
-#         app.lobby.callRemote("notify", e.StartRoundEvent())
-#
-#     def time_remaining(self):
-#         time_elapsed = Clock.get_time() - self.start_time
-#         time_remaining = self.turn_time - time_elapsed
-#         return time_remaining
-#
-#     def post_end_turn(self, instance):
-#         """
-#         used in button
-#         """
-#         Clock.unschedule(self.count_downer)
-#         self.bottom_buttons.clear_widgets()
-#         app.lobby.callRemote("notify", e.EndTurnEvent(app.uplink.id,
-#                                                       self.time_remaining()))
-#         self.word_label.text = "Not Your Turn"
-#
-#     def on_enter(self, *args, **kwargs):
-#         super(GameScreen, self).on_enter(*args, **kwargs)
-#         self.bottom_buttons.clear_widgets()#playing another game
-#         self.bottom_buttons.add_widget(self.start_round_button)
-#         app.event_manager.register_listener(self)
-#
-#
-#     def notify(self, event):
-#         if hasattr(event, "lobby_id"):
-#             print "event recieved", event, event.lobby_id
-#         else:
-#             print "event", event
-#         if isinstance(event, e.StartRoundEvent):
-#             self.bottom_buttons.clear_widgets()
-#         elif isinstance(event, e.EndRoundEvent):
-#             self.bottom_buttons.clear_widgets()
-#             self.scores_label.text = event.scores
-#             self.bottom_buttons.add_widget(self.quit_button)
-#             self.bottom_buttons.add_widget(self.start_round_button)
-#         elif isinstance(event, e.BeginTurnEvent):
-#             self.players_turn_label.text = "Current Turn: " + event.nickname
-#             if event.client_id == app.uplink.id:
-#                 self.my_turn(event.time_left, event.word)
-#
-#     def my_turn(self, time_left, word):
-#         self.bottom_buttons.clear_widgets()
-#         self.bottom_buttons.add_widget(self.word_guessed_button)
-#         self.start_time = Clock.get_time()
-#         self.turn_time = time_left
-#         self.word_label.text = word
-#         def count_downer(interval):
-#             time_remaining  = self.time_remaining()
-#             self.time_label.text = str(round(time_remaining))
-#             if time_remaining < 0.0:
-#                 self.post_end_turn(0)#forced to pass some argument
-#         count_downer(0)#forced to pass some argument
-#         self.count_downer = count_downer
-#         Clock.schedule_interval(self.count_downer, 1.0)
-#
-#     def on_leave(self, *args, **kwargs):
-#         super(GameScreen, self).on_leave(*args, **kwargs)
-#         app.event_manager.unregister_listener(self)
-#
-#     def back_to_screen(self):
-#         Clock.unschedule(self.count_downer)
-#         self.quit()
-#         return True
 
 class ManageWordListsScreen(Screen):
     list_label = ObjectProperty(None)
@@ -985,6 +926,7 @@ class WordListEditor(Screen):
             self.word_list.append(word)
             self.new_word_input.text = ""
             app.loading_popup()
+            self.focus_text = True
             self.build_scroll_word_list()
     def remove_word_callback(self, instance):
         #hacky workaround for my loading popup not displaying before
@@ -1016,6 +958,7 @@ class WordListEditor(Screen):
             #add to self.box_layout
             layout.add_widget(row)
         self.scroll_view.add_widget(layout)
+        self.new_word_input.focus = True
         app.close_popup()
 
     def save_popup(self):
@@ -1175,9 +1118,42 @@ class JoinGameScreen(Screen):
         app.root.switch_to("game chooser", direction="right")
         return True
 
+class MakeWordListFromUrlScreen(Screen):
+    pass
+
 class MakeWordListScreen(Screen):
+    name_text_input = ObjectProperty(None)
+    def __init__(self):
+        super(MakeWordListScreen, self).__init__()
+        self.select_words_list_screen = SelectWordsListScreen
     def make_list_locally(self, list_name, word_list):
         app.root.switch_to(WordListEditor(list_name, word_list))
+
+    def download_from_server(self):
+        class IntermediateScreen(Screen):
+            word_list_name = StringProperty("None")
+            def __init__(self, list_name):
+                super(IntermediateScreen, self).__init__()
+                self.list_name = list_name
+            def on_word_list_name(self, instance, value):
+                def switch_screen_callback(result):
+                    app.root.switch_to(WordListEditor(self.list_name, result), transition=NoTransition())
+                d = app.uplink.root_obj.callRemote("get_word_list", value)
+                d.addCallback(switch_screen_callback)
+            def on_pre_enter(self, *args):
+                super(IntermediateScreen, self).on_pre_enter(*args)
+                app.loading_popup()
+
+            def on_leave(self, *args):
+                super(IntermediateScreen, self).on_leave(*args)
+                app.close_popup()
+                #app.root.switch_to(WordListEditor(self.list_name, self.word_list_name))
+        screen = IntermediateScreen(self.name_text_input.text)
+        select_words_list_screen = SelectWordsListScreen(switch_to_screen=screen)
+        select_words_list_screen.back_to_screen = self.back_to_screen
+        app.root.switch_to(select_words_list_screen)
+
+
     def add_word_list(self, name, url):
         if name == "" and url == "":
             name = "test"

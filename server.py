@@ -43,6 +43,10 @@ class ServerEventManager(pb.Root):
         """
         del self.clients[client.client_id]
 
+    def remote_get_word_list(self, word_list_name):
+        return self.world_lists[word_list_name]
+
+
     def remote_register_client(self, root_obj, client_nickname):
         """
         returns True if is accepted, returns False
@@ -74,7 +78,7 @@ class ServerEventManager(pb.Root):
         self.total_game_requests = self.total_game_requests + 1
         return game_name #sorry bud, out of luck
 
-    def remote_make_game_lobby(self, lobby_id, word_list, score_system_mode, num_teams):
+    def remote_make_game_lobby(self, lobby_id, word_list, score_system_mode, num_teams, round_time, leeway_time):
         """
         returns false if lobby_id is in use. Assumes word_list_id
         will be correct. Don't fuck me over me.
@@ -88,7 +92,8 @@ class ServerEventManager(pb.Root):
             if isinstance(word_list, str):#if it wasn't a local copy.
                 word_list = self.world_lists[word_list]
             self.lobbys[lobby_id] = Lobby(self, word_list, lobby_id,
-                                          score_system_mode, num_teams)
+                                          score_system_mode, num_teams,
+                                          round_time, leeway_time)
             return (True, "success")
 
     def remote_join_lobby(self, client_id, lobby_id):
@@ -134,7 +139,8 @@ class Lobby(pb.Root):
     """
     TEAM_SCORE_SYSTEM = "teams"
     INDIVIDUAL_SCORE_SYSTEM = "individual"
-    def __init__(self, server_evm, world_list, lobby_id, score_system_mode, num_of_teams):
+    def __init__(self, server_evm, world_list, lobby_id, score_system_mode,
+                 num_of_teams, round_time, leeway_time):
         self.server = server_evm
         self.players = [] # [...,client object,...]
         self.waiting = [] # organized: [..., (id, nickname), ...]
@@ -147,8 +153,8 @@ class Lobby(pb.Root):
         #setup [...[score, team_name, team_id]...]
         self.score_system_mode = score_system_mode
         self.num_of_teams = num_of_teams
-        #self.team_scores = self.setup_teams(score_system_mode, num_of_teams)
-
+        self.round_time = round_time
+        self.leeway_time = leeway_time
     def setup_teams(self ):
         if self.score_system_mode == self.INDIVIDUAL_SCORE_SYSTEM:
             teams = [[0, player.nickname, player.client_id] for player in self.players]
@@ -235,7 +241,9 @@ class Lobby(pb.Root):
                         self.word_list,
                         player_id_list,
                         self.game_over_callback,
-                        self.lobby_id
+                        self.round_time,
+                        self.leeway_time
+                        #self.lobby_id
                     )
                 elif self.waiting == []:
                     #was not an acceptable circle. If waiting is empty we should

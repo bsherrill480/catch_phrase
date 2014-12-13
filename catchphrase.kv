@@ -5,7 +5,7 @@
 #:import Button kivy.uix.button.Button
 #:import CoreLabel kivy.core.text.Label
 #:import Popup kivy.uix.popup.Popup
-#:import about text_strings.about
+#:import text_strings text_strings
 <MyScreenManager>:
 #    LoginScreen:
 #    GameChooserScreen:
@@ -16,6 +16,8 @@
 #    GameScreen:
 #    ManageWordListsScreen:
 #    WordListViewScreen:
+<SelectWordsListScreen>:
+
 <JoinGameScreen>:
     game_name_input: join_game_id_input
     #middle_space: .7
@@ -266,43 +268,98 @@
             size_hint_y: 1
             id: words_list_view_kv
 
+<MakeWordListFromUrlPopupConcents>:
+
 <MakeWordListScreen>:
 #    name: 'make word list'
+    #word_list_name: None # for use by SelectWordsListScreen
+    name_text_input: name_text_input
     BoxLayout:
         orientation: 'vertical'
         Label:
-        TextInput:
-            size_hint_y: None
-            height: "32dp"
-            id: name_text_input
-            multiline: False
-            text: ""
-            hint_text: 'name of list'
-        Label:
-        BoxLayout:
+        GridLayout:
+            cols: 3
             size_hint_y: None
             height: "32dp"
             TextInput:
-                size_hint_x: .55
+                size_hint_y: None
+                height: "32dp"
+                id: name_text_input
+                multiline: False
                 text: ""
-
+                hint_text: 'name of list'
+                size_hint_x: .2
+            TextInput:
+                size_hint_x: .6
+                text: ""
                 id: url_text_input
                 multiline: False
                 hint_text: 'Enter Url'
                 on_text_validate: root.add_word_list(name_text_input.text,url_text_input.text)
-            Label:
-                size_hint_x: .05
+                on_focus:
+                    if args[1]: app.generic_popup(text_strings.url_instructions, paragraph=True)
             Button:
-                size_hint_x: .4
-                text: "make list locally"
+                text: 'submit'
+                size_hint_x: .2
+                on_press: app.loading_popup()
+                on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
+        Label:
+        BoxLayout:
+            size_hint_y: None
+            height: "32dp"
+            Button:
+                text:"Download from server"
+                on_release: root.download_from_server()
+            Button:
+                #size_hint_x: .4
+                text: "make locally"
                 on_release: root.make_list_locally(name_text_input.text, [])
         Label:
-        Button:
-            size_hint_y: None
-            height: root.height * .2
-            text: 'submit'
-            on_press: app.loading_popup()
-            on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
+
+#<MakeWordListScreen>:
+#    name: 'make word list'
+#    #word_list_name: None # for use by SelectWordsListScreen
+#    name_text_input: name_text_input
+#    BoxLayout:
+#        orientation: 'vertical'
+#        Label:
+#        TextInput:
+#            size_hint_y: None
+#            height: "32dp"
+#            id: name_text_input
+#            multiline: False
+#            text: ""
+#            hint_text: 'name of list'
+#        Label:
+#        BoxLayout:
+#            size_hint_y: None
+#            height: "32dp"
+#            TextInput:
+#                #size_hint_x: .55
+#                text: ""
+#
+#                id: url_text_input
+#                multiline: False
+#                hint_text: 'Enter Url'
+#                on_text_validate: root.add_word_list(name_text_input.text,url_text_input.text)
+#                on_focus:
+#                    if args[1]: app.generic_popup(text_strings.url_instructions, paragraph=True)
+#            Button:
+#                text:"Download from server"
+#                on_release: root.download_from_server()
+#            Button:
+#                #size_hint_x: .4
+#                text: "make locally"
+#                on_release: root.make_list_locally(name_text_input.text, [])
+#        Label:
+#        Button:
+#            size_hint_y: None
+#            height: root.height * .2
+#            text: 'submit'
+#            on_press: app.loading_popup()
+#            on_release: root.add_word_list(name_text_input.text,url_text_input.text)#blocking call,causes
+
+
 <MySpacer@Label>:
     size_hint_y:None
     height: "25dp"
@@ -339,6 +396,8 @@
 <MakeGameScreenContents>:
     game_name_text_input: make_game_id_input
     score_system_button: score_system_button_kv
+    leeway_time: leeway_time_kv
+    round_length: round_length_kv
     size_hint_y: None
     select_word_list_button: select_word_list_button_kv
     cols: 1
@@ -375,11 +434,13 @@
         size_hint_y: None
         height: "32dp"
         MyTextInput:
+            id: round_length_kv
             size_hint_x:None
             center_x: self.parent.width/2
             y: self.parent.y
             width: "50dp"
             text: "120"
+            #on_focus: root.check_is_int(args[0], args[1], "120")
     MySpacer:
     MyLabel:
         text: "Leeway Time"
@@ -387,11 +448,14 @@
         size_hint_y: None
         height: "32dp"
         MyTextInput:
-            size_hint_x:None
+            id: leeway_time_kv
+            size_hint_x: None
             center_x: self.parent.width/2
             y: self.parent.y
             width: "50dp"
             text: "0"
+            #on_focus: root.check_is_int(args[0], args[1], "0")
+
     MySpacer:
     MyLabel:
         text: "Score System"
@@ -495,6 +559,8 @@
                 size_hint_x: .8
                 hint_text: "add word"
                 text: ""
+                on_text_validate: root.add_word(new_word_input_kv.text)
+                multiline: False
             Button:
                 size_hint_x: .2
                 text: "submit"
@@ -580,7 +646,7 @@
             height: self.parent.height * .2
             Button:
                 text: "About"
-                on_release: app.generic_popup(about, paragraph=True, popup_size_hint_y = 1)
+                on_release: app.generic_popup(text_strings.about, paragraph=True, popup_size_hint_y = 1)
             Button:
                 text: "upgrade"
                 on_release: app.generic_popup("UPGRADE")
