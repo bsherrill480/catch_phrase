@@ -25,6 +25,9 @@ from text_strings import about
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
+from twisted.internet import protocol
+from twisted.internet.defer import Deferred
+from twisted.internet.defer import inlineCallbacks
 ###/TWISTED SETUP
 #notes:
 #-never name something an empty string, code relies often on emtpy string
@@ -237,25 +240,64 @@ app = CatchPhraseApp()
 
 class LoginScreen(Screen):
     MAX_LOGIN_NAME_LENGTH = 12
+    IPER_IP = "localhost"
+    IPER_PORT = 8000
+
+    class CantFindIperError(Exception):
+        pass
+
     def __init__(self, *args, **kwargs):
         super(LoginScreen, self).__init__(*args, **kwargs)
         self.name = "Login"
         self.factory = pb.PBClientFactory()
         print app.get_application_config()
+
     def login(self, nickname, password=""):
         """
         attempts to login to server. displays loading popup until
         logged in. Displays failed to connect popup if unable to
         connect
         """
+        app.uplink.give_nickname_and_password(nickname, password)
         if len(nickname) > self.MAX_LOGIN_NAME_LENGTH:
             app.generic_popup(
                 "nickname must be less than " + str(self.MAX_LOGIN_NAME_LENGTH) + " characters")
             return
+        def errback_callback(result):
+            app.generic_popup("Failed to find server")# + str(result))
 
-        app.uplink.give_nickname_and_password(nickname, password)
+        d = self.ask_iper()
+        d.addCallbacks(self.server_login, errback_callback)
+
+    def ask_iper(self):
+        d = Deferred()
+        cant_find_iper = self.CantFindIperError
+        class IperClient(protocol.Protocol):
+
+            def connectionMade(self):
+                self.transport.write(" ")
+
+            def dataReceived(self, recieved_data):
+                d.callback(recieved_data)
+                print "data recieved", recieved_data
+                self.transport.loseConnection()
+
+        class IperFactory(protocol.ClientFactory):
+            def buildProtocol(self, addr):
+                return IperClient()
+
+            def clientConnectionFailed(self, connector, reason):
+                d.errback(cant_find_iper(str(reason)))
+
+        reactor.connectTCP(self.IPER_IP, self.IPER_PORT, IperFactory())
+        return d
+
+    def server_login(self, ip_port_string):
+        ip, port = ip_port_string.split()
+        print "loggin in to:", ip, port
         app.loading_popup(message="Logging in...")
-        reactor.connectTCP("localhost", 8800, self.factory)
+        reactor.connectTCP(ip, int(port), self.factory)
+
         d = self.factory.getRootObject()
 
         def failed_to_connect(result):
@@ -513,6 +555,7 @@ class GameLobbyScreen(Screen):
     pointing_to_spinner = ObjectProperty(None)#List of buttons of players who can be point to
     number_sharing_device_spinner = ObjectProperty(None)
     waiting_is_empty = BooleanProperty(False)
+    interactive_half = ObjectProperty(None)
     # class MyDataItem(DataItem):
     #     def __init__(self, selected_obj, text, client_id):
     #         super(GameLobbyScreen.MyDataItem, self).__init__(selected_obj,text)
@@ -534,13 +577,14 @@ class GameLobbyScreen(Screen):
                 raise TypeError("StringHider: dict_values must be a dict")
             return obj
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, observer=False, *args, **kwargs):
         super(GameLobbyScreen, self).__init__(*args, **kwargs)
         self.pointing_at = self.StringHider("", {"client_id": ""}) # who user is pointing to
         #self.waiting_label = Label(text="Waiting On:")
         self.selected_client = Selected()
         #self.waiting_is_empty = False
         self.player_lineup = [] #list formated [...(client_id, name)...]
+        self.is_observer = observer
 
     def submit_start_game_request(self):
         if self.waiting_is_empty:
@@ -552,7 +596,8 @@ class GameLobbyScreen(Screen):
         super(GameLobbyScreen, self).on_enter(*args, **kwargs)
         app.event_manager.register_listener(self)
         app.loading_popup()
-        d = app.uplink.root_obj.callRemote("join_lobby", app.uplink.id, game_name)
+        join_lobby = "join_lobby_score" if self.is_observer else "join_lobby"
+        d = app.uplink.root_obj.callRemote(join_lobby, app.uplink.id, game_name)
         def was_success(result):
             if result:
                 app.close_popup()
@@ -567,6 +612,11 @@ class GameLobbyScreen(Screen):
         self.pointing_to_spinner.bind(text=self.submit_point_at)
         self.number_sharing_device_spinner.bind(text=self.submit_number_sharing_device)
 
+
+    def on_enter(self, *args):
+        super(GameLobbyScreen, self).on_enter(*args)
+        if self.is_observer:
+            self.interactive_half.clear_widgets()
     def submit_number_sharing_device(self, spinner, text):
         print "sending event"
         app.lobby.callRemote("notify", e.NumberSharingDeviceEvent(app.uplink.id, int(text)))
@@ -589,7 +639,9 @@ class GameLobbyScreen(Screen):
         if not seen_pointing_at:
             self.pointing_to_spinner.text = ""
         self.pointing_to_spinner.values = values
+
     def notify(self, event):
+        print event
         if isinstance(event, e.NewPlayerLineupEvent):
             self.player_lineup = event.id_nickname_list
             self.update_spinner()
@@ -1112,6 +1164,8 @@ class BackButton(Button): #EventDispatcher is already subclassed by Button it ap
         self.bind(on_release = switch_to_callback)
 
 class JoinGameScreen(Screen):
+    def join_observer(self):
+        app.root.switch_to(GameLobbyScreen(observer=True))
     def join(self):
         app.root.switch_to(GameLobbyScreen())
     def back_to_screen(self):

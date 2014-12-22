@@ -2,7 +2,7 @@ from os import listdir
 from weakref import WeakValueDictionary
 import cPickle as pickle
 PATH_TO_WORDS = "./words/"
-
+PATH_TO_PREMIUM_WORDS = "./premium_words/"
 # class WordManagerWeak(dict):
 #     """
 #     weakref did not work, so I'll just manually keep track of references in my code.
@@ -42,11 +42,17 @@ class WordManager(dict):
     """
     scew it. Load everything
     """
-    def __init__(self, *args, **kwargs):
-        dict.__init__(self, *args, **kwargs)
-        self.lists_names = listdir(PATH_TO_WORDS)
+    def __init__(self, word_list_location):
+        if word_list_location == "free":
+            path = PATH_TO_WORDS
+        elif word_list_location == "premium":
+            path = PATH_TO_PREMIUM_WORDS
+        else:
+            path = word_list_location
+        dict.__init__(self)
+        self.lists_names = listdir(path)
         for name in self.lists_names:
-            with open(PATH_TO_WORDS + name, "rb") as file:
+            with open(path + name, "rb") as file:
                 words_list = pickle.load(file)
                 self[name] = words_list
 

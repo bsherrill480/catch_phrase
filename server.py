@@ -31,7 +31,7 @@ class ServerEventManager(pb.Root):
     def __init__(self):
         self.clients = {} #organized {client_id: client_obj}
         self.total_clients = 0
-        self.world_lists = WordManager()#a dict with the words preloaded
+        self.world_lists = WordManager("free")#a dict with the words preloaded
         self.lobbys = {}
         self.total_game_requests = 0
         self.looping_call = LoopingCall(self.remote_post, e.CopyableEvent())
@@ -109,6 +109,13 @@ class ServerEventManager(pb.Root):
         lobby.new_player(self.clients[client_id])
         return lobby
 
+    def remote_join_lobby_score(self, client_id, lobby_id):
+        if lobby_id not in self.lobbys or self.lobbys[lobby_id].game:
+            return None
+        lobby = self.lobbys[lobby_id]
+        lobby.new_player_score(self.clients[client_id])
+        return lobby
+
     def remote_get_word_list_options(self):
         """
         returns name of all the word lists
@@ -147,6 +154,7 @@ class Lobby(pb.Root):
         self.organizer = cg.Organizer() #see circle_graph. used
                         #to tell if we have a circle (clients are pointing
                         #correctly).
+        self.player_observers = []
         self.word_list = world_list
         self.game = None
         self.lobby_id = lobby_id
@@ -189,6 +197,11 @@ class Lobby(pb.Root):
         #set default number of people sharing device
         player.number_sharing_device = 1
 
+    def new_player_score(self, player):
+        print "new player observer", player.client_id, player.nickname
+        self.player_observers.append(player)
+        player.observers.append(self)
+
     def remove_client_from_waiting(self, client_id):
         """
         removes the client from the waiting list.
@@ -214,6 +227,7 @@ class Lobby(pb.Root):
         """
         if self.game:
             self.game.post(event)
+            #self.obs_post(event)
         else:
             if isinstance(event, e.QuitEvent):
                 client_id = event.client_id
@@ -231,7 +245,7 @@ class Lobby(pb.Root):
             elif isinstance(event, e.StartGameRequestEvent):
                 self.post(e.CopyableEvent()) #make sure everyone is still here
                                             #(post handles if someone left)
-                if self.organizer.is_perfect_circle():
+                if self.organizer.is_perfect_circle() and len(self.players) > 0:
                     self.post(e.GameStartEvent(self.setup_teams()))
                     #SEE circle_graph.client_id_lists() to understand why indexing & slicing
                     player_id_list = self.organizer.client_id_lists()[0][0:-1]
@@ -242,8 +256,8 @@ class Lobby(pb.Root):
                         player_id_list,
                         self.game_over_callback,
                         self.round_time,
-                        self.leeway_time
-                        #self.lobby_id
+                        self.leeway_time,
+                        self.player_observers
                     )
                 elif self.waiting == []:
                     #was not an acceptable circle. If waiting is empty we should
@@ -287,6 +301,18 @@ class Lobby(pb.Root):
             self.organizer.delete_node(client.client_id)
         if dead_clients:
             self.new_lineup_event()
+        self.obs_post(event)
+
+    def obs_post(self, event):
+        dead_clients = []
+        for client in self.player_observers:
+            try:
+                client.root_obj.callRemote('notify', event)
+            except pb.DeadReferenceError:
+                dead_clients.append(client)
+        for client in dead_clients:
+            self.player_observers.remove(client)
+
 
     def game_over_callback(self):
         """

@@ -11,7 +11,7 @@ class GameEventManager():
     """
     handles game events. game does not care about client's notify
     """
-    def __init__(self, clients, game_over_callback):
+    def __init__(self, clients, game_over_callback, player_observers):
         #externally stuff refers to done in setup_catch_phrase
         self.clients = clients #list of clients
         for client in self.clients:
@@ -24,7 +24,7 @@ class GameEventManager():
                                                              #needs to be started externally
         self.event_queue = deque()# O(1) leftpop()
         self.__in_loop = False
-
+        self.player_observers = player_observers
         self.lobby_id = None #REMOVE WHEN DONE DEBUGGING
     def dead_client(self, client):
         self.post(e.CopyableEvent()) #post takes care of dead clients
@@ -83,6 +83,17 @@ class GameEventManager():
             ev = e.EndTurnEvent(client.client_id, self.model.time_left)
             ev.penis = True
             self.post(ev)
+        self.obs_notify(event)
+
+    def obs_notify(self, event):
+        dead_clients = []
+        for client in self.player_observers:
+            try:
+                client.root_obj.callRemote('notify', event)
+            except pb.DeadReferenceError:
+                dead_clients.append(client)
+        for client in dead_clients:
+            self.player_observers.remove(client)
 
 class BaseGame:
     """
@@ -138,7 +149,7 @@ class PlayerGuessGame:
 
 
 def setup_catch_phrase(players, word_list, player_order, game_over_callback,
-                       round_time, leeway_time, lobby_id = None):
+                       round_time, leeway_time, player_observers, lobby_id = None):
     """
     returns event_manager for game
     players is a list of client objects (as defined in server)
@@ -146,7 +157,7 @@ def setup_catch_phrase(players, word_list, player_order, game_over_callback,
     player_order is how turn should progress.
         should be list of client_id. Will be turned into circular list
     """
-    event_manager = GameEventManager(players, game_over_callback)
+    event_manager = GameEventManager(players, game_over_callback, player_observers)
     game_stack = GameStack(event_manager)
     event_manager.game_stack = game_stack
     model = Model(player_order, word_list,

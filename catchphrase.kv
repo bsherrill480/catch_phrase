@@ -43,11 +43,17 @@
 #            TextInput:
 #                id: join_game_id_input
 #                multiline: False
-        Button:
-            size_hint_y: None
-            height: self.parent.height * .2
-            text: 'Join Game'
-            on_release: root.join()
+        BoxLayout:
+            Button:
+                size_hint_y: None
+                height: self.parent.height * .2
+                text: 'Join Game (Score Keeper)'
+                on_release:root.join_observer()
+            Button:
+                size_hint_y: None
+                height: self.parent.height * .2
+                text: 'Join Game'
+                on_release: root.join()
 
 <ScoreLabel>:
     team_label: team_label_kv
@@ -147,6 +153,7 @@
     view_list: player_view_list
     pointing_to_spinner: player_pointing_to
     number_sharing_device_spinner: number_sharing_device_spinner_kv
+    interactive_half: interactive_half_kv
     #overall layout
     BoxLayout:
         orientation: 'vertical'
@@ -163,11 +170,12 @@
                     id: player_view_list
             #Player that I "hand" device to
             BoxLayout:
+                id: interactive_half_kv
                 orientation: 'vertical'
                 Label:
                     size_hint_y: None
                     text: 'Player after me:'
-                    height: self.parent.height * .1
+                    height: self.parent.height * .1 if self.parent else 100
                 Spinner:
                     size_hint_y: None
                     height: root.SPINNER_HEIGHT
@@ -179,7 +187,7 @@
                     size_hint_y: .5
                 Label:
                     size_hint_y: None
-                    height: self.parent.height * .1
+                    height: self.parent.height * .1 if self.parent else 100
                     text: "number of people sharing device"
                 Spinner:
                     id: number_sharing_device_spinner_kv
