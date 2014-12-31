@@ -20,6 +20,7 @@ from kivy.graphics import Color, Rectangle
 from random import random
 from kivy.uix.spinner import Spinner
 from text_strings import about
+import plyer
 
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
@@ -27,7 +28,7 @@ install_twisted_reactor()
 from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 from twisted.internet import protocol
 from twisted.internet.defer import Deferred
-from twisted.internet.defer import inlineCallbacks
+from twisted.python.failure import Failure
 ###/TWISTED SETUP
 #notes:
 #-never name something an empty string, code relies often on emtpy string
@@ -37,6 +38,9 @@ from twisted.internet.defer import inlineCallbacks
 #after refactoring I didn't end up making then in kv, but my methods
 #still do *args, **kwargs even though now I know it's unnecesary.
 #I should go back and refactor this. TODO: refactor that
+
+VERSION = "1.0"
+
 
 class MultiLineLabel(Label):
     def __init__(self, **kwargs):
@@ -242,10 +246,10 @@ class LoginScreen(Screen):
     MAX_LOGIN_NAME_LENGTH = 12
     IPER_IP = "localhost"
     IPER_PORT = 8000
-
     class CantFindIperError(Exception):
         pass
-
+    class IncorrectVersionError(Exception):
+        pass
     def __init__(self, *args, **kwargs):
         super(LoginScreen, self).__init__(*args, **kwargs)
         self.name = "Login"
@@ -264,36 +268,50 @@ class LoginScreen(Screen):
                 "nickname must be less than " + str(self.MAX_LOGIN_NAME_LENGTH) + " characters")
             return
         def errback_callback(result):
-            app.generic_popup("Failed to find server")# + str(result))
-
+            error = result.value
+            if isinstance(error, self.CantFindIperError):
+                app.generic_popup("Failed to find server")
+            elif isinstance(error, self.IncorrectVersionError):
+                # app.generic_popup("Please update app \n" + "Found version " + self.VERSION  +
+                #                   ". Expected version " )#+ result.expected_version)
+                app.generic_popup("upgrade version")
+            else:
+                app.generic_popup("Failed to connect to server")# + str(result))
+            return True
         d = self.ask_iper()
         d.addCallbacks(self.server_login, errback_callback)
+
 
     def ask_iper(self):
         d = Deferred()
         cant_find_iper = self.CantFindIperError
+        wrong_version = self.IncorrectVersionError
+        my_version = VERSION
         class IperClient(protocol.Protocol):
 
             def connectionMade(self):
                 self.transport.write(" ")
 
             def dataReceived(self, recieved_data):
-                d.callback(recieved_data)
-                print "data recieved", recieved_data
                 self.transport.loseConnection()
+                ip, port, ver = recieved_data.split()
+                if ver != my_version:
+                    d.errback(wrong_version())
+                else:
+                    d.callback((ip, port))
 
         class IperFactory(protocol.ClientFactory):
             def buildProtocol(self, addr):
                 return IperClient()
 
             def clientConnectionFailed(self, connector, reason):
-                d.errback(cant_find_iper(str(reason)))
+                d.errback(cant_find_iper())
 
         reactor.connectTCP(self.IPER_IP, self.IPER_PORT, IperFactory())
         return d
 
-    def server_login(self, ip_port_string):
-        ip, port = ip_port_string.split()
+    def server_login(self, ip_port):
+        ip, port = ip_port
         print "loggin in to:", ip, port
         app.loading_popup(message="Logging in...")
         reactor.connectTCP(ip, int(port), self.factory)
@@ -395,6 +413,20 @@ class GameChooserScreen(Screen):
 
     def back_to_screen(self):
         return False
+
+    def download_from_server(self):
+        def on_word_list_name_callback(instance, value):
+            def switch_screen_callback(result):
+                app.root.switch_to(WordListViewerScreen(result, "game chooser"), transition=NoTransition())
+            d = app.uplink.root_obj.callRemote("get_word_list", value)
+            d.addCallback(switch_screen_callback)
+        def back_to_screen_replacement():
+            app.root.switch_to("game chooser", direction="right")
+            return True
+        screen = IntermediateScreen("", on_word_list_name_callback)
+        select_words_list_screen = SelectWordsListScreen(switch_to_screen=screen)
+        select_words_list_screen.back_to_screen = back_to_screen_replacement
+        app.root.switch_to(select_words_list_screen)
 
 class MakeGameScreenContents(GridLayout):
     game_name_text_input = ObjectProperty(None)
@@ -800,6 +832,10 @@ class GameScreen(Screen):
             self.team_scores_label_dict[event.team_id].score += 1
 
     def my_turn(self, time_left, word):
+        try:
+            plyer.vibrator.vibrate(.1)
+        except Exception as e:
+            pass
         self.bottom_buttons.clear_widgets()
         self.bottom_buttons.add_widget(self.word_guessed_button)
         self.start_time = Clock.get_time()
@@ -853,18 +889,17 @@ class ManageWordListsScreen(Screen):
     def view_button_callback(self, instance):
         #note: parents of this will be a ChildWatchingBoxLayout
         list_name, words_list = self.get_word_list_from_row_button(instance)
-        args_converter = lambda row_index, word: {"text": word,
-                                                  "size_hint_y" : None,
-                                                  "height" : self.VIEW_WORDS_LABEL_HEIGHT}
-        print words_list
-        list_adapter = ListAdapter(data=words_list,
-                                   args_converter=args_converter,
-                                   cls=ListItemLabel)
-        list_view_screen = WordListViewerScreen()
+        # args_converter = lambda row_index, word: {"text": word,
+        #                                           "size_hint_y" : None,
+        #                                           "height" : self.VIEW_WORDS_LABEL_HEIGHT}
+        # list_adapter = ListAdapter(data=words_list,
+        #                            args_converter=args_converter,
+        #                            cls=ListItemLabel)
+        list_view_screen = WordListViewerScreen(words_list)
 
         #list_view = app.root.my_get_screen('word list viewer').words_list_view
         #list_view.adapter = list_adapter
-        list_view_screen.words_list_view.adapter = list_adapter
+        # list_view_screen.words_list_view.adapter = list_adapter
         app.root.switch_to(list_view_screen)
         #app.root.switch_to("word list viewer")
     def edit_button_callback(self, instance):
@@ -1106,9 +1141,24 @@ class WordListEditor(Screen):
 
 class WordListViewerScreen(Screen):
     words_list_view = ObjectProperty(None)
+    VIEW_WORDS_LABEL_HEIGHT = "25dp"
+
+    def __init__(self, words_list, switch_to_screen = "manage word lists"):
+        super(WordListViewerScreen, self).__init__()
+        args_converter = lambda row_index, word: {"text": word,
+                                                  "size_hint_y" : None,
+                                                  "height" : self.VIEW_WORDS_LABEL_HEIGHT}
+        self.list_adapter = ListAdapter(data=words_list,
+                                   args_converter=args_converter,
+                                   cls=ListItemLabel)
+        self.words_list_view.adapter = self.list_adapter
+        self.switch_to_screen = switch_to_screen
+    def on_enter(self, *args):
+        super(WordListViewerScreen, self).on_enter(*args)
+        # self.words_list_view.adapter = self.list_adapter
 
     def back_to_screen(self):
-        app.root.switch_to("manage word lists", direction="right")
+        app.root.switch_to(self.switch_to_screen, direction="right")
         return True
 
 class ChildWatchingBoxLayout(BoxLayout):
@@ -1175,6 +1225,31 @@ class JoinGameScreen(Screen):
 class MakeWordListFromUrlScreen(Screen):
     pass
 
+class IntermediateScreen(Screen):
+    """
+    for use with WordListEditor
+    """
+    word_list_name = StringProperty("None")
+    def __init__(self, list_name, on_word_list_name_callback):
+        super(IntermediateScreen, self).__init__()
+        self.list_name = list_name
+        self.on_word_list_name_callback = on_word_list_name_callback
+    def on_word_list_name(self, instance, value):
+        # def switch_screen_callback(result):
+        #     app.root.switch_to(WordListEditor(self.list_name, result), transition=NoTransition())
+        # d = app.uplink.root_obj.callRemote("get_word_list", value)
+        # d.addCallback(switch_screen_callback)
+        self.on_word_list_name_callback(instance, value)
+    def on_pre_enter(self, *args):
+        super(IntermediateScreen, self).on_pre_enter(*args)
+        app.loading_popup()
+
+    def on_leave(self, *args):
+        super(IntermediateScreen, self).on_leave(*args)
+        app.close_popup()
+        #app.root.switch_to(WordListEditor(self.list_name, self.word_list_name))
+
+
 class MakeWordListScreen(Screen):
     name_text_input = ObjectProperty(None)
     def __init__(self):
@@ -1184,25 +1259,13 @@ class MakeWordListScreen(Screen):
         app.root.switch_to(WordListEditor(list_name, word_list))
 
     def download_from_server(self):
-        class IntermediateScreen(Screen):
-            word_list_name = StringProperty("None")
-            def __init__(self, list_name):
-                super(IntermediateScreen, self).__init__()
-                self.list_name = list_name
-            def on_word_list_name(self, instance, value):
-                def switch_screen_callback(result):
-                    app.root.switch_to(WordListEditor(self.list_name, result), transition=NoTransition())
-                d = app.uplink.root_obj.callRemote("get_word_list", value)
-                d.addCallback(switch_screen_callback)
-            def on_pre_enter(self, *args):
-                super(IntermediateScreen, self).on_pre_enter(*args)
-                app.loading_popup()
-
-            def on_leave(self, *args):
-                super(IntermediateScreen, self).on_leave(*args)
-                app.close_popup()
-                #app.root.switch_to(WordListEditor(self.list_name, self.word_list_name))
-        screen = IntermediateScreen(self.name_text_input.text)
+        def on_word_list_name_callback(instance, value):
+            print instance, value
+            def switch_screen_callback(result):
+                app.root.switch_to(WordListEditor("", result), transition=NoTransition())
+            d = app.uplink.root_obj.callRemote("get_word_list", value)
+            d.addCallback(switch_screen_callback)
+        screen = IntermediateScreen(self.name_text_input.text, on_word_list_name_callback)
         select_words_list_screen = SelectWordsListScreen(switch_to_screen=screen)
         select_words_list_screen.back_to_screen = self.back_to_screen
         app.root.switch_to(select_words_list_screen)

@@ -44,14 +44,16 @@
 #                id: join_game_id_input
 #                multiline: False
         BoxLayout:
+            height: self.parent.height * .2
+            size_hint_y: None
             Button:
-                size_hint_y: None
-                height: self.parent.height * .2
+#                size_hint_y: None
+#                height: self.parent.height * .2
                 text: 'Join Game (Score Keeper)'
                 on_release:root.join_observer()
             Button:
-                size_hint_y: None
-                height: self.parent.height * .2
+#                size_hint_y: None
+#                height: self.parent.height * .2
                 text: 'Join Game'
                 on_release: root.join()
 
@@ -223,6 +225,9 @@
             text: 'Manage Word Lists'
             on_release: app.root.switch_to('manage word lists')
 
+        Button:
+            text: 'View Server Word Lists'
+            on_release: root.download_from_server()
 <ManageWordListsScreen>
     list_label: list_label_kv
     new_list_okay: new_list_okay_kv.__self__
@@ -284,7 +289,9 @@
     name_text_input: name_text_input
     BoxLayout:
         orientation: 'vertical'
-        Label:
+        ScrollView:
+            MultiLineLabel:
+                text: text_strings.url_instructions
         GridLayout:
             cols: 3
             size_hint_y: None
@@ -305,7 +312,7 @@
                 hint_text: 'Enter Url'
                 on_text_validate: root.add_word_list(name_text_input.text,url_text_input.text)
                 on_focus:
-                    if args[1]: app.generic_popup(text_strings.url_instructions, paragraph=True)
+                    #if args[1]: app.generic_popup(text_strings.url_instructions, paragraph=True)
             Button:
                 text: 'submit'
                 size_hint_x: .2
@@ -314,7 +321,7 @@
         Label:
         BoxLayout:
             size_hint_y: None
-            height: "32dp"
+            height: self.parent.height * .2
             Button:
                 text:"Download from server"
                 on_release: root.download_from_server()
@@ -322,7 +329,6 @@
                 #size_hint_x: .4
                 text: "make locally"
                 on_release: root.make_list_locally(name_text_input.text, [])
-        Label:
 
 #<MakeWordListScreen>:
 #    name: 'make word list'
