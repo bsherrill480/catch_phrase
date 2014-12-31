@@ -152,6 +152,9 @@ class Order:
         if player in self.stack:
             self.stack.remove(player)
 
+    def remove_all_item(self, player):
+        self._order = filter(lambda a: a != player, self._order)
+
     def __repr__(self):
         return "Order: " + str(self._order) + " Stack: " + str(self.stack)
 
