@@ -1,13 +1,6 @@
-"""
-My Custom made system for handling games! w00t. Honestly convoluted and overkill
-for just catch_phrase. But necesary for more complex games.
-"""
-#TODO: write up how game_stack works (better than now).
-#TODO: replace StandardError with an appropriate error
-#from shared_events import TickEvent #<game>_server_game now handles tick events
+from shared_events import TickEvent
 from inspect import getargspec
 from collections import deque
-
 
 class GameStack:
     """
@@ -32,7 +25,7 @@ class GameStack:
         Also deletes model at same level as game
         """
         if self.size() <= 0:
-            raise StandardError("Can not pop empty stack.")
+            raise Exception("Can not pop empty stack.")
         game = self._game_stack.pop()
         maybe_key = self._game_stack_keys.pop()
         if maybe_key:  # possibly popped a None, which implies no model exists
@@ -52,7 +45,7 @@ class GameStack:
         already is already in use, if given model_key without also a model.
         """
         if model_key and (not model): #i.e. model key with no model
-            raise StandardError("Model key without model")
+            raise Exception("Model key without model")
 
         self._game_stack.append(game)
         if not model:
@@ -61,7 +54,7 @@ class GameStack:
             except AttributeError:
                 pass
         if isinstance(model_key, int):
-            raise StandardError("Int key are reserved for internal use")
+            raise Exception("Int key are reserved for internal use")
 
         self._game_stack_keys.append(None)#append none first, will be updated if model was passed
         if model:
@@ -82,14 +75,14 @@ class GameStack:
         (i.e. size of stack after push) is used as key.
         """
         if self.size() == 0:
-            raise StandardError("Empty stack; no model to add to")
+            raise Exception("Empty stack; no model to add to")
         if self._game_stack_keys[-1]:  # if there is a key not None here,
                                                 # then a model was already given
-            raise StandardError("There already exists a model")
+            raise Exception("There already exists a model")
         if not model_key: # if model_key is None
             model_key = self.size()
         if model_key in self.models.keys():  # if the model key is already in use
-            raise StandardError("key already in use")
+            raise Exception("key already in use")
         self._game_stack_keys[-1] = model_key
         self.models[model_key] = model
 
@@ -127,7 +120,6 @@ class GameStack:
         # # self.level = self.level - 1
 
     def notify_stack(self, event):
-        #TODO: make private?
         """
         for use by instructions to place an event immediatly after examened event
         """
@@ -163,7 +155,7 @@ class GameStack:
         None if stack is empty
         """
         if self.size() <= 0:
-            raise StandardError("Empty game stack, nothing to peek at")
+            raise Exception("Empty game stack, nothing to peek at")
         else:
             return self._game_stack[-1]
 

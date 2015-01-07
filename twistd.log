@@ -324,3 +324,88 @@
 2014-12-30 04:41:10-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
 2014-12-30 04:41:10-0800 [-] GiveIpFactory starting on 8000
 2014-12-30 04:41:10-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f8670bcbc68>
+2014-12-31 02:17:50-0800 [-] Received SIGTERM, shutting down.
+2014-12-31 02:17:50-0800 [-] (TCP Port 8000 Closed)
+2014-12-31 02:17:50-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f8670bcbc68>
+2014-12-31 02:17:50-0800 [-] Main loop terminated.
+2014-12-31 02:17:50-0800 [-] Server Shut Down.
+2014-12-31 09:02:06-0800 [-] Log opened.
+2014-12-31 09:02:06-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-31 09:02:06-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-31 09:02:06-0800 [-] GiveIpFactory starting on 8000
+2014-12-31 09:02:06-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fe6dcf31cb0>
+2015-01-05 20:50:40-0800 [-] Received SIGTERM, shutting down.
+2015-01-05 20:50:40-0800 [-] (TCP Port 8000 Closed)
+2015-01-05 20:50:40-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fe6dcf31cb0>
+2015-01-05 20:50:40-0800 [-] Main loop terminated.
+2015-01-05 20:50:40-0800 [-] Server Shut Down.
+2015-01-06 17:38:04-0800 [-] Log opened.
+2015-01-06 17:38:04-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2015-01-06 17:38:04-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2015-01-06 17:38:04-0800 [-] PBServerFactory starting on 8800
+2015-01-06 17:38:04-0800 [-] Starting factory <twisted.spread.pb.PBServerFactory instance at 0x7fab32b4c518>
+2015-01-06 17:38:15-0800 [Broker,0,127.0.0.1] Client0 : ///nickname: s
+2015-01-06 17:40:44-0800 [-] calling client.remove_client() on:  Client0 s
+2015-01-06 17:40:44-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:40:44-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 17:41:04-0800 [Broker,1,127.0.0.1] Client1 : ///nickname: s
+2015-01-06 17:41:19-0800 [-] calling client.remove_client() on:  Client1 s
+2015-01-06 17:41:19-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:41:19-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 17:41:24-0800 [Broker,2,127.0.0.1] Client2 : ///nickname: s
+2015-01-06 17:43:54-0800 [Broker,2,127.0.0.1] Unhandled error in Deferred:
+2015-01-06 17:43:54-0800 [Broker,2,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	Failure: twisted.spread.pb.PBConnectionLost: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionDone'>: Connection was closed cleanly.
+	]
+	
+2015-01-06 17:43:59-0800 [-] calling client.remove_client() on:  Client2 s
+2015-01-06 17:43:59-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:43:59-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:01:29-0800 [Broker,3,127.0.0.1] Client3 : ///nickname: l
+2015-01-06 18:01:39-0800 [-] calling client.remove_client() on:  Client3 l
+2015-01-06 18:01:39-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:01:39-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:13:28-0800 [Broker,4,127.0.0.1] Client4 : ///nickname: lk
+2015-01-06 18:13:44-0800 [Broker,4,127.0.0.1] Unhandled error in Deferred:
+2015-01-06 18:13:44-0800 [Broker,4,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	Failure: twisted.spread.pb.PBConnectionLost: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionLost'>: Connection to the other side was lost in a non-clean fashion.
+	]
+	
+2015-01-06 18:13:49-0800 [-] calling client.remove_client() on:  Client4 lk
+2015-01-06 18:13:49-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:13:49-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:14:43-0800 [Broker,5,127.0.0.1] Client5 : ///nickname: s
+2015-01-06 18:15:09-0800 [-] calling client.remove_client() on:  Client5 s
+2015-01-06 18:15:09-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:15:09-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:12:34-0800 [Broker,6,127.0.0.1] Client6 : ///nickname: s
+2015-01-06 19:12:49-0800 [-] calling client.remove_client() on:  Client6 s
+2015-01-06 19:12:49-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:12:49-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:14:14-0800 [Broker,7,127.0.0.1] Client7 : ///nickname: s
+2015-01-06 19:14:29-0800 [-] calling client.remove_client() on:  Client7 s
+2015-01-06 19:14:29-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:14:29-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:14:59-0800 [Broker,8,127.0.0.1] Client8 : ///nickname: s
+2015-01-06 19:15:14-0800 [-] calling client.remove_client() on:  Client8 s
+2015-01-06 19:15:14-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:15:14-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:17:12-0800 [Broker,9,127.0.0.1] Client9 : ///nickname: s
+2015-01-06 19:17:19-0800 [-] calling client.remove_client() on:  Client9 s
+2015-01-06 19:17:19-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:17:19-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:19:13-0800 [Broker,10,127.0.0.1] Client10 : ///nickname: d
+2015-01-06 19:19:54-0800 [-] calling client.remove_client() on:  Client10 d
+2015-01-06 19:19:54-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:19:54-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:19:57-0800 [Broker,11,127.0.0.1] Client11 : ///nickname: s
+2015-01-06 19:20:09-0800 [-] calling client.remove_client() on:  Client11 s
+2015-01-06 19:20:09-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:20:09-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 22:38:33-0800 [-] Received SIGTERM, shutting down.
+2015-01-06 22:38:33-0800 [-] (TCP Port 8800 Closed)
+2015-01-06 22:38:33-0800 [-] Stopping factory <twisted.spread.pb.PBServerFactory instance at 0x7fab32b4c518>
+2015-01-06 22:38:33-0800 [-] Main loop terminated.
+2015-01-06 22:38:33-0800 [-] Server Shut Down.

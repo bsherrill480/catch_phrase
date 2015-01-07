@@ -1,30 +1,52 @@
 class Node:
+    """
+    its a node
+    """
     def __init__(self, data=None, name=None):
         self.next = next
         self.data = data
         self.name = name
 
 class Organizer:
+    """
+    class to interact with data.
+    Uses nodes
+    """
     def __init__(self):
         self.nodes = dict()
 
     def make_and_give_node(self, data, name):
+        """
+        makes a node with passed name and data
+        """
         node = Node(data, name)
         self.nodes[name] = node
         return node
 
-    def set_next(self, name, next_item_name):
-        self.nodes[name].next = self.nodes[next_item_name]
+    # def set_next(self, name, next_item_name):
+    #     """
+    #
+    #     """
+    #     self.nodes[name].next = self.nodes[next_item_name]
 
-    def point(self, name1, name2):
+    def set_next(self, name1, name2):
+        """
+        makes name1's node's next name2's node.
+        """
         node1 = self.nodes[name1]
         node2 = self.nodes[name2]
         node1.next = node2
 
     def delete_node(self, name):
+        """
+        deletes a node from circle
+        """
         del self.nodes[name]
 
     def is_perfect_circle(self):
+        """
+        returns true if is perfect circle, else false.
+        """
         in_circle_set = set()
         start_node = self.nodes.itervalues().next()
         in_circle_set.add(start_node)
@@ -38,7 +60,8 @@ class Organizer:
 
     def client_id_lists(self):
         """
-        returns list of (list of strings showing cycles)
+        returns list of (list of client_id's showing cycles). See visual_nodes()
+        understanding list format.
         """
         # master_list = []
         # list_of_cycles = self.visual_nodes()
@@ -53,7 +76,9 @@ class Organizer:
 
     def visual_strings(self):
         """
-        returns list of strings showing cycles
+        returns list of strings which contain nicknames showing cycles.
+        e.g. "a,b,c,d,a"
+        See visual_nodes() understanding list format.
         """
         master_list = []
         list_of_cycles = self.visual_nodes()
@@ -66,12 +91,35 @@ class Organizer:
 
     def visual_nodes(self):
         """
-        returns list of (lists which have visible each item as a node)
+        returns list of (lists where the leading node points is pointing at
+        the next node). e.g.
+        a ->b
+        b ->c
+        c ->d
+        d ->a
+        the list would look like [[a,b,c,d,a]]
+        but if
+        a ->b
+        b ->c
+        c ->d
+        d ->c
+        you would get something like [[a,b,c,d,c]] or [[d,c,d], [a,b,c,d,c]].
+
+        algorithm used:
+        make master_list. call step1 (below) with set of all nodes.
+        step1) pick random node in set of nodes, add it to list called node_seq.
+        keep going until we either none or the start node. add node_seq to master list.
+
+        step2)If there are any leftover nodes, do step1 again remaining nodes.
         """
         master_list = []
-        self.visual_helper(master_list, set(self.nodes.values()))
+        self._visual_helper(master_list, set(self.nodes.values()))
         return master_list
-    def visual_helper(self, master_list, unused_nodes):
+
+    def _visual_helper(self, master_list, unused_nodes):
+        """
+        helper method for visual_nodes()
+        """
         if unused_nodes: #if not empty
             node_seq = []
             used_nodes = set()
@@ -90,9 +138,10 @@ class Organizer:
                 examine_node = examine_node.next
             master_list.append(node_seq)
             unused_nodes = unused_nodes.difference(used_nodes)
-            self.visual_helper(master_list, unused_nodes)
+            self._visual_helper(master_list, unused_nodes)
 
 if __name__ == '__main__':
+    #for debugging
     node1 = Node(None, "1")
     node2 = Node(None, "2")
     node3 = Node(None, "3")
@@ -110,14 +159,12 @@ if __name__ == '__main__':
     #printing to see
     for node in l:
         print node.next.name
-    node3.next = node1
-    node1.next = node3
-    node3.next = node2
-    node2.next= node4
+    node4.next = node3
+
 
     for node in l:
         organizer.nodes[node.name] = node
     print organizer.is_perfect_circle()
-    vis = organizer.visual()
+    vis = organizer.visual_nodes()
     for loop in vis:
-        print [x for x in loop]
+        print [x.name for x in loop]

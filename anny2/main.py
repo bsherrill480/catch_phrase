@@ -19,7 +19,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.graphics import Color, Rectangle
 from random import random
 from kivy.uix.spinner import Spinner
-from text_strings import about
+from text_strings import about, premium_url, buy_premium_popup_text
+from browser import open_url
 import plyer
 
 ### TWISTED SETUP
@@ -40,7 +41,7 @@ from twisted.python.failure import Failure
 #I should go back and refactor this. TODO: refactor that
 
 VERSION = "1.0"
-
+IP = "54.69.136.104"
 
 class MultiLineLabel(Label):
     def __init__(self, **kwargs):
@@ -168,10 +169,16 @@ class CatchPhraseApp(App):
         self.popup = None
         self.lobby = None # will be a root_obj, ie twisted.spread.pb.root
         self.game = None
-        self.is_premium = True
+        self.is_premium = False
         Window.bind(on_keyboard=self.hook_keyboard)#bind back button on anroid
         self.file_manager = FileManager()
         return MyScreenManager()
+
+    def on_pause(self):
+        return True
+
+    def on_resume(self):
+        pass
 
     def loading_popup(self, instance=None, message = "Loading..."):
         """
@@ -183,7 +190,7 @@ class CatchPhraseApp(App):
                                                 size_hint = (1,.5), title="")
         self.popup.open()
 
-    def close_popup(self, result=None):
+    def close_popup(self, result=None, *args, **kwargs):
         """
         closes popup if open, takes optional argument incase used in twisted
         deferred
@@ -230,7 +237,26 @@ class CatchPhraseApp(App):
     #     self.popup.open()
 
     def buy_premium_popup(self):
-        self.generic_popup("BUY PREMIUM!")
+        self.close_popup()
+        box_layout = BoxLayout(orientation="vertical")
+        scroll_view = ScrollView(size_hint_y = .8)
+        scroll_view.add_widget(MultiLineLabel(text=buy_premium_popup_text))
+        box_layout.add_widget(scroll_view)
+        # box_layout.add_widget(Label(text=buy_premium_popup_text,
+        #                             size_hint = (1,.8)))
+        buttons_layout = BoxLayout(size_hint_y = .2)
+        close_button = Button(text='close')
+        close_button.bind(on_release=self.close_popup)
+        buttons_layout.add_widget(close_button)
+        buy_button = Button(text='buy')
+        def buy_button_callback(*args, **kwargs):
+            open_url(premium_url)
+        buy_button.bind(on_release = buy_button_callback)
+        buttons_layout.add_widget(buy_button)
+        box_layout.add_widget(buttons_layout)
+        self.popup = Popup(content=box_layout, auto_dismiss=False,
+                          size_hint = (1, .8), title="")
+        self.popup.open()
 
 
     def hook_keyboard(self, window, key, *args):
@@ -244,7 +270,6 @@ app = CatchPhraseApp()
 
 class LoginScreen(Screen):
     MAX_LOGIN_NAME_LENGTH = 12
-    IPER_IP = "localhost"
     IPER_PORT = 8000
     class CantFindIperError(Exception):
         pass
@@ -278,9 +303,10 @@ class LoginScreen(Screen):
             else:
                 app.generic_popup("Failed to connect to server")# + str(result))
             return True
+        app.loading_popup(message = "attemtping connection...")
         d = self.ask_iper()
         d.addCallbacks(self.server_login, errback_callback)
-
+        print "callbacks added"
 
     def ask_iper(self):
         d = Deferred()
@@ -294,6 +320,7 @@ class LoginScreen(Screen):
 
             def dataReceived(self, recieved_data):
                 self.transport.loseConnection()
+                print "data recieved"
                 ip, port, ver = recieved_data.split()
                 if ver != my_version:
                     d.errback(wrong_version())
@@ -305,9 +332,9 @@ class LoginScreen(Screen):
                 return IperClient()
 
             def clientConnectionFailed(self, connector, reason):
+                print "connection failed"
                 d.errback(cant_find_iper())
-
-        reactor.connectTCP(self.IPER_IP, self.IPER_PORT, IperFactory())
+        reactor.connectTCP(IP, self.IPER_PORT, IperFactory())
         return d
 
     def server_login(self, ip_port):
@@ -833,7 +860,7 @@ class GameScreen(Screen):
 
     def my_turn(self, time_left, word):
         try:
-            plyer.vibrator.vibrate(.1)
+            plyer.vibrator.vibrate(.05)
         except Exception as e:
             pass
         self.bottom_buttons.clear_widgets()

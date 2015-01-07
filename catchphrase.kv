@@ -6,6 +6,7 @@
 #:import CoreLabel kivy.core.text.Label
 #:import Popup kivy.uix.popup.Popup
 #:import text_strings text_strings
+#: import browser browser
 <MyScreenManager>:
 #    LoginScreen:
 #    GameChooserScreen:
@@ -49,7 +50,7 @@
             Button:
 #                size_hint_y: None
 #                height: self.parent.height * .2
-                text: 'Join Game (Score Keeper)'
+                text: 'Join Game\n(Score Keeper)'
                 on_release:root.join_observer()
             Button:
 #                size_hint_y: None
@@ -457,7 +458,10 @@
             #on_focus: root.check_is_int(args[0], args[1], "120")
     MySpacer:
     MyLabel:
-        text: "Leeway Time"
+        markup: True
+        text: "Leeway Time [color=3333ff][ref=reference] ? [/ref][/color]"
+        on_ref_press:
+            app.generic_popup("if a players time would be less than leeway time \nsets players time to leeway time")
     Widget:
         size_hint_y: None
         height: "32dp"
@@ -563,9 +567,6 @@
     new_word_input: new_word_input_kv
     BoxLayout:
         orientation: 'vertical'
-        ScrollView:
-            size_hint_y: .6
-            id: scroll_view_kv
         BoxLayout:
             size_hint_y: .1
             TextInput:
@@ -573,12 +574,30 @@
                 size_hint_x: .8
                 hint_text: "add word"
                 text: ""
-                on_text_validate: root.add_word(new_word_input_kv.text)
+                on_text_validate:
+                    root.add_word(new_word_input_kv.text)
+                    new_word_input_kv.text = "" #JUST ADDED
                 multiline: False
             Button:
                 size_hint_x: .2
                 text: "submit"
                 on_release: root.add_word(new_word_input_kv.text)
+        ScrollView:
+            size_hint_y: .6
+            id: scroll_view_kv
+#        BoxLayout:
+#            size_hint_y: .1
+#            TextInput:
+#                id: new_word_input_kv
+#                size_hint_x: .8
+#                hint_text: "add word"
+#                text: ""
+#                on_text_validate: root.add_word(new_word_input_kv.text)
+#                multiline: False
+#            Button:
+#                size_hint_x: .2
+#                text: "submit"
+#                on_release: root.add_word(new_word_input_kv.text)
 #        BoxLayout:
 #            #TODO make input popup
 #            size_hint_y: .1
@@ -663,7 +682,7 @@
                 on_release: app.generic_popup(text_strings.about, paragraph=True, popup_size_hint_y = 1)
             Button:
                 text: "upgrade"
-                on_release: app.generic_popup("UPGRADE")
+                on_release: app.buy_premium_popup()#browser.open_url(text_strings.premium_url)
 
 #        orientation: 'vertical'
 #        BoxLayout:

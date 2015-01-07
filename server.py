@@ -328,8 +328,8 @@ class Lobby(pb.Root):
         self.post(e.NewPlayerLineupEvent([(player.client_id, player.nickname) for player in self.players],
                                          [nickname for client_id, nickname in self.waiting]))
 
-
-root_obj = ServerEventManager()
-factory = pb.PBServerFactory(root_obj)
-reactor.listenTCP(8800, factory)
-reactor.run()
+if __name__ == "__main__":
+    root_obj = ServerEventManager()
+    factory = pb.PBServerFactory(root_obj)
+    reactor.listenTCP(8800, factory)
+    reactor.run()

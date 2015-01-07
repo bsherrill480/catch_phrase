@@ -1,6 +1,6 @@
 from twisted.internet import protocol, reactor
 
-ip = "localhost"
+ip = "54.69.136.104"
 server_port = 8800
 current_version = "1.0"
 class GiveIp(protocol.Protocol):

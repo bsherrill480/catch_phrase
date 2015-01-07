@@ -44,17 +44,13 @@ pb.setUnjellyableForClass(WrongOrderingEvent, WrongOrderingEvent)
 
 
 class GameStartEvent(CopyableEvent):
-    def __init__(self, team_scores):
+    def __init__(self):
         CopyableEvent.__init__(self)
-        self.team_scores = team_scores #players should be [...(team_id,nickname)...]
         self.name = "Game Start Event"
 pb.setUnjellyableForClass(GameStartEvent, GameStartEvent)
 
 
 class ToHandoffToEvent(CopyableEvent):
-    """
-    For telling who should follow who in turn order.
-    """
     def __init__(self, my_id, to_handoff_to):
         """
         to_handoff_to is client_id
@@ -96,31 +92,16 @@ class QuitEvent(CopyableEvent):
         self.client_id = client_id
 pb.setUnjellyableForClass(QuitEvent, QuitEvent)
 
-class NumberSharingDeviceEvent(CopyableEvent):
-    def __init__(self, client_id, number_sharing_device):
-        CopyableEvent.__init__(self)
-        self.name = "Number Sharing Device Event"
-        self.client_id = client_id
-        self.number_sharing_device = number_sharing_device
-pb.setUnjellyableForClass(NumberSharingDeviceEvent, NumberSharingDeviceEvent)
+# class NewWaitingEvent(CopyableEvent):
+#     def __init__(self, waiting_list):
+#         CopyableEvent.__init__(self)
+#         self.waiting_list = waiting_list
+# pb.setUnjellyableForClass(NewWaitingEvent, NewWaitingEvent)
 
-class ScoreIncreaseRequestEvent(CopyableEvent):
-    def __init__(self, team_id):
-        CopyableEvent.__init__(self)
-        self.name = "Score Increase Request Event"
-        self.team_id = team_id
-pb.setUnjellyableForClass(ScoreIncreaseRequestEvent, ScoreIncreaseRequestEvent)
-
-class ScoreDecreaseRequestEvent(CopyableEvent):
-    def __init__(self, team_id):
-        CopyableEvent.__init__(self)
-        self.name = "Score Decrease Request Event"
-        self.team_id = team_id
-pb.setUnjellyableForClass(ScoreDecreaseRequestEvent, ScoreDecreaseRequestEvent)
-
-class ScoreChangedEvent(CopyableEvent):
-    def __init__(self, new_scores):
-        CopyableEvent.__init__(self)
-        self.name = "Score Changed Event"
-        self.new_scores = new_scores
-pb.setUnjellyableForClass(ScoreChangedEvent, ScoreChangedEvent)
+# class NewOrderingEvent(CopyableEvent):
+#     def __init__(self, in_order, waiting):
+#         CopyableEvent.__init__(self)
+#         self.name = "New Order Event"
+#         self.in_order = in_order
+#         self.waiting = waiting
+# pb.setUnjellyableForClass(NewOrderingEvent, NewOrderingEvent)

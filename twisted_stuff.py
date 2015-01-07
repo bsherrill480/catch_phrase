@@ -58,7 +58,7 @@ class Uplink():
         root_obj is server's root remotely referencable object.
         """
         self.root_obj = root_obj
-
+        #print "PENIS"
 
 class ClientEventManager(pb.Root):
     """
