@@ -1,8 +1,13 @@
 about = """Thank you for Downloading this app.
 
-My inspiration for this app was playing catch-phrase. One major issue for me was that not being able to manipulate the lists that were provided, nor use my own. I've tried to make it simple to do these simple tasks in this app.
+My inspiration for this app was playing catch-phrase, however I have hopefully made this app flexible enough that you can play most any party based word game.
 
-Second, I didn't like having to pass around a device (since our couches were spread out and I like to be comfy). Thus I made it an so you can have online play.
+One major issue I encounted in other apps was I cound not manipulate the lists that were provided, nor use my own. I've tried to make doing so simple in this app.
+
+Second, I didn't like having to pass around a device (since our couches were spread out and I like to be comfy). Thus I made it so you can have online play, where each player has their own device.
+Naturally, some players may not have an android phone so one has the option to share their device (i.e. they receive extra turns equal to the number of people sharing the device, so they may pass device along)
+
+This is my first app, and it's certainly not pretty (I'm not a graphic kind of person) but it is functional. If you have any comments or questions please email me at: spiderhausdev@gmail.com
 """
 
 url_instructions = """   To download a list, you first must make sure that file is a plain-text file. Each new line in the text file indicates a new word/phrase. Your URL must be a direct link to the text file.

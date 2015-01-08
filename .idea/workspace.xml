@@ -3,7 +3,7 @@
   <component name="BookmarkManager">
     <bookmark url="file://$PROJECT_DIR$/server.py" line="33" />
     <bookmark url="file://$PROJECT_DIR$/catch_phrase.py" line="859" mnemonic="0" />
-    <bookmark url="file://$PROJECT_DIR$/catchphrase.kv" line="706" mnemonic="2" />
+    <bookmark url="file://$PROJECT_DIR$/catchphrase.kv" line="708" mnemonic="2" />
     <bookmark url="file://$PROJECT_DIR$/catch_phrase.py" line="276" mnemonic="3" />
     <bookmark url="file://$PROJECT_DIR$/catch_phrase.py" line="1158" mnemonic="1" />
   </component>
@@ -30,10 +30,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="catch_phrase.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="catch_phrase.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catch_phrase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="378" column="101" selection-start="14045" selection-end="14045" vertical-scroll-proportion="0.8477905" vertical-offset="5152" max-vertical-offset="21660">
+            <state line="378" column="101" selection-start="14045" selection-end="14045" vertical-scroll-proportion="-77.44118" vertical-offset="3037" max-vertical-offset="21660">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -71,16 +71,16 @@
       <file leaf-file-name="catchphrase.kv" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catchphrase.kv">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="686" column="44" selection-start="21807" selection-end="21807" vertical-scroll-proportion="-11.264706" vertical-offset="9907" max-vertical-offset="11205">
+            <state line="688" column="26" selection-start="21855" selection-end="21855" vertical-scroll-proportion="-12.588235" vertical-offset="9892" max-vertical-offset="11235">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="text_strings.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="text_strings.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/text_strings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="159" selection-start="436" selection-end="436" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="330">
+            <state line="6" column="93" selection-start="465" selection-end="465" vertical-scroll-proportion="0.13953489" vertical-offset="0" max-vertical-offset="645">
               <folding />
             </state>
           </provider>
@@ -126,12 +126,12 @@
         <option value="$PROJECT_DIR$/ip_giver.py" />
         <option value="$PROJECT_DIR$/server_tac.py" />
         <option value="$PROJECT_DIR$/twisted_stuff.py" />
-        <option value="$PROJECT_DIR$/text_strings.py" />
         <option value="$PROJECT_DIR$/word_list_manager.py" />
         <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/junk5.py" />
-        <option value="$PROJECT_DIR$/catchphrase.kv" />
         <option value="$PROJECT_DIR$/catch_phrase.py" />
+        <option value="$PROJECT_DIR$/catchphrase.kv" />
+        <option value="$PROJECT_DIR$/text_strings.py" />
       </list>
     </option>
   </component>
@@ -701,13 +701,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/text_strings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="159" selection-start="436" selection-end="436" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="330">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/word_list_manager.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="5" column="0" selection-start="158" selection-end="158" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1740">
@@ -736,13 +729,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/junk5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="22" selection-start="880" selection-end="880" vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="765">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="281" column="69" selection-start="11643" selection-end="11643" vertical-scroll-proportion="0.0" vertical-offset="4455" max-vertical-offset="5100">
@@ -752,19 +738,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/catchphrase.kv">
+    <entry file="file://$PROJECT_DIR$/catch_phrase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="686" column="44" selection-start="21807" selection-end="21807" vertical-scroll-proportion="-11.264706" vertical-offset="9907" max-vertical-offset="11205">
+        <state line="378" column="101" selection-start="14045" selection-end="14045" vertical-scroll-proportion="-77.44118" vertical-offset="3037" max-vertical-offset="21660">
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/junk5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="22" selection-start="880" selection-end="880" vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="765">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/catch_phrase.py">
+    <entry file="file://$PROJECT_DIR$/catchphrase.kv">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="378" column="101" selection-start="14045" selection-end="14045" vertical-scroll-proportion="0.8477905" vertical-offset="5152" max-vertical-offset="21660">
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state line="688" column="26" selection-start="21855" selection-end="21855" vertical-scroll-proportion="-12.588235" vertical-offset="9892" max-vertical-offset="11235">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/text_strings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="93" selection-start="465" selection-end="465" vertical-scroll-proportion="0.13953489" vertical-offset="0" max-vertical-offset="645">
+          <folding />
         </state>
       </provider>
     </entry>
