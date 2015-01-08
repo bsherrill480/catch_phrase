@@ -1,0 +1,411 @@
+2014-12-16 17:27:56-0800 [-] Log opened.
+2014-12-16 17:27:56-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-16 17:27:56-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-16 17:27:56-0800 [-] Traceback (most recent call last):
+2014-12-16 17:27:56-0800 [-]   File "/usr/bin/twistd", line 14, in <module>
+2014-12-16 17:27:56-0800 [-]     run()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/scripts/twistd.py", line 27, in run
+2014-12-16 17:27:56-0800 [-]     app.run(runApp, ServerOptions)
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/application/app.py", line 642, in run
+2014-12-16 17:27:56-0800 [-]     runApp(config)
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/scripts/twistd.py", line 23, in runApp
+2014-12-16 17:27:56-0800 [-]     _SomeApplicationRunner(config).run()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/application/app.py", line 380, in run
+2014-12-16 17:27:56-0800 [-]     self.postApplication()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/scripts/_twistd_unix.py", line 193, in postApplication
+2014-12-16 17:27:56-0800 [-]     self.startApplication(self.application)
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/scripts/_twistd_unix.py", line 381, in startApplication
+2014-12-16 17:27:56-0800 [-]     service.IService(application).privilegedStartService()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/application/service.py", line 277, in privilegedStartService
+2014-12-16 17:27:56-0800 [-]     service.privilegedStartService()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/application/internet.py", line 105, in privilegedStartService
+2014-12-16 17:27:56-0800 [-]     self._port = self._getPort()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/application/internet.py", line 133, in _getPort
+2014-12-16 17:27:56-0800 [-]     'listen%s' % (self.method,))(*self.args, **self.kwargs)
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 495, in listenTCP
+2014-12-16 17:27:56-0800 [-]     p.startListening()
+2014-12-16 17:27:56-0800 [-]   File "/usr/lib/python2.7/dist-packages/twisted/internet/tcp.py", line 980, in startListening
+2014-12-16 17:27:56-0800 [-]     raise CannotListenError(self.interface, self.port, le)
+2014-12-16 17:27:56-0800 [-] twisted.internet.error.CannotListenError: Couldn't listen on any:8800: [Errno 98] Address already in use.
+2014-12-16 17:30:47-0800 [-] Log opened.
+2014-12-16 17:30:47-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-16 17:30:47-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-16 17:30:47-0800 [-] GiveIpFactory starting on 8000
+2014-12-16 17:30:47-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f90832b8bd8>
+2014-12-16 17:33:41-0800 [-] Received SIGTERM, shutting down.
+2014-12-16 17:33:41-0800 [-] (TCP Port 8000 Closed)
+2014-12-16 17:33:41-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f90832b8bd8>
+2014-12-16 17:33:41-0800 [-] Main loop terminated.
+2014-12-16 17:33:41-0800 [-] Server Shut Down.
+2014-12-17 03:43:48-0800 [-] Log opened.
+2014-12-17 03:43:48-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-17 03:43:48-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-17 03:43:48-0800 [-] GiveIpFactory starting on 8000
+2014-12-17 03:43:48-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fe9ee524bd8>
+2014-12-17 14:47:24-0800 [-] Received SIGTERM, shutting down.
+2014-12-17 14:47:24-0800 [-] (TCP Port 8000 Closed)
+2014-12-17 14:47:24-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fe9ee524bd8>
+2014-12-17 14:47:24-0800 [-] Main loop terminated.
+2014-12-17 14:47:24-0800 [-] Server Shut Down.
+2014-12-17 14:47:37-0800 [-] Log opened.
+2014-12-17 14:47:37-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-17 14:47:37-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-17 14:47:37-0800 [-] GiveIpFactory starting on 8000
+2014-12-17 14:47:37-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fcdacba2bd8>
+2014-12-17 17:00:27-0800 [-] Received SIGTERM, shutting down.
+2014-12-17 17:00:27-0800 [-] (TCP Port 8000 Closed)
+2014-12-17 17:00:27-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fcdacba2bd8>
+2014-12-17 17:00:27-0800 [-] Main loop terminated.
+2014-12-17 17:00:27-0800 [-] Server Shut Down.
+2014-12-17 18:04:33-0800 [-] Log opened.
+2014-12-17 18:04:33-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-17 18:04:33-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-17 18:04:33-0800 [-] GiveIpFactory starting on 8000
+2014-12-17 18:04:33-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fab64838bd8>
+2014-12-18 16:52:10-0800 [-] Received SIGTERM, shutting down.
+2014-12-18 16:52:10-0800 [-] (TCP Port 8000 Closed)
+2014-12-18 16:52:10-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fab64838bd8>
+2014-12-18 16:52:10-0800 [-] Main loop terminated.
+2014-12-18 16:52:10-0800 [-] Server Shut Down.
+2014-12-19 13:52:43-0800 [-] Log opened.
+2014-12-19 13:52:43-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-19 13:52:43-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-19 13:52:43-0800 [-] GiveIpFactory starting on 8000
+2014-12-19 13:52:43-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f580792bbd8>
+2014-12-20 19:43:10-0800 [-] Received SIGTERM, shutting down.
+2014-12-20 19:43:10-0800 [-] (TCP Port 8000 Closed)
+2014-12-20 19:43:10-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f580792bbd8>
+2014-12-20 19:43:10-0800 [-] Main loop terminated.
+2014-12-20 19:43:10-0800 [-] Server Shut Down.
+2014-12-30 03:05:16-0800 [-] Log opened.
+2014-12-30 03:05:16-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:05:16-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:05:16-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:05:16-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f8e76aa2c68>
+2014-12-30 03:07:21-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:07:21-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:07:21-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f8e76aa2c68>
+2014-12-30 03:07:21-0800 [-] Main loop terminated.
+2014-12-30 03:07:21-0800 [-] Server Shut Down.
+2014-12-30 03:07:33-0800 [-] Log opened.
+2014-12-30 03:07:33-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:07:33-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:07:33-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:07:33-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fe242ce0c68>
+2014-12-30 03:07:39-0800 [GiveIp,0,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:40-0800 [GiveIp,1,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:40-0800 [GiveIp,2,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:41-0800 [GiveIp,3,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:42-0800 [GiveIp,4,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:43-0800 [GiveIp,5,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:43-0800 [GiveIp,6,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:44-0800 [GiveIp,7,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 88, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/log.py", line 73, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 118, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/usr/lib/python2.7/dist-packages/twisted/python/context.py", line 81, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/posixbase.py", line 619, in _doReadOrWrite
+	    why = selectable.doWrite()
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 247, in doWrite
+	    self.dataBuffer, self.offset, self._tempDataBuffer)
+	  File "/usr/lib/python2.7/dist-packages/twisted/internet/abstract.py", line 31, in _concatenate
+	    return buffer(bObj, offset) + b"".join(bArray)
+	exceptions.TypeError: sequence item 0: expected string, tuple found
+	
+2014-12-30 03:07:50-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:07:50-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:07:50-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fe242ce0c68>
+2014-12-30 03:07:50-0800 [-] Main loop terminated.
+2014-12-30 03:07:50-0800 [-] Server Shut Down.
+2014-12-30 03:33:15-0800 [-] Log opened.
+2014-12-30 03:33:15-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:33:15-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:33:15-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:33:15-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fddf0b1dc68>
+2014-12-30 03:33:40-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:33:40-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:33:40-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fddf0b1dc68>
+2014-12-30 03:33:40-0800 [-] Main loop terminated.
+2014-12-30 03:33:40-0800 [-] Server Shut Down.
+2014-12-30 03:44:13-0800 [-] Log opened.
+2014-12-30 03:44:13-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:44:13-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:44:13-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:44:13-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f1e619c3c68>
+2014-12-30 03:44:31-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:44:31-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:44:31-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f1e619c3c68>
+2014-12-30 03:44:31-0800 [-] Main loop terminated.
+2014-12-30 03:44:31-0800 [-] Server Shut Down.
+2014-12-30 03:44:45-0800 [-] Log opened.
+2014-12-30 03:44:45-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:44:45-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:44:45-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:44:45-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f8e884fac68>
+2014-12-30 03:47:26-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:47:26-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:47:26-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f8e884fac68>
+2014-12-30 03:47:26-0800 [-] Main loop terminated.
+2014-12-30 03:47:26-0800 [-] Server Shut Down.
+2014-12-30 03:52:43-0800 [-] Log opened.
+2014-12-30 03:52:43-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:52:43-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:52:43-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:52:43-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f0a13a34c68>
+2014-12-30 03:57:59-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 03:57:59-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 03:57:59-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f0a13a34c68>
+2014-12-30 03:57:59-0800 [-] Main loop terminated.
+2014-12-30 03:57:59-0800 [-] Server Shut Down.
+2014-12-30 03:59:55-0800 [-] Log opened.
+2014-12-30 03:59:55-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 03:59:55-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 03:59:55-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 03:59:55-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fed0bbc2c68>
+2014-12-30 04:37:02-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 04:37:02-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 04:37:02-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fed0bbc2c68>
+2014-12-30 04:37:02-0800 [-] Main loop terminated.
+2014-12-30 04:37:02-0800 [-] Server Shut Down.
+2014-12-30 04:39:19-0800 [-] Log opened.
+2014-12-30 04:39:19-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 04:39:19-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 04:39:19-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 04:39:19-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f4c50540c68>
+2014-12-30 04:39:31-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 04:39:31-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 04:39:31-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f4c50540c68>
+2014-12-30 04:39:31-0800 [-] Main loop terminated.
+2014-12-30 04:39:31-0800 [-] Server Shut Down.
+2014-12-30 04:40:20-0800 [-] Log opened.
+2014-12-30 04:40:20-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 04:40:20-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 04:40:20-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 04:40:20-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f3fd3c44c68>
+2014-12-30 04:41:08-0800 [-] Received SIGTERM, shutting down.
+2014-12-30 04:41:08-0800 [-] (TCP Port 8000 Closed)
+2014-12-30 04:41:08-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f3fd3c44c68>
+2014-12-30 04:41:08-0800 [-] Main loop terminated.
+2014-12-30 04:41:08-0800 [-] Server Shut Down.
+2014-12-30 04:41:10-0800 [-] Log opened.
+2014-12-30 04:41:10-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-30 04:41:10-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-30 04:41:10-0800 [-] GiveIpFactory starting on 8000
+2014-12-30 04:41:10-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7f8670bcbc68>
+2014-12-31 02:17:50-0800 [-] Received SIGTERM, shutting down.
+2014-12-31 02:17:50-0800 [-] (TCP Port 8000 Closed)
+2014-12-31 02:17:50-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7f8670bcbc68>
+2014-12-31 02:17:50-0800 [-] Main loop terminated.
+2014-12-31 02:17:50-0800 [-] Server Shut Down.
+2014-12-31 09:02:06-0800 [-] Log opened.
+2014-12-31 09:02:06-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2014-12-31 09:02:06-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2014-12-31 09:02:06-0800 [-] GiveIpFactory starting on 8000
+2014-12-31 09:02:06-0800 [-] Starting factory <ip_giver.GiveIpFactory instance at 0x7fe6dcf31cb0>
+2015-01-05 20:50:40-0800 [-] Received SIGTERM, shutting down.
+2015-01-05 20:50:40-0800 [-] (TCP Port 8000 Closed)
+2015-01-05 20:50:40-0800 [-] Stopping factory <ip_giver.GiveIpFactory instance at 0x7fe6dcf31cb0>
+2015-01-05 20:50:40-0800 [-] Main loop terminated.
+2015-01-05 20:50:40-0800 [-] Server Shut Down.
+2015-01-06 17:38:04-0800 [-] Log opened.
+2015-01-06 17:38:04-0800 [-] twistd 13.2.0 (/usr/bin/python 2.7.6) starting up.
+2015-01-06 17:38:04-0800 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2015-01-06 17:38:04-0800 [-] PBServerFactory starting on 8800
+2015-01-06 17:38:04-0800 [-] Starting factory <twisted.spread.pb.PBServerFactory instance at 0x7fab32b4c518>
+2015-01-06 17:38:15-0800 [Broker,0,127.0.0.1] Client0 : ///nickname: s
+2015-01-06 17:40:44-0800 [-] calling client.remove_client() on:  Client0 s
+2015-01-06 17:40:44-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:40:44-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 17:41:04-0800 [Broker,1,127.0.0.1] Client1 : ///nickname: s
+2015-01-06 17:41:19-0800 [-] calling client.remove_client() on:  Client1 s
+2015-01-06 17:41:19-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:41:19-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 17:41:24-0800 [Broker,2,127.0.0.1] Client2 : ///nickname: s
+2015-01-06 17:43:54-0800 [Broker,2,127.0.0.1] Unhandled error in Deferred:
+2015-01-06 17:43:54-0800 [Broker,2,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	Failure: twisted.spread.pb.PBConnectionLost: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionDone'>: Connection was closed cleanly.
+	]
+	
+2015-01-06 17:43:59-0800 [-] calling client.remove_client() on:  Client2 s
+2015-01-06 17:43:59-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 17:43:59-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:01:29-0800 [Broker,3,127.0.0.1] Client3 : ///nickname: l
+2015-01-06 18:01:39-0800 [-] calling client.remove_client() on:  Client3 l
+2015-01-06 18:01:39-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:01:39-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:13:28-0800 [Broker,4,127.0.0.1] Client4 : ///nickname: lk
+2015-01-06 18:13:44-0800 [Broker,4,127.0.0.1] Unhandled error in Deferred:
+2015-01-06 18:13:44-0800 [Broker,4,127.0.0.1] Unhandled Error
+	Traceback (most recent call last):
+	Failure: twisted.spread.pb.PBConnectionLost: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionLost'>: Connection to the other side was lost in a non-clean fashion.
+	]
+	
+2015-01-06 18:13:49-0800 [-] calling client.remove_client() on:  Client4 lk
+2015-01-06 18:13:49-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:13:49-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 18:14:43-0800 [Broker,5,127.0.0.1] Client5 : ///nickname: s
+2015-01-06 18:15:09-0800 [-] calling client.remove_client() on:  Client5 s
+2015-01-06 18:15:09-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 18:15:09-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:12:34-0800 [Broker,6,127.0.0.1] Client6 : ///nickname: s
+2015-01-06 19:12:49-0800 [-] calling client.remove_client() on:  Client6 s
+2015-01-06 19:12:49-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:12:49-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:14:14-0800 [Broker,7,127.0.0.1] Client7 : ///nickname: s
+2015-01-06 19:14:29-0800 [-] calling client.remove_client() on:  Client7 s
+2015-01-06 19:14:29-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:14:29-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:14:59-0800 [Broker,8,127.0.0.1] Client8 : ///nickname: s
+2015-01-06 19:15:14-0800 [-] calling client.remove_client() on:  Client8 s
+2015-01-06 19:15:14-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:15:14-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:17:12-0800 [Broker,9,127.0.0.1] Client9 : ///nickname: s
+2015-01-06 19:17:19-0800 [-] calling client.remove_client() on:  Client9 s
+2015-01-06 19:17:19-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:17:19-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:19:13-0800 [Broker,10,127.0.0.1] Client10 : ///nickname: d
+2015-01-06 19:19:54-0800 [-] calling client.remove_client() on:  Client10 d
+2015-01-06 19:19:54-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:19:54-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 19:19:57-0800 [Broker,11,127.0.0.1] Client11 : ///nickname: s
+2015-01-06 19:20:09-0800 [-] calling client.remove_client() on:  Client11 s
+2015-01-06 19:20:09-0800 [-] all observers [<server.ServerEventManager instance at 0x7fab32b40d88>]
+2015-01-06 19:20:09-0800 [-] <server.ServerEventManager instance at 0x7fab32b40d88>
+2015-01-06 22:38:33-0800 [-] Received SIGTERM, shutting down.
+2015-01-06 22:38:33-0800 [-] (TCP Port 8800 Closed)
+2015-01-06 22:38:33-0800 [-] Stopping factory <twisted.spread.pb.PBServerFactory instance at 0x7fab32b4c518>
+2015-01-06 22:38:33-0800 [-] Main loop terminated.
+2015-01-06 22:38:33-0800 [-] Server Shut Down.

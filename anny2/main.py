@@ -17,12 +17,12 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.togglebutton import ToggleButton
 from kivy.graphics import Color, Rectangle
-from random import random
+from random import choice
 from kivy.uix.spinner import Spinner
 from text_strings import about, premium_url, buy_premium_popup_text
-from browser import open_url
+import browser
 import plyer
-
+from kivy.lang import Builder
 ### TWISTED SETUP
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
@@ -30,6 +30,8 @@ from twisted_stuff import Uplink, ClientEventManager, reactor, pb
 from twisted.internet import protocol
 from twisted.internet.defer import Deferred
 from twisted.python.failure import Failure
+from server import ServerEventManager as s_evm
+
 ###/TWISTED SETUP
 #notes:
 #-never name something an empty string, code relies often on emtpy string
@@ -175,6 +177,9 @@ class CatchPhraseApp(App):
         return MyScreenManager()
 
     def on_pause(self):
+        curr_screen = self.root.current_screen
+        if isinstance(curr_screen, GameScreen) or isinstance(curr_screen, GameLobbyScreen):
+            self.root.current_screen.back_to_screen()
         return True
 
     def on_resume(self):
@@ -196,9 +201,28 @@ class CatchPhraseApp(App):
         deferred
         """
         if self.popup:
+            print "dismissing popup and setting to none"
             self.popup.dismiss()
+            self.popup = None
         return result
 
+    def kirby_dance(self):
+        self.close_popup()
+        box_layout = BoxLayout(orientation="vertical")
+        dancing_label = Label(size_hint_y=.8, text="<(-.-)>")
+        close_button = Button(size_hint_y=.2)
+        box_layout.add_widget(dancing_label)
+        box_layout.add_widget(close_button)
+        self.popup = Popup(title="dance party", content=box_layout)
+        dance_moves = ["<(0.0<)", "^(0.0)^", "(>0.0)>"]
+        def dance(*args, **kwargs):
+            dancing_label.text = choice(dance_moves)
+        def close(*args, **kwargs):
+            app.close_popup()
+            Clock.unschedule(dance)
+        close_button.bind(on_release=close)
+        Clock.schedule_interval(dance, 0.5)
+        self.popup.open()
     def generic_popup(self, message, popup_size_hint_y = .5, paragraph = False, title = ""):
         """
         closes popup if there is one open. Makes new popup with a close button
@@ -250,7 +274,7 @@ class CatchPhraseApp(App):
         buttons_layout.add_widget(close_button)
         buy_button = Button(text='buy')
         def buy_button_callback(*args, **kwargs):
-            open_url(premium_url)
+            browser.open_url(premium_url)
         buy_button.bind(on_release = buy_button_callback)
         buttons_layout.add_widget(buy_button)
         box_layout.add_widget(buttons_layout)
@@ -280,6 +304,10 @@ class LoginScreen(Screen):
         self.name = "Login"
         self.factory = pb.PBClientFactory()
         print app.get_application_config()
+
+    def on_pre_leave(self, *args):
+        super(LoginScreen, self).on_pre_leave(*args)
+        Window.release_all_keyboards()
 
     def login(self, nickname, password=""):
         """
@@ -337,6 +365,23 @@ class LoginScreen(Screen):
         reactor.connectTCP(IP, self.IPER_PORT, IperFactory())
         return d
 
+    def offline_login(self, nickname):
+        try:
+            app.uplink.give_nickname_and_password(nickname, "")
+            app.loading_popup("setting up server")
+            root_obj = s_evm()
+            factory = pb.PBServerFactory(root_obj)
+            my_port = 8800
+            reactor.listenTCP(my_port, factory)
+            self.server_login(("localhost", my_port))
+        except Exception as e:
+            app.generic_popup(str(e), paragraph=True)
+
+        # def callback(*args, **kwargs):
+        #     print "called callback"
+        #     self.server_login(("localhost", my_port))
+        # Clock.schedule_once(callback, 2.0)
+
     def server_login(self, ip_port):
         ip, port = ip_port
         print "loggin in to:", ip, port
@@ -364,7 +409,13 @@ class LoginScreen(Screen):
         d.addCallback(change_to_gamechooser_screen)
 
     def back_to_screen(self):
-        return False
+        # if app.popup:
+        #     app.close_popup()
+        #     print app.popup
+        #     return True
+        # else:
+        #     print app.popup
+            return False
 
 class SelectWordsListScreen(Screen):
     """
@@ -896,6 +947,7 @@ class ManageWordListsScreen(Screen):
     new_list_box = ObjectProperty(None)
     SCROLL_BUTTON_SIZES = "40dp"
     VIEW_WORDS_LABEL_HEIGHT = "25dp"
+    delete_view_edit_size_hint_x = 2.0/9.0 #2/3 divded by 3
     def __init__(self, *args, **kwargs):
         super(ManageWordListsScreen, self).__init__(*args, **kwargs)
 
@@ -956,8 +1008,8 @@ class ManageWordListsScreen(Screen):
             for list_name in word_list_names:
                 #setup
                 row = ChildWatchingBoxLayout(size_hint_y = None, height = self.SCROLL_BUTTON_SIZES)
-                label = Label(text=list_name, size_hint_x=(1.0-3*.125), size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
+                label = Label(text=list_name, size_hint_x=(1.0-3*self.delete_view_edit_size_hint_x),
+                              size_hint_y = None, height = self.SCROLL_BUTTON_SIZES)
                 # with label.canvas.after:
                 #     color = Color()
                 #     color.rgba = [random() for x in range(3)] +[.1]
@@ -966,14 +1018,14 @@ class ManageWordListsScreen(Screen):
                 #     rec.pos = self.pos
 
                 delete_button = Button(text="delete", background_color=(1,0,0,1),
-                                       size_hint_y = None, size_hint_x = .125,
+                                       size_hint_y = None, size_hint_x = self.delete_view_edit_size_hint_x,
                                        height = self.SCROLL_BUTTON_SIZES)
                 delete_button.bind(on_release = self.delete_buton_callback)
-                view_button = Button(text="view", size_hint_x = .125, size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
+                view_button = Button(text="view", size_hint_x = self.delete_view_edit_size_hint_x,
+                                     size_hint_y = None, height = self.SCROLL_BUTTON_SIZES)
                 view_button.bind(on_release = self.view_button_callback)
-                edit_button = Button(text="edit", size_hint_x = .125, size_hint_y = None,
-                              height = self.SCROLL_BUTTON_SIZES)
+                edit_button = Button(text="edit", size_hint_x = self.delete_view_edit_size_hint_x,
+                                     size_hint_y = None, height = self.SCROLL_BUTTON_SIZES)
                 edit_button.bind(on_release = self.edit_button_callback)
 
                 #add to row
@@ -1031,6 +1083,7 @@ class WordListEditor(Screen):
         self.list_name = list_name
         self.save_name_input_text = ""
         self.popup = None
+
     def add_word(self, word):
         if not word:
             app.generic_popup("No empty words")
@@ -1105,21 +1158,30 @@ class WordListEditor(Screen):
                                       "than 1 personal list")
 
         content = BoxLayout(orientation = "vertical")
-        question_label = Label(text="Please input save name")
-        err_label = Label(text="")
+        #question_label = Label(text="Please input save name")
+        err_label = MultiLineLabel(text="", size_hint_y = .8)
         buttons = BoxLayout()
-        save_name_input = TextInput(text=self.save_name_input_text, multiline = False)
+        save_name_input = TextInput(text=self.save_name_input_text, multiline = False, size_hint_y=None,
+                                    height="32dp")
         # close_button = Button(text="cancel")
-        save_button = Button(text="save") #CHANGED TO "save 1" for debugging
+        #kv will autobind heights being changed
+        save_button = Builder.load_string("""
+Button:
+    text: 'save'
+    size_hint_y: None
+    height: app.root.height * .2
+""")
         # buttons.add_widget(close_button)
         buttons.add_widget(save_button)
-        for widget in [question_label,err_label,save_name_input,buttons]:
+        # for widget in [question_label,err_label,save_name_input,buttons]:
+        for widget in [save_name_input,err_label,buttons]:
             content.add_widget(widget)
-        popup = Popup(title="save popup", auto_dismiss = False, content=content)
+        popup = Popup(title="Please enter save name", auto_dismiss = False, content=content)
         def close_popup():
             popup.dismiss()
             self.popup = None #needs to be set back to None, so I can check if a popup is open
         # close_button.bind(on_release = popup.dismiss)
+
         save_button.bind(on_release = PopupHelper(err_label, save_name_input, popup, self.word_list, close_popup))
         popup.open()
         self.popup = popup
