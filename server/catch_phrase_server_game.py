@@ -142,7 +142,13 @@ class PlayerGuessGame:
                 next_player = self.model.players_order.get_next()
                 word = self.model.word_order.get_next()
                 new_turn_event = e.BeginTurnEvent(next_player,
-                                self.model.nicknames[next_player], time_left,word)
+                                self.model.nicknames[next_player], time_left, word)
+                self.game_stack.post(new_turn_event)
+        elif isinstance(event, e.SkipWordEvent):
+                word = self.model.word_order.get_next()
+                player = self.model.players_order.current_item
+                new_turn_event = e.BeginTurnEvent(player,
+                                self.model.nicknames[player], event.time_left, word)
                 self.game_stack.post(new_turn_event)
         elif isinstance(event, e.EndRoundEvent):
             self.game_stack.pop()

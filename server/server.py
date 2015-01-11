@@ -1,5 +1,4 @@
 from twisted.spread import pb
-from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from catch_phrase_server_game import setup_catch_phrase
 import events as e
@@ -329,6 +328,7 @@ class Lobby(pb.Root):
                                          [nickname for client_id, nickname in self.waiting]))
 
 if __name__ == "__main__":
+    from twisted.internet import reactor
     root_obj = ServerEventManager()
     factory = pb.PBServerFactory(root_obj)
     reactor.listenTCP(8800, factory)

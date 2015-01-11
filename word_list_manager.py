@@ -1,5 +1,4 @@
 from os import listdir
-from weakref import WeakValueDictionary
 import cPickle as pickle
 PATH_TO_WORDS = "./words/"
 PATH_TO_PREMIUM_WORDS = "./premium_words/"
@@ -21,6 +20,7 @@ class WordManager(dict):
             for name in self.lists_names:
                 with open(path + name, "rb") as file:
                     words_list = pickle.load(file)
+                    words_list = words_list.sort()
                     self[name] = words_list
         except:
             self["Offline"] = []
@@ -74,13 +74,21 @@ if __name__ == "__main__":
         elif not isinstance(word_list, list):
             raise TypeError("Must be a list")
         else:
-            with open(PATH_TO_WORDS + name, "w+") as file:
+            with open(PATH_TO_WORDS + name , "w+") as file:
                 pickle.dump(word_list, file, -1)
-
-    a = WordManager()
-    for name in a.lists_names:
-        add_list(name + "2", list(a[name]))
-
+    dir_with_files = "./word_lists/"
+    wordlists_files_to_add = listdir(dir_with_files)
+    wordlists_names_to_add = [word.split(".")[0] for word in wordlists_files_to_add]
+    wordlists_files_to_add = [ dir_with_files + file for file in wordlists_files_to_add]
+    for file in wordlists_files_to_add:
+        with open(file, "r") as f:
+            l = f.read().decode("utf-8-sig").encode("utf-8")
+            l = l.splitlines()
+            l = [i.strip(" ") for i in l]
+            l = filter(lambda a: a != "", l)
+        name = wordlists_names_to_add[wordlists_files_to_add.index(file)]
+        print l
+        #add_list(name, l)
 # data1 = {'a': [1, 2.0, 3, 4+6j],
 #          'b': ('string', u'Unicode string'),
 #          'c': None}

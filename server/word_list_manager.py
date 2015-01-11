@@ -1,42 +1,7 @@
 from os import listdir
-from weakref import WeakValueDictionary
 import cPickle as pickle
 PATH_TO_WORDS = "./words/"
 PATH_TO_PREMIUM_WORDS = "./premium_words/"
-# class WordManagerWeak(dict):
-#     """
-#     weakref did not work, so I'll just manually keep track of references in my code.
-#     for the small amount of code I have this will not be an issue, however this should
-#     not be extended to a larger project.
-#     """
-#     def __init__(self, *args, **kwargs):
-#         dict.__init__(self, *args, **kwargs)
-#         self.lists_names = listdir(PATH_TO_WORDS)
-#         self.references_to_list = {list_name : 0 for list_name in self.lists_names}
-#         print "choices: ", listdir(PATH_TO_WORDS)
-#
-#     def __getitem__(self, name):
-#         if name in self:
-#             value = dict.__getitem__(self, name)
-#             return value
-#         else:
-#             print "building word list"
-#             try:
-#                 with open(PATH_TO_WORDS + name, "rb") as file:
-#                     words_list = pickle.load(file)
-#                     self[name] = words_list
-#                     print "keys: ", self.keys(), "values", self.values()
-#                     return words_list
-#             except IOError, err:
-#                 if err[0]: #i.e. No such file or directory
-#                     raise KeyError(name)
-#                 else:
-#                     raise err
-#
-#     def done_with_list(self, list_name):
-#         num_ref = self[list_name]
-#         if num_ref <= 0:
-#             del self[list_name]
 
 class WordManager(dict):
     """
@@ -50,12 +15,14 @@ class WordManager(dict):
         else:
             path = word_list_location
         dict.__init__(self)
-        self.lists_names = listdir(path)
-        for name in self.lists_names:
-            with open(path + name, "rb") as file:
-                words_list = pickle.load(file)
-                self[name] = words_list
-
+        try:
+            self.lists_names = listdir(path)
+            for name in self.lists_names:
+                with open(path + name, "rb") as file:
+                    words_list = pickle.load(file)
+                    self[name] = words_list
+        except:
+            self["Offline"] = []
 # class WordManagerWeak2(WeakValueDictionary):
 #     """
 #     DOES NOT WORK. RELEASES DATA AFTER LOADING IT
@@ -106,13 +73,20 @@ if __name__ == "__main__":
         elif not isinstance(word_list, list):
             raise TypeError("Must be a list")
         else:
-            with open(PATH_TO_WORDS + name, "w+") as file:
+            with open(PATH_TO_WORDS + name , "w+") as file:
                 pickle.dump(word_list, file, -1)
-
-    a = WordManager()
-    for name in a.lists_names:
-        add_list(name + "2", list(a[name]))
-
+    dir_with_files = "./word_lists/"
+    wordlists_files_to_add = listdir(dir_with_files)
+    wordlists_names_to_add = [word.split(".")[0] for word in wordlists_files_to_add]
+    wordlists_files_to_add = [ dir_with_files + file for file in wordlists_files_to_add]
+    for file in wordlists_files_to_add:
+        with open(file, "r") as f:
+            l = f.read().decode("utf-8-sig").encode("utf-8")
+            l = l.splitlines()
+            l = [i.strip(" ") for i in l]
+            filter(lambda a: a != "", l)
+        name = wordlists_names_to_add[wordlists_files_to_add.index(file)]
+        add_list(name, l)
 # data1 = {'a': [1, 2.0, 3, 4+6j],
 #          'b': ('string', u'Unicode string'),
 #          'c': None}

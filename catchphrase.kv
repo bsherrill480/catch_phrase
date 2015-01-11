@@ -191,8 +191,8 @@
                     size_hint_y: .5
                 Label:
                     size_hint_y: None
-                    height: self.parent.height * .1 if self.parent else 100
-                    text: "number of people sharing device"
+                    height: self.parent.height * .15 if self.parent else 100
+                    text: "number of people\nsharing device"
                 Spinner:
                     id: number_sharing_device_spinner_kv
                     size_hint_y: None
@@ -641,10 +641,8 @@
     middle_space: .7
     BoxLayout:
         orientation: "vertical"
-        Label:
-            #size_hint_y: None
-            #height: "100dp"
-            text:"TITLE HERE"
+        Image:
+            source: "./Logo_no_circ.png"
         BoxLayout:
             size_hint_x: None
             width: self.parent.width * .7

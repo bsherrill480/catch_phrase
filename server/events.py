@@ -12,6 +12,19 @@ class BeginTurnEvent(CopyableEvent):
 pb.setUnjellyableForClass(BeginTurnEvent, BeginTurnEvent)
 
 
+class SkipWordEvent(CopyableEvent):
+    def __init__(self, time_left):
+        CopyableEvent.__init__(self)
+        self.name = "Skip Word Event"
+        self.time_left = time_left
+pb.setUnjellyableForClass(SkipWordEvent, SkipWordEvent)
+
+class SkipWordEventRequest(CopyableEvent):
+    def __init__(self):
+        CopyableEvent.__init__(self)
+        self.name = "Skip Word Event Request"
+pb.setUnjellyableForClass(SkipWordEventRequest, SkipWordEventRequest)
+
 class EndTurnEvent(CopyableEvent):
     def __init__(self, player, time_left):
         CopyableEvent.__init__(self)
@@ -124,3 +137,4 @@ class ScoreChangedEvent(CopyableEvent):
         self.name = "Score Changed Event"
         self.new_scores = new_scores
 pb.setUnjellyableForClass(ScoreChangedEvent, ScoreChangedEvent)
+
